@@ -1,0 +1,39 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>source/black1.jpg</file>
+        <file>source/black2.jpg</file>
+        <file>source/black3.jpg</file>
+        <file>source/black4.jpg</file>
+        <file>source/black5.jpg</file>
+        <file>source/black6.jpg</file>
+        <file>source/black7.jpg</file>
+        <file>source/options.png</file>
+        <file>source/Adjustment.png</file>
+        <file>source/Calibrate.png</file>
+        <file>source/CenSOR.png</file>
+        <file>source/Connection.png</file>
+        <file>source/Home.png</file>
+        <file>source/Information.png</file>
+        <file>source/Management.png</file>
+        <file>source/Run.png</file>
+        <file>source/Stop.png</file>
+        <file>source/account.png</file>
+        <file>source/account_active.png</file>
+        <file>source/close.png</file>
+        <file>source/close_active.png</file>
+        <file>source/maxsize.png</file>
+        <file>source/maxsize_active.png</file>
+        <file>source/minsize.png</file>
+        <file>source/minsize_active.png</file>
+        <file>source/terminal.png</file>
+        <file>source/terminal_active.png</file>
+        <file>source/save.png</file>
+        <file>source/save_active.png</file>
+        <file>source/saveas.png</file>
+        <file>source/saveas_active.png</file>
+        <file>source/downarrow.png</file>
+        <file>source/downarrow_active.png</file>
+        <file>source/uparrow.png</file>
+        <file>source/uparrow_active.png</file>
+    </qresource>
+</RCC>

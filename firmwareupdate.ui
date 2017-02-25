@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FirmwareUpdate</class>
+ <widget class="QWidget" name="FirmwareUpdate">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>200</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>30</y>
+     <width>150</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <item>
+    <property name="text">
+     <string>FIRMWARE_C6DSP</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>FIRMWARE_VPSSM3</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>FIRMWARE_VIDEOM3</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SDS_EZFTP_PATH</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SDS_SERIAL_PATH</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SDS_MCFW_PATH</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SDS_APP_SERVER</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SDS_TEST_PATH</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>70</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>update</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
