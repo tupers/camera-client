@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include "lineedit.h"
-enum VALUE_TYPE
+typedef enum
 {
     VALUE_INT=0,
     VALUE_UINT,
@@ -14,8 +14,7 @@ enum VALUE_TYPE
     VALUE_UCHAR,
     VALUE_FLOAT,
     VALUE_DOUBLE
-};
-
+}VALUE_TYPE;
 
 typedef struct
 {
@@ -34,6 +33,7 @@ typedef struct
 typedef struct
 {
     QVBoxLayout* containerLayout;
+    QWidget* containerWidget;
     QLabel* titleLabel;
     int posx;
     int posy;
@@ -55,10 +55,10 @@ typedef struct
     void* value;
     ALGResult_ui ui;
 }ALGResultStr;
-enum ALG_TYPE
+typedef enum
 {
     ALG_SDS=0,
     ALG_GVSS
-};
+}ALG_TYPE;
 
 #endif // ALGCONFIGSTR_H

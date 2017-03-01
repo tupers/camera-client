@@ -111,6 +111,8 @@ private:
     EzAlgResult algResult;
     ftpSaveInfo ftpfile;
     FirmwareUpdate* updateWidget=NULL;
+    imgDisplay* camera_videoinputwidget;
+    QImage* ftpPreView=NULL;
     void freeList();
 protected:
     void mousePressEvent(QMouseEvent *);
@@ -121,7 +123,7 @@ protected:
 private slots:
     void UpdateUserAccountList();
     void UpdateCameraList(int, QString);
-    void resetFtpList();
+    void reflashFtp();
     void UpdateFtpList(FileList*);
     void saveFtpData(QByteArray);
     void on_button_Account_clicked();
@@ -141,7 +143,6 @@ private slots:
     void UserAdd();
     void setVideoImage_Camera(QImage);
     void setVideoImage_Run(QImage);
-    void setVideoInfo(int,int,int);
     void on_camera_videocontrolButton_clicked();
     void clearVideoImage();
     void LogDebug(QString);
@@ -183,8 +184,6 @@ private slots:
 
     void on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex &index);
 
-    void on_diagnostic_logftpButton_clicked();
-
     void on_system_firmwareupdateButton_clicked();
     void on_Account_camerascanButton_clicked();
 
@@ -200,7 +199,8 @@ private slots:
 
     void on_LoginSpecifiedIPButton_clicked();
 
-    void on_run_controlButton_clicked();
+    void on_camera_2A_AEWeight_paintButton_clicked();
+    void getH3AWeight(EzCamH3AWeight);
 
 signals:
     void SubWindow_Init();

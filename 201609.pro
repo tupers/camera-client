@@ -19,7 +19,6 @@ LIBS += $$PWD/ffmpeg/lib/libavcodec.dll.a \
         $$PWD/ffmpeg/lib/libswscale.dll.a \
         $$PWD/ffmpeg/lib/libavutil.dll.a \
         D:/Qt/Tools/mingw530_32/i686-w64-mingw32/lib/libwsock32.a\
-        D:/Qt/5.7/mingw53_32/bin/Qt5Ftp.dll
 
 #LIBS += $$PWD/ffmpeg/lib/avcodec.lib\
 #        $$PWD/ffmpeg/lib/avfilter.lib\

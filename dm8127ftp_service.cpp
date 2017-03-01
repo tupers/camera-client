@@ -105,7 +105,10 @@ void DM8127Ftp_Service::loginService()
         if(!dataServer->listen(QHostAddress::Any,dataPort))
             qDebug()<<"listen failed";
         else
+        {
+            curState=true;
             list();
+        }
     }
     else
     {
@@ -351,6 +354,7 @@ void DM8127Ftp_Service::remoteDataRcv(int cmd, QByteArray rcvData)
 
 void DM8127Ftp_Service::close()
 {
+    curState=false;
     dataServer->close();
     cmdSocket->disconnectFromHost();
 }

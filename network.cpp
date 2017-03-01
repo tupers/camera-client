@@ -141,10 +141,10 @@ int NetWork::SendServerMsg(QTcpSocket *ClientSocket, NetMsg *msg, int len, NetMs
         {
             while(ClientSocket->bytesAvailable())
                 ackData = ClientSocket->readAll();
-            if(ackData.length()>*acklen)
+            if(ackData.length()!=*acklen)
             {
 
-                ret = MSG_BUFOVERFLOW;
+                ret = MSG_SFAIL;
 
                 return ret;
             }

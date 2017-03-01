@@ -57,3 +57,9 @@ void imgDisplay::paintEvent(QPaintEvent *event)
         painter.drawRect(rect_R);
     }
 }
+
+//void imgDisplay::resizeEvent(QResizeEvent *event)
+//{
+
+//   // resize(event->size());
+//}

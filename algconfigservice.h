@@ -27,7 +27,8 @@ public:
     int getResultSize(){return resultSize;}
     ALGConfig_ui createConfigTag(QString);
     ALGResult_ui createResultTag(QString);
-    ALGParamContainer createParamContainer(int,int);
+    ALGParamContainer createConfigContainer(int,int);
+    ALGParamContainer createResultContainer(int,int);
     void deleteTag(ALGConfig_ui tag);
     void deleteTag(ALGResult_ui tag);
     void deleteTag(ALGParamContainer tag);

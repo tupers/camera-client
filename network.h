@@ -39,6 +39,7 @@ public:
     QString getLogUserName(){return LogUserName;}
     int getLogAuthority(){return LogAuthority;}
     QString getLocalIP(QString);
+    bool isFtpLogin(){return ftp->isLogin();}
 //    bool GetCpuload();
 signals:
     void sendToLog(QString);

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPainter>
+#include <QResizeEvent>
 
 class imgDisplay : public QWidget
 {
@@ -19,6 +20,7 @@ private:
     QLine leftLine;
     QLine rightLine;
     bool isSearchRect=false;
+
 signals:
 
 public slots:
@@ -26,8 +28,11 @@ public slots:
     void clearImage();
     void setSearchRect(QRect a,QRect b,QRect c);
     void setDefaultSearchArea(int top,int bottom,int left,int right);
+    qreal ratio(){return (qreal)width()/(qreal)height();}
 protected:
     void paintEvent(QPaintEvent * event);
+private:
+//    virtual void resizeEvent(QResizeEvent *event);
 };
 
 #endif // IMGDISPLAY_H

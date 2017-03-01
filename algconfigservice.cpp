@@ -135,8 +135,11 @@ ALGConfig_ui ALGConfigService::createConfigTag(QString name)
     temp.valueLayout = new QHBoxLayout;
     temp.valueLabel = new QLabel(name);
     temp.valuelineEdit = new LineEdit;
-    temp.valueLayout->addWidget(temp.valueLabel);
-    temp.valueLayout->addWidget(temp.valuelineEdit);
+    temp.valueLabel->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+    temp.valueLayout->addWidget(temp.valueLabel,1);
+    temp.valueLayout->addWidget(temp.valuelineEdit,2);
+    temp.valueLayout->setAlignment(temp.valuelineEdit,Qt::AlignRight|Qt::AlignVCenter);
+    temp.valueLayout->setContentsMargins(10,0,10,0);
 
     return temp;
 }
@@ -146,21 +149,76 @@ ALGResult_ui ALGConfigService::createResultTag(QString name)
     ALGResult_ui temp;
     temp.valueLayout = new QHBoxLayout;
     temp.nameLabel = new QLabel(name);
+    temp.nameLabel->setStyleSheet("border-style:outset;"
+                                  "border-top-width:1px;"
+                                  "border-right-width:1px;"
+                                  "border-color:rgba(50,50,50,255);"
+                                  "padding-left:15px;");
     temp.valueLabel = new QLabel;
+    temp.valueLabel->setStyleSheet("border-style:outset;"
+                                   "border-top-width:1px;"
+                                   "border-color:rgba(50,50,50,255);"
+                                   "padding-left:15px;");
     temp.valueLayout->addWidget(temp.nameLabel);
     temp.valueLayout->addWidget(temp.valueLabel);
 
     return temp;
 }
 
-ALGParamContainer ALGConfigService::createParamContainer(int posx, int posy)
+ALGParamContainer ALGConfigService::createResultContainer(int posx, int posy)
 {
     ALGParamContainer temp;
+    temp.containerWidget = new QWidget;
     temp.containerLayout=new QVBoxLayout;
+    temp.containerLayout->setSpacing(0);
     temp.titleLabel=new QLabel;
+    temp.titleLabel->setStyleSheet("QLabel"
+    "{color:white;"
+    "min-width:0px;"
+    "max-width:1000px;"
+    "font:bold 15pt Arial;"
+    "margin-top:10px;"
+    "}");
+//    temp.containerLayout->setMargin(20);
+//    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     temp.posx=posx;
     temp.posy=posy;
     temp.containerLayout->addWidget(temp.titleLabel);
+    temp.containerWidget->setLayout(temp.containerLayout);
+    return temp;
+}
+
+ALGParamContainer ALGConfigService::createConfigContainer(int posx, int posy)
+{
+    ALGParamContainer temp;
+    temp.containerWidget = new QWidget;
+    temp.containerWidget->setObjectName("containnerWidget");
+
+    temp.containerWidget->setStyleSheet("QWidget#"+temp.containerWidget->objectName()+
+                                        "{background-color: rgba(50, 50, 50, 120);"
+                                        "margin:20px;}"
+                                        "QLabel{color:white;"
+                                        "font:bold 13pt Arial;"
+                                        "}");
+    temp.containerLayout=new QVBoxLayout;
+    temp.titleLabel=new QLabel;
+    temp.titleLabel->setStyleSheet("QLabel"
+    "{color:white;"
+    "min-width:0px;"
+    "max-width:1000px;"
+    "border-style:outset;"
+    "border-bottom-width:1px;"
+    "border-color:rgba(50,50,50,255);"
+    "font:bold 15pt Arial;"
+    "padding-left:15px;"
+    "margin-top:10px;"
+    "}");
+    temp.containerLayout->setMargin(20);
+//    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+    temp.posx=posx;
+    temp.posy=posy;
+    temp.containerLayout->addWidget(temp.titleLabel);
+    temp.containerWidget->setLayout(temp.containerLayout);
     return temp;
 }
 
@@ -182,6 +240,7 @@ void ALGConfigService::deleteTag(ALGParamContainer tag)
 {
     delete tag.titleLabel;
     delete tag.containerLayout;
+    delete tag.containerWidget;
 }
 
 void ALGConfigService::generateConfig(ALG_TYPE algtype)
@@ -207,7 +266,7 @@ void ALGConfigService::generateConfig(ALG_TYPE algtype)
                         if(reader.name()=="Tag")
                         {
                             QXmlStreamAttributes att = reader.attributes();
-                            configContainerList.append(createParamContainer(att.value("posx").toInt(),att.value("posy").toInt()));
+                            configContainerList.append(createConfigContainer(att.value("posx").toInt(),att.value("posy").toInt()));
                         }
                         else if(reader.name()=="Title")
                             configContainerList.last().titleLabel->setText(reader.readElementText());
@@ -268,7 +327,7 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                         if(reader.name()=="Tag")
                         {
                             QXmlStreamAttributes att = reader.attributes();
-                            resultContainerList.append(createParamContainer(att.value("posx").toInt(),att.value("posy").toInt()));
+                            resultContainerList.append(createResultContainer(att.value("posx").toInt(),att.value("posy").toInt()));
                         }
                         else if(reader.name()=="Title")
                             resultContainerList.last().titleLabel->setText(reader.readElementText());
@@ -281,7 +340,6 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                             void* pdata = malloc(valueSize(type));
                             resultList.append({labelName,type,pdata,createResultTag(labelName)});
                             resultContainerList.last().containerLayout->addLayout(resultList.last().ui.valueLayout);
-
                         }
                     }
                     reader.readNext();
@@ -363,7 +421,7 @@ QString ALGConfigService::value2Text(void *pdata, VALUE_TYPE type)
     case VALUE_UCHAR:
         return QString::number(*(unsigned int*)pdata,10);
     case VALUE_FLOAT:
-        return QString::number(*(double*)pdata,'g',6);
+        return QString::number((double)*(float*)pdata,'g',6);
     case VALUE_DOUBLE:
         return QString::number(*(double*)pdata,'g',16);
     }

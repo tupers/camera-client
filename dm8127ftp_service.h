@@ -24,6 +24,7 @@ public:
     int SendServerMsg(QTcpSocket *ClientSocket, EzFtp_NetMsg *msg, int len, EzFtp_NetMsg *ackMsg, int32_t *acklen);
     Server_STATE getState(){return serverState;}
     QString getLocalIP(QString);
+    bool isLogin(){return curState;}
 signals:
     void sendToLog(QString);
     void listInfo(FileList*);
@@ -52,6 +53,7 @@ private:
     unsigned short dataPort=0;
     QByteArray* sendData;
     int putFtpFlag=0;
+    bool curState = false;
 };
 
 #endif // DM8127FTP_SERVICE_H

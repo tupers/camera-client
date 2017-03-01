@@ -12,6 +12,11 @@ Widget::Widget(QWidget *parent) :
 Widget::~Widget()
 {
     freeList();
+    if(ftpPreView!=NULL)
+    {
+        delete ftpPreView;
+        ftpPreView=NULL;
+    }
     delete ui;
 }
 void Widget::InitGUI()
@@ -155,8 +160,8 @@ void Widget::SetupOptions()
     //    ftpthread =new QThread;
     //    ftpmanager = new Ftp_Manager;
     //    ftpmanager->moveToThread(ftpthread);
-    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),this,SLOT(resetFtpList()));
-    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),network,SIGNAL(listFtp()));
+    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),this,SLOT(reflashFtp()));
+    //    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),network,SIGNAL(listFtp()));
     //    connect(ftpmanager,SIGNAL(sendToLog(QString)),this,SLOT(LogDebug(QString)));
     connect(network,SIGNAL(listInfoFtp(FileList*)),this,SLOT(UpdateFtpList(FileList*)));
     connect(network,SIGNAL(getDataFtp(QByteArray)),this,SLOT(saveFtpData(QByteArray)));
@@ -250,6 +255,15 @@ void Widget::SetupCalibrate()
     connect(ui->camera_vnfmodecomboBox,SIGNAL(activated(int)),config,SLOT(setVnfMode(int)));
 
     //Video immediate updating
+    QStackedLayout* videoLayout = new QStackedLayout;
+    camera_videoinputwidget = new imgDisplay;
+    ui->camera_videoWidget->setLayout(videoLayout);
+
+    videoLayout->addWidget(ui->camera_2A_AEWeight_preWidget);
+    videoLayout->addWidget(camera_videoinputwidget);
+    videoLayout->setStackingMode(QStackedLayout::StackAll);
+
+    //videoLayout->addWidget()
     connect(ui->video_streamtypecomboBox,SIGNAL(activated(int)),config,SLOT(setStreamType(int)));
     connect(ui->video_videocodecmodecomboBox,SIGNAL(activated(int)),config,SLOT(setVideoCodecMode(int)));
     connect(ui->video_JPEGqualitySlider,SIGNAL(sliderMoved(int)),ui->video_JPEGqualitylineEdit,SLOT(setValue(int)));
@@ -261,7 +275,7 @@ void Widget::SetupCalibrate()
     //    connect(this,SIGNAL(setALGParams()),config,SLOT(setAlgParams()));
     connect(config,SIGNAL(algConfigTag(QVBoxLayout*,QPoint)),this,SLOT(loadALGConfigUi(QVBoxLayout*,QPoint)));
     connect(config,SIGNAL(algResultTag(QVBoxLayout*,QPoint)),this,SLOT(loadALGResultUi(QVBoxLayout*,QPoint)));
-
+    connect(ui->camera_2A_AEWeight_preWidget,SIGNAL(sendWeightInfo(EzCamH3AWeight)),this,SLOT(getH3AWeight(EzCamH3AWeight)));
 }
 
 void Widget::UpdateConfigFile()
@@ -365,10 +379,20 @@ void Widget::UpdateCameraList(int id, QString IP)
     //    camerainfolayout->addWidget(id);
 }
 
-void Widget::resetFtpList()
+void Widget::reflashFtp()
 {
-    ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
-    ui->diagnostic_ftpbrowsertablewidget->clearContents();
+    if(!network->isFtpLogin())
+    {
+        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
+        ui->diagnostic_ftpbrowsertablewidget->clearContents();
+        NetworkStr networkconfigFromServer = network->getNetworkConfig();
+        networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
+        networkconfigFromServer.value.ports_ftpusername="root";
+        networkconfigFromServer.value.ports_ftppassword="ftpcam";
+        networkconfigFromServer.value.ports_ftpserverport="8010";
+        emit network->connectFtp(networkconfigFromServer.value.ports_ftpserverip,networkconfigFromServer.value.ports_ftpserverport.toInt(),
+                                 networkconfigFromServer.value.ports_ftpusername,networkconfigFromServer.value.ports_ftppassword);
+    }
 }
 
 void Widget::UpdateFtpList(FileList* list)
@@ -390,33 +414,54 @@ void Widget::UpdateFtpList(FileList* list)
 
 void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
 {
-    if(ftpfile.FilePath==""||ftpfile.ftpFileName==""||ftpfile.ftpFileSize==0||ftpfile.ftpFileValid==0)
-    {
-        qDebug()<<"ftp str error";
-        return;
-    }
-    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".yuv";
-    QString dir0 = ftpfile.FilePath+"/"+ftpfile.ftpFileName;
-    ftpfile.ftpFile = fopen(dir.toLatin1().data(),"wb");
+    //    FILE* fp;
+    //    fp = fopen("D:/DM8127/data.dat","wb");
+    //    fwrite(data.data(),1,data.count(),fp);
+    //    fclose(fp);
     //get img info (result size)
-    int resultsize;
-    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
-    int headsize = sizeof(EzImgFileHeader)+resultsize;
+    EzImgFileHeader header;
+    memcpy(&header,data.data(),sizeof(EzImgFileHeader));
+    //    int resultsize;
+    //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
+
+    int headsize = sizeof(EzImgFileHeader)+header.imgInfoSize;
+    char* pdata = data.data();
+    if(ftpPreView!=NULL)
+    {
+        delete ftpPreView;
+        ftpPreView=NULL;
+    }
+    ftpPreView = new QImage((unsigned char*)data.data()+headsize,1280,720,header.pitch,QImage::Format_Grayscale8);
+    *ftpPreView=ftpPreView->copy();
+    ui->diagnostic_previewWidget->setImage(ftpPreView->scaledToWidth(ui->diagnostic_previewWidget->width()));
     //
-    fwrite(data.data()+headsize,1,ftpfile.ftpFileSize-headsize,ftpfile.ftpFile);
-    unsigned char* uv=new unsigned char[(ftpfile.ftpFileSize-headsize)/2];
+    //    if(ftpfile.FilePath==""||ftpfile.ftpFileName==""||ftpfile.ftpFileSize==0||ftpfile.ftpFileValid==0)
+    //    {
+    //        qDebug()<<"ftp str error";
+    //        return;
+    //    }
+    //    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".yuv";
+    //    QString dir0 = ftpfile.FilePath+"/"+ftpfile.ftpFileName;
+    //    ftpfile.ftpFile = fopen(dir.toLatin1().data(),"wb");
+    //    //get img info (result size)
+    //    int resultsize;
+    //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
+    //    int headsize = sizeof(EzImgFileHeader)+resultsize;
+    //    //
+    //    fwrite(data.data()+headsize,1,ftpfile.ftpFileSize-headsize,ftpfile.ftpFile);
+    //    unsigned char* uv=new unsigned char[(ftpfile.ftpFileSize-headsize)/2];
 
-    memset(uv,128,(ftpfile.ftpFileSize-headsize)/2);
-    fwrite(uv,1,(ftpfile.ftpFileSize-headsize)/2,ftpfile.ftpFile);
-    fclose(ftpfile.ftpFile);
-    qDebug()<<"save ftp file finished";
-    delete(uv);
+    //    memset(uv,128,(ftpfile.ftpFileSize-headsize)/2);
+    //    fwrite(uv,1,(ftpfile.ftpFileSize-headsize)/2,ftpfile.ftpFile);
+    //    fclose(ftpfile.ftpFile);
+    //    qDebug()<<"save ftp file finished";
+    //    delete(uv);
 
-    ftpfile.ftpFile = fopen(dir0.toLatin1().data(),"wb");
-    fwrite(data.data(),1,ftpfile.ftpFileSize,ftpfile.ftpFile);
-    fclose(ftpfile.ftpFile);
+    //    ftpfile.ftpFile = fopen(dir0.toLatin1().data(),"wb");
+    //    fwrite(data.data(),1,ftpfile.ftpFileSize,ftpfile.ftpFile);
+    //    fclose(ftpfile.ftpFile);
 
-    ftpfile.ftpFile=NULL;
+    //    ftpfile.ftpFile=NULL;
 }
 
 void Widget::LoadFullConfig()
@@ -566,6 +611,7 @@ void Widget::LoadInfomationConfig()
     ui->resource_usedstoragevalueLabel->setText(QString::number(tempconfig.value.resource_storagemem-tempconfig.value.resource_storagefreemem)+"\tMB");
 
     ui->device_versionvalueLabel->setText(QString::number(tempconfig.value.device_version));
+    ui->device_algvalueLabel->setText(QString::number(config->getState().algType,10));
     ui->device_macvalueLabel->setText(tempnetwork.value.ports_mac);
     ui->device_ipvalueLabel->setText(tempnetwork.value.ports_ipaddress);
     ui->device_armfrqvalueLabel->setText(QString::number(tempconfig.value.resource_corearmfreq)+"\tMhz");
@@ -643,8 +689,6 @@ void Widget::SetupRun()
         LogDebug("find save dir.");
         qDebug()<<"find save dir.";
     }
-
-    ui->run_controlwidget->setVisible(false);
 }
 
 void Widget::SetupLog()
@@ -1165,13 +1209,6 @@ void Widget::setVideoImage_Run(QImage image)
     }
 }
 
-void Widget::setVideoInfo(int count ,int totaltime ,int oncetime)
-{
-    //    ui->run_fpsLabel->setText("Fps:\t\t"+QString::number(fps,10));
-    //    ui->run_imgcountLabel->setText("Image Count:\t\t"+QString::number(count,10));
-    //    ui->run_runtimeLabel->setText("Runtime(s):\t\t"+QString::number(totaltime,10));
-}
-
 void Widget::logtimeout(QString msg)
 {
     if(msg=="")
@@ -1208,8 +1245,8 @@ void Widget::LoginSuccess(uint8_t authority)
     if(config->getAlgConfigSize()!=0)
     {
         void* algparam = (void*)malloc(config->getAlgConfigSize());
-        network->GetParams(NET_MSG_IMGALG_GET_PARAM,algparam,config->getAlgConfigSize());
-        config->setAlgConfig(algparam);
+        if(network->GetParams(NET_MSG_IMGALG_GET_PARAM,algparam,config->getAlgConfigSize()))
+            config->setAlgConfig(algparam);
         free(algparam);
     }
     else
@@ -1307,7 +1344,15 @@ void Widget::setVideoImage_Camera(QImage image)
     {
         //        QPixmap pix = QPixmap::fromImage(image.scaledToHeight(ui->camera_videoinputlabel->height()));
         //        ui->camera_videoinputlabel->setPixmap(pix);
-        ui->camera_videoinputwidget->setImage(image.scaledToHeight(ui->camera_videoinputwidget->height()));
+        //ui->camera_videoinputwidget->setImage(image.scaledToHeight(ui->camera_videoinputwidget->height()));
+        QImage temp;
+        if(camera_videoinputwidget->ratio()>=1.778)
+            temp = image.scaledToHeight(camera_videoinputwidget->height());
+        else
+            temp =  image.scaledToWidth(camera_videoinputwidget->width());
+        camera_videoinputwidget->setImage(temp);
+        ui->camera_2A_AEWeight_preWidget->setActiveRegion(temp.size());
+
     }
 }
 
@@ -1323,7 +1368,8 @@ void Widget::clearVideoImage()
     //    ui->camera_videoinputlabel->clear();
     //    ui->run_videoinputlabel->clear();
     ui->run_videoinputwidget->clearImage();
-    ui->camera_videoinputwidget->clearImage();
+    //ui->camera_videoinputwidget->clearImage();
+    camera_videoinputwidget->clearImage();
     //    ui->summary_statecodelabel->setText("State Code: ");
     //    ui->summary_warningcodelabel->setText("Warning Code: ");
 }
@@ -1443,7 +1489,7 @@ void Widget::algresultUpdate()
     {
         void* tempresult = (void*)malloc(config->getAlgResultSize());
 
-        if(network->GetParams(NET_MSG_GET_ALG_RESULT,&tempresult,config->getAlgResultSize()))
+        if(network->GetParams(NET_MSG_GET_ALG_RESULT,tempresult,config->getAlgResultSize()))
         {
             config->reflashAlgResult(tempresult);
         }
@@ -1663,13 +1709,14 @@ void Widget::firmwareUpdateService(int cmd)
 
 void Widget::loadALGConfigUi(QVBoxLayout *layout, QPoint pos)
 {
-    ui->algorithm_settinglayout->addLayout(layout,pos.x(),pos.y());
+
+    ui->algorithm_settinglayout->addWidget(layout->parentWidget(),pos.x(),pos.y());
 }
 
 void Widget::loadALGResultUi(QVBoxLayout *layout, QPoint pos)
 {
     QVBoxLayout* temp = (QVBoxLayout*)ui->run_resulttabWidget->widget(pos.x())->layout();
-    temp->insertLayout(pos.y(),layout);
+    temp->insertWidget(pos.y(),layout->parentWidget());
 }
 
 void Widget::on_algorithm_uploadButton_clicked()
@@ -1713,7 +1760,10 @@ void Widget::on_diagnostic_downloadButton_clicked()
         qDebug()<<"invalid file path";
         return;
     }
-    emit network->getFtp(ftpfile.ftpFileName);
+    //   emit network->getFtp(ftpfile.ftpFileName);
+    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".jpg";
+    //    qDebug()<<dir<<ftpPreView->byteCount();
+    ftpPreView->save(dir);
 
 }
 
@@ -1721,10 +1771,13 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &inde
 {
     if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
     {
-        ui->diagnostic_itemnamecurrentLabel->setText(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text());
+        QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+        ui->diagnostic_itemnamecurrentLabel->setText(name);
         ftpfile.ftpFileSize=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),1)->text().toInt();
         ftpfile.ftpFileValid=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt();
         ftpfile.ftpFileName=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
+            emit network->getFtp(name);
     }
 }
 
@@ -1754,7 +1807,8 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
                 dir.chop(1);
             }
             dir.chop(1);
-            resetFtpList();
+            ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
+            ui->diagnostic_ftpbrowsertablewidget->clearContents();
             emit network->listFtp(dir);
         }
     }
@@ -1762,21 +1816,10 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
     {
         dir.append("/");
         dir.append(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text());
-        resetFtpList();
+        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
+        ui->diagnostic_ftpbrowsertablewidget->clearContents();
         emit network->listFtp(dir);
     }
-}
-
-void Widget::on_diagnostic_logftpButton_clicked()
-{
-    NetworkStr networkconfigFromServer = network->getNetworkConfig();
-    networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
-    networkconfigFromServer.value.ports_ftpusername="root";
-    networkconfigFromServer.value.ports_ftppassword="ftpcam";
-    networkconfigFromServer.value.ports_ftpserverport="8010";
-    resetFtpList();
-    emit network->connectFtp(networkconfigFromServer.value.ports_ftpserverip,networkconfigFromServer.value.ports_ftpserverport.toInt(),
-                             networkconfigFromServer.value.ports_ftpusername,networkconfigFromServer.value.ports_ftppassword);
 }
 
 void Widget::on_system_firmwareupdateButton_clicked()
@@ -1881,20 +1924,24 @@ void Widget::on_LoginSpecifiedIPButton_clicked()
     }
 }
 
-void Widget::on_run_controlButton_clicked()
+void Widget::on_camera_2A_AEWeight_paintButton_clicked()
 {
-    if(ui->run_controlwidget->isHidden())
+    if(ui->camera_2A_AEWeight_preWidget->currentMode()==MODE_CUSTOM)
     {
-        ui->run_controlwidget->setVisible(true);
-        ui->run_controlButton->setStyleSheet("QPushButton#run_controlButton{border-image: url(:/image/source/downarrow.png);}"
-                                             "QPushButton#run_controlButton:hover{border-image: url(:/image/source/downarrow_active.png);}"
-                                             "QPushButton#run_controlButton:pressed{border-image: url(:/image/source/downarrow_active.png);}");
+        ui->camera_2A_AEWeight_preWidget->editRecover();
+        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_DEFAULT);
     }
     else
-    {
-        ui->run_controlwidget->setVisible(false);
-        ui->run_controlButton->setStyleSheet("QPushButton#run_controlButton{border-image: url(:/image/source/uparrow.png);}"
-                                             "QPushButton#run_controlButton:hover{border-image: url(:/image/source/uparrow_active.png);}"
-                                             "QPushButton#run_controlButton:pressed{border-image: url(:/image/source/uparrow_active.png);}");
-    }
+        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_CUSTOM);
+}
+
+void Widget::getH3AWeight(EzCamH3AWeight cfg)
+{
+    ui->camera_2A_AEWeight_width1lineEdit->editValue(cfg.width1);
+    ui->camera_2A_AEWeight_height1lineEdit->editValue(cfg.height1);
+    ui->camera_2A_AEWeight_h_start2lineEdit->editValue(cfg.h_start2);
+    ui->camera_2A_AEWeight_v_start2lineEdit->editValue(cfg.v_start2);
+    ui->camera_2A_AEWeight_width2lineEdit->editValue(cfg.width2);
+    ui->camera_2A_AEWeight_height2lineEdit->editValue(cfg.height2);
+    ui->camera_2A_AEWeight_weightlineEdit->editValue(cfg.weight);
 }
