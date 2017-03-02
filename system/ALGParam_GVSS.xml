@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<Context>  
+	<Config>
+		<Tag posx="0" posy="0">
+			<Title>Normal</Title>
+			<Label type="0">MaxArraySize</Label>
+			<Label type="0">MinHBlockRatio</Label>
+			<Label type="0">MaxHBlockRatio</Label>
+			<Label type="6">HBlockVarianceThreshold</Label>
+			<Label type="6">MinCodeUnitRatio</Label>
+			<Label type="6">MaxCodeUnitRatio</Label>
+			<Label type="6">MinCodeFlagRatio</Label>
+			<Label type="6">MaxCodeFlagRatio</Label>
+		</Tag>
+  	</Config>
+  <Result>
+  	<Tag posx="1" posy="0">
+  		<Title>Result</Title>
+  		<Label type="0">center_x</Label>
+  		<Label type="0">center_y</Label>
+  		<Label type="0">index</Label>
+  		<Label type="0">test1</Label>
+  		<Label type="0">test2</Label>
+  	</Tag>
+  </Result>
+</Context> 

@@ -54,6 +54,10 @@ void Widget::InitGUI()
     ui->button_Save->setEnabled(false);
     ui->button_SaveAs->setEnabled(false);
 
+#ifdef OFFLINE_DEBUG
+    ui->sublist->setCurrentIndex(4);
+#endif
+
 }
 
 void Widget::SetupAttachedWindow()
@@ -425,7 +429,6 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
 
     int headsize = sizeof(EzImgFileHeader)+header.imgInfoSize;
-    char* pdata = data.data();
     if(ftpPreView!=NULL)
     {
         delete ftpPreView;
@@ -797,6 +800,7 @@ void Widget::SetupAccount()
     ui->LoginSpecifiedIPlineEdit->setVisible(false);
     ui->LoginSpecifiedIPLabel->setVisible(false);
     emit network->cameraScan();
+    ui->Accountlist->setCurrentIndex(0);
 }
 
 void Widget::VideoCMD(H264Video* video,int cmd)
@@ -993,7 +997,6 @@ void Widget::on_LoginButton_clicked()
     //
     //连接账户服务器
     //
-#ifndef OFFLINE_DEBUG
     if(ui->LoginSpecifiedIPlineEdit->text()!="")
     {
         NetworkStr config = network->getNetworkConfig();
@@ -1004,60 +1007,7 @@ void Widget::on_LoginButton_clicked()
     }
     network->Login(ui->usernameLineEdit->text(),ui->passwordLineEdit->text());
     ui->LoginButton->setEnabled(false);
-#else
-    config->OpenConfig(QString("default"));
-    h264video->setH264VideoUrl("rtsp://192.168.1.224:8555/PSIA/Streaming/channels/0?videoCodecType=MJPEG");
-    LogDebug("get rtsp url.");
-    qDebug()<<"get rtsp url.";
-    config->SetConfig();
-    LoadFullConfig();
-    if(true)
-    {
-        ui->mainlist->item(0)->setHidden(false);
-        ui->mainlist->item(1)->setHidden(false);
-        ui->mainlist->item(2)->setHidden(false);
-        ui->mainlist->item(3)->setHidden(false);
-        ui->mainlist->item(4)->setHidden(false);
-    }
-    else
-    {
-        ui->mainlist->item(0)->setHidden(false);
-        ui->mainlist->item(1)->setHidden(true);
-        ui->mainlist->item(2)->setHidden(true);
-        ui->mainlist->item(3)->setHidden(true);
-        ui->mainlist->item(4)->setHidden(false);
-    }
-    ui->mainlist->setVisible(true);
-    ui->Accountlist->setCurrentIndex(1);
-    ui->button_Save->setEnabled(true);
-    ui->button_SaveAs->setEnabled(true);
-    ui->LoginButton->setEnabled(true);
-    UpdateConfigFile();
-#endif
 }
-#ifdef OFFLINE_DEBUG
-void Widget::on_LogoutButton_clicked()
-{
-    //
-    //登出处理内容:关闭视频流
-    //
-    VideoCMD(h264video,VIDEO_TERMINATE);
-    ui->mainlist->setVisible(false);
-    ui->Accountlist->setCurrentIndex(0);
-    ui->button_Save->setEnabled(false);
-    ui->button_SaveAs->setEnabled(false);
-    ui->security_tablewidget->setColumnCount(0);
-    ui->security_tablewidget->clearContents();
-    if(ui->mainlist->currentRow()!=-1)
-    {
-        ui->mainlist->selectedItems()[0]->setSelected(false);
-        ui->mainlist->setCurrentRow(-1);
-    }
-    cpuloadTimer->stop();
-    cpuloadSeries->clear();
-    cpuloadSeries2->clear();
-}
-#endif
 
 void Widget::on_button_Save_clicked()
 {

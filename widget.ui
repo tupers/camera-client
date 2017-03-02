@@ -4823,7 +4823,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="subtab_Resource">
                    <property name="styleSheet">
@@ -5190,6 +5190,10 @@ border-color:rgba(50,50,50,255);
 }
 QLabel{color:white;
 font:bold 10pt Arial;
+}
+#device_paddingLabel1{
+border-image:url(:/image/source/camera.png);
+margin:50px;
 }
 </string>
                    </property>
@@ -5816,7 +5820,8 @@ border-style:outset;
 border-bottom-width:1px;
 border-color:rgba(50,50,50,255);
 font:bold 25pt Arial;
-padding-left:25px;}</string>
+padding-left:25px;}
+</string>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_3">
                     <property name="spacing">
@@ -5916,7 +5921,7 @@ padding-left:25px;}</string>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QWidget" name="infotext2" native="true"/>
+                       <widget class="QFrame" name="infotext2"/>
                       </item>
                      </layout>
                     </item>

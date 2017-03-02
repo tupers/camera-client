@@ -130,9 +130,6 @@ private slots:
     void on_button_maxsize_clicked();
     void on_button_minsize_clicked();
     void on_LoginButton_clicked();
-#ifdef OFFLINE_DEBUG
-    void on_LogoutButton_clicked();
-#endif
     void OpenSubWindow_SerialPort();
     void on_button_Save_clicked();
     void on_button_SaveAs_clicked();
