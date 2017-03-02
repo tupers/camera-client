@@ -33,7 +33,7 @@ void Widget::InitGUI()
     config = new ConfigFile;
 
     connect(config,SIGNAL(sendToLog(QString)),this,SLOT(LogDebug(QString)));
-    connect(ui->button_close,SIGNAL(clicked()),SerialPortWidget,SLOT(close()));
+//    connect(ui->button_close,SIGNAL(clicked()),SerialPortWidget,SLOT(close()));
     connect(ui->button_close,SIGNAL(clicked()),this,SLOT(close()));
     connect(ui->button_SerialPort,SIGNAL(clicked()),this,SLOT(OpenSubWindow_SerialPort()));
     connect(this,SIGNAL(SubWindow_Init()),SerialPortWidget,SLOT(SerialPort_Init()));
@@ -56,6 +56,7 @@ void Widget::InitGUI()
 
 #ifdef OFFLINE_DEBUG
     ui->sublist->setCurrentIndex(4);
+    ui->mainlist->setVisible(true);
 #endif
 
 }
@@ -833,6 +834,13 @@ void Widget::paintEvent(QPaintEvent *event)
         painter.setPen(color);
         painter.drawPath(path);
     }
+}
+
+void Widget::closeEvent(QCloseEvent *event)
+{
+    SerialPortWidget->close();
+    SourceVideoWidget->close();
+
 }
 
 int Widget::countFlag(QPoint p,int row)

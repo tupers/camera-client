@@ -36,5 +36,9 @@
         <file>source/uparrow.png</file>
         <file>source/uparrow_active.png</file>
         <file>source/camera.png</file>
+        <file>source/sync.png</file>
+        <file>source/sync_active.png</file>
+        <file>source/refresh.png</file>
+        <file>source/refresh_active.png</file>
     </qresource>
 </RCC>

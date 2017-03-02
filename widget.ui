@@ -554,7 +554,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -4100,7 +4100,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -4699,8 +4699,28 @@ font:bold 10pt Arial;
                           <layout class="QHBoxLayout" name="diagnostic_ftpctrllayout">
                            <item>
                             <widget class="QPushButton" name="diagnostic_refreshButton">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>40</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QPushButton#diagnostic_refreshButton{
+	border-image: url(:/image/source/refresh.png);}
+QPushButton#diagnostic_refreshButton:hover{
+border-image: url(:/image/source/refresh_active.png);}
+QPushButton#diagnostic_refreshButton:pressed{
+border-image: url(:/image/source/refresh_active.png);}</string>
+                             </property>
                              <property name="text">
-                              <string>refresh</string>
+                              <string/>
                              </property>
                             </widget>
                            </item>
@@ -4823,7 +4843,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="subtab_Resource">
                    <property name="styleSheet">
@@ -5576,8 +5596,28 @@ padding-left:25px;</string>
                          </property>
                          <item alignment="Qt::AlignRight">
                           <widget class="QPushButton" name="Account_camerascanButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>40</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton#Account_camerascanButton{
+	border-image: url(:/image/source/sync.png);}
+QPushButton#Account_camerascanButton:hover{
+border-image: url(:/image/source/sync_active.png);}
+QPushButton#Account_camerascanButton:pressed{
+border-image: url(:/image/source/sync_active.png);}</string>
+                           </property>
                            <property name="text">
-                            <string>SCAN</string>
+                            <string/>
                            </property>
                           </widget>
                          </item>
