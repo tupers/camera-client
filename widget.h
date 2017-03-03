@@ -38,7 +38,7 @@
 
 #define MARGIN_L 50
 #define MARGIN_S 5
-#define OFFLINE_DEBUG
+//#define OFFLINE_DEBUG
 QT_CHARTS_USE_NAMESPACE
 namespace Ui {
 class Widget;

@@ -11,7 +11,8 @@ QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = 201609
+TARGET = DM8127Client
+RC_ICONS = myappico.ico
 TEMPLATE = app
 LIBS += $$PWD/ffmpeg/lib/libavcodec.dll.a \
         $$PWD/ffmpeg/lib/libavfilter.dll.a \
@@ -77,4 +78,5 @@ RESOURCES += \
     source.qrc
 
 INCLUDEPATH += $$PWD/ffmpeg/include
+
 

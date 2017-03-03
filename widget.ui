@@ -61,7 +61,43 @@ QPushButton#button_Account{
 QPushButton#button_Account:hover{
 border-image: url(:/image/source/account_active.png);}
 QPushButton#button_Account:pressed{
-border-image: url(:/image/source/account_active.png);}</string>
+border-image: url(:/image/source/account_active.png);}
+QPushButton#button_maxsize{
+	border-image: url(:/image/source/maxsize_active.png);}
+QPushButton#button_maxsize:hover{
+border-image: url(:/image/source/maxsize.png);}
+QPushButton#button_maxsize:pressed{
+border-image: url(:/image/source/maxsize.png);}
+QPushButton#button_close{
+	border-image: url(:/image/source/close_active.png);}
+QPushButton#button_close:hover{
+border-image: url(:/image/source/close.png);}
+QPushButton#button_close:pressed{
+border-image: url(:/image/source/close.png);}
+QPushButton#button_minsize{
+	border-image: url(:/image/source/minsize_active.png);}
+QPushButton#button_minsize:hover{
+border-image: url(:/image/source/minsize.png);}
+QPushButton#button_minsize:pressed{
+border-image: url(:/image/source/minsize.png);}
+QPushButton#button_Reboot{
+	border-image: url(:/image/source/reboot.png);}
+QPushButton#button_Reboot:hover{
+border-image: url(:/image/source/reboot_active.png);}
+QPushButton#button_Reboot:pressed{
+border-image: url(:/image/source/reboot_active.png);}
+QPushButton#button_Save{
+	border-image: url(:/image/source/save.png);}
+QPushButton#button_Save:hover{
+border-image: url(:/image/source/save_active.png);}
+QPushButton#button_Save:pressed{
+border-image: url(:/image/source/save_active.png);}
+QPushButton#button_SaveAs{
+	border-image: url(:/image/source/saveas.png);}
+QPushButton#button_SaveAs:hover{
+border-image: url(:/image/source/saveas_active.png);}
+QPushButton#button_SaveAs:pressed{
+border-image: url(:/image/source/saveas_active.png);}</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -130,6 +166,56 @@ border-image: url(:/image/source/account_active.png);}</string>
           <property name="bottomMargin">
            <number>10</number>
           </property>
+          <item alignment="Qt::AlignVCenter">
+           <widget class="QPushButton" name="button_Save">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>29</width>
+              <height>29</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>29</width>
+              <height>29</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignVCenter">
+           <widget class="QPushButton" name="button_SaveAs">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>29</width>
+              <height>29</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>29</width>
+              <height>29</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QPushButton" name="button_Reboot">
             <property name="sizePolicy">
@@ -140,72 +226,22 @@ border-image: url(:/image/source/account_active.png);}</string>
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
-              <height>23</height>
+              <width>29</width>
+              <height>29</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>50</width>
-              <height>23</height>
+              <width>29</width>
+              <height>29</height>
              </size>
             </property>
             <property name="text">
-             <string>reboot</string>
+             <string/>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="button_Save">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>save</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="button_SaveAs">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>save as</string>
-            </property>
-           </widget>
-          </item>
-          <item>
+          <item alignment="Qt::AlignVCenter">
            <widget class="QPushButton" name="button_SerialPort">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -233,7 +269,7 @@ border-image: url(:/image/source/account_active.png);}</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item alignment="Qt::AlignVCenter">
            <widget class="QPushButton" name="button_Account">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -298,12 +334,7 @@ border-image: url(:/image/source/account_active.png);}</string>
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton#button_minsize{
-	border-image: url(:/image/source/minsize_active.png);}
-QPushButton#button_minsize:hover{
-border-image: url(:/image/source/minsize.png);}
-QPushButton#button_minsize:pressed{
-border-image: url(:/image/source/minsize.png);}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string/>
@@ -347,12 +378,7 @@ border-image: url(:/image/source/minsize.png);}</string>
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton#button_maxsize{
-	border-image: url(:/image/source/maxsize_active.png);}
-QPushButton#button_maxsize:hover{
-border-image: url(:/image/source/maxsize.png);}
-QPushButton#button_maxsize:pressed{
-border-image: url(:/image/source/maxsize.png);}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string/>
@@ -396,12 +422,7 @@ border-image: url(:/image/source/maxsize.png);}</string>
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton#button_close{
-	border-image: url(:/image/source/close_active.png);}
-QPushButton#button_close:hover{
-border-image: url(:/image/source/close.png);}
-QPushButton#button_close:pressed{
-border-image: url(:/image/source/close.png);}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string/>
@@ -554,7 +575,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>3</number>
+               <number>5</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -611,7 +632,9 @@ font-family:Arial;
 QTabBar::tab:selectd{background-color:rgba(0,0,0,0);border-style:outset;border-left-width: 2px;border-bottom-width:0px;border-color: rgba(255,255,255,255);padding-top:0px;}
 QTabBar::tab:!selected{color:rgba(255,255,255,150);background-color:rgba(0,0,0,0);border-style:outset;border-left-width: 2px;border-color:rgba(50,50,50,0);}
 QTabBar::tab:!selected:hover{color:rgba(255,255,255,255);background-color:rgba(0,0,0,0);border-style:outset;border-left-width: 2px;border-color:rgba(50,50,50,0);}
-QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-right-width:1px;border-top-width:0px;border-color:rgba(50,50,50,255);}</string>
+QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-right-width:1px;border-top-width:0px;border-color:rgba(50,50,50,255);}
+QPushButton{
+font:bold 13pt Arial;}</string>
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="9,5">
                 <item>
@@ -1096,6 +1119,10 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-right
                </layout>
               </widget>
               <widget class="QWidget" name="Calibrate">
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+font:bold 13pt Arial;}</string>
+               </property>
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <property name="leftMargin">
                  <number>0</number>
@@ -3317,6 +3344,10 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-botto
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+font:bold 13pt Arial;}</string>
+               </property>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <property name="leftMargin">
                  <number>0</number>
@@ -4066,6 +4097,10 @@ max-width:50px;
                </layout>
               </widget>
               <widget class="QWidget" name="Options">
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+font:bold 13pt Arial;}</string>
+               </property>
                <layout class="QHBoxLayout" name="horizontalLayout_4">
                 <property name="leftMargin">
                  <number>0</number>
@@ -4100,7 +4135,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>2</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -4108,8 +4143,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 font:bold 13pt Arial;}
 QRadioButton{color:white;
 font:bold 13pt Arial;}
-QPushButton#security_addusercontrolokButton,#security_addusercontrolcancelButton{
-font:bold 13pt Arial;}</string>
+</string>
                    </property>
                    <attribute name="title">
                     <string>Security</string>
