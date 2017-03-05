@@ -17,7 +17,7 @@ SourceVideo::~SourceVideo()
 void SourceVideo::clearImage()
 {
 //    ui->inputLabel->clear();
-    ui->inputwidget->clearImage();
+    ui->inputwidget->clearImage(0);
 }
 
 void SourceVideo::setImage(QImage image)
@@ -26,16 +26,7 @@ void SourceVideo::setImage(QImage image)
     {
 //        QPixmap pix = QPixmap::fromImage(image);
 //        ui->inputLabel->setPixmap(pix);
-        ui->inputwidget->setImage(image);
-    }
-}
-
-void SourceVideo::setImage(QImage image, QRect rectl, QRect rectc, QRect rectr)
-{
-    if(image.height()>0)
-    {
-        ui->inputwidget->setSearchRect(rectl,rectc,rectr);
-        ui->inputwidget->setImage(image);
+        ui->inputwidget->setImage(image,0);
     }
 }
 

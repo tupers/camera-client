@@ -30,15 +30,15 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="imgDisplay" name="inputwidget" native="true"/>
+    <widget class="MultiImageWidget" name="inputwidget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>imgDisplay</class>
+   <class>MultiImageWidget</class>
    <extends>QWidget</extends>
-   <header>imgdisplay.h</header>
+   <header>multiimagewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

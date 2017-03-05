@@ -16,6 +16,7 @@
   <Result>
   	<Tag posx="1" posy="0">
   		<Title>Result</Title>
+  		<Rect type="0" visible="1">TestRect</Rect>
   		<Label type="0">center_x</Label>
   		<Label type="0">center_y</Label>
   		<Label type="0">index</Label>

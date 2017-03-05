@@ -6,7 +6,6 @@
 #include <QTableWidget>
 #include <QFileInfoList>
 #include <QDir>
-
 #include "configstruct.h"
 #include "algconfigservice.h"
 class ConfigFile:public QObject
@@ -41,6 +40,7 @@ public:
     int getAlgConfigSize(){return algconfig->getConfigSize();}
     int getAlgResultSize(){return algconfig->getResultSize();}
     void reflashAlgResult(void*);
+    QImage refreshAlgImage();
 
 private:
     void saveConfig(QSettings*);

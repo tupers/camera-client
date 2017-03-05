@@ -23,12 +23,12 @@ typedef struct
     LineEdit* valuelineEdit;
 }ALGConfig_ui;
 
-typedef struct
-{
-    QHBoxLayout* valueLayout;
-    QLabel* nameLabel;
-    QLabel* valueLabel;
-}ALGResult_ui;
+//typedef struct
+//{
+//    QHBoxLayout* valueLayout;
+//    QLabel* nameLabel;
+//    QLabel* valueLabel;
+//}ALGResult_ui;
 
 typedef struct
 {
@@ -47,18 +47,27 @@ typedef struct
     void* value;
     ALGConfig_ui ui;
 }ALGConfigStr;
+typedef enum
+{
+    PARAM_LABEL=0,
+    PARAM_RECT,
+    PARAM_CIRCLE
+}PARAM_TYPE;
 typedef struct
 {
     QString name;
-//    int size;
+    PARAM_TYPE paramType;
+    int visible;
     VALUE_TYPE type;
     void* value;
-    ALGResult_ui ui;
+    QLayout* ui;
 }ALGResultStr;
 typedef enum
 {
     ALG_SDS=0,
     ALG_GVSS
 }ALG_TYPE;
+
+
 
 #endif // ALGCONFIGSTR_H

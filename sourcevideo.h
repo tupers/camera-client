@@ -21,7 +21,6 @@ private:
     Ui::SourceVideo *ui;
 private slots:
     void setImage(QImage);
-    void setImage(QImage,QRect,QRect,QRect);
 protected:
     void closeEvent(QCloseEvent*event);
 signals:

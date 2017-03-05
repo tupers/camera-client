@@ -19,7 +19,7 @@ LIBS += $$PWD/ffmpeg/lib/libavcodec.dll.a \
         $$PWD/ffmpeg/lib/libavformat.dll.a \
         $$PWD/ffmpeg/lib/libswscale.dll.a \
         $$PWD/ffmpeg/lib/libavutil.dll.a \
-        D:/Qt/Tools/mingw530_32/i686-w64-mingw32/lib/libwsock32.a\
+        F:/Qt/Qt5.7.0/Tools/mingw530_32/i686-w64-mingw32/lib/libwsock32.a\
 
 #LIBS += $$PWD/ffmpeg/lib/avcodec.lib\
 #        $$PWD/ffmpeg/lib/avfilter.lib\
@@ -39,13 +39,14 @@ SOURCES += main.cpp\
     sourcevideo.cpp \
     network.cpp \
     udpservice.cpp \
-    imgdisplay.cpp \
     dm8127ftp_service.cpp \
     ftpdata.cpp \
     firmwareupdate.cpp \
     dm8127scan_service.cpp \
     weightwidget.cpp \
-    algconfigservice.cpp
+    algconfigservice.cpp \
+    imagewidget.cpp \
+    multiimagewidget.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -59,7 +60,6 @@ HEADERS  += widget.h \
     network.h \
     configstruct.h \
     udpservice.h \
-    imgdisplay.h \
     dm8127ftp_service.h \
     ftpdata.h \
     ftp_cmdlist.h \
@@ -67,7 +67,9 @@ HEADERS  += widget.h \
     dm8127scan_service.h \
     weightwidget.h \
     algconfigstr.h \
-    algconfigservice.h
+    algconfigservice.h \
+    imagewidget.h \
+    multiimagewidget.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

@@ -33,7 +33,7 @@ void Widget::InitGUI()
     config = new ConfigFile;
 
     connect(config,SIGNAL(sendToLog(QString)),this,SLOT(LogDebug(QString)));
-//    connect(ui->button_close,SIGNAL(clicked()),SerialPortWidget,SLOT(close()));
+    //    connect(ui->button_close,SIGNAL(clicked()),SerialPortWidget,SLOT(close()));
     connect(ui->button_close,SIGNAL(clicked()),this,SLOT(close()));
     connect(ui->button_SerialPort,SIGNAL(clicked()),this,SLOT(OpenSubWindow_SerialPort()));
     connect(this,SIGNAL(SubWindow_Init()),SerialPortWidget,SLOT(SerialPort_Init()));
@@ -261,7 +261,8 @@ void Widget::SetupCalibrate()
 
     //Video immediate updating
     QStackedLayout* videoLayout = new QStackedLayout;
-    camera_videoinputwidget = new imgDisplay;
+    camera_videoinputwidget = new MultiImageWidget;
+    camera_videoinputwidget->resizeImageCount(2);
     ui->camera_videoWidget->setLayout(videoLayout);
 
     videoLayout->addWidget(ui->camera_2A_AEWeight_preWidget);
@@ -290,8 +291,8 @@ void Widget::UpdateConfigFile()
     QString cfgname = config->getCurrentConfigName();
     int i=0;
     QFileInfoList infolist =QDir(config->getConfigDir()).entryInfoList();
-    ui->system_configlist->setRowCount(0);
     ui->system_configlist->clearContents();
+    ui->system_configlist->setRowCount(0);
     ui->run_processmodeConfigBox->clear();
     SaveasComboBox->clear();
     foreach(QFileInfo fileinfo,infolist)
@@ -337,8 +338,8 @@ void Widget::UpdateConfigFile()
 void Widget::UpdateUserAccountList()
 {
 
-    ui->security_tablewidget->setRowCount(0);
     ui->security_tablewidget->clearContents();
+    ui->security_tablewidget->setRowCount(0);
     get_userdata_t userlist;
     if(!network->GetUser(&userlist))
     {
@@ -388,8 +389,8 @@ void Widget::reflashFtp()
 {
     if(!network->isFtpLogin())
     {
-        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
         ui->diagnostic_ftpbrowsertablewidget->clearContents();
+        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
         NetworkStr networkconfigFromServer = network->getNetworkConfig();
         networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
         networkconfigFromServer.value.ports_ftpusername="root";
@@ -437,7 +438,7 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     }
     ftpPreView = new QImage((unsigned char*)data.data()+headsize,1280,720,header.pitch,QImage::Format_Grayscale8);
     *ftpPreView=ftpPreView->copy();
-    ui->diagnostic_previewWidget->setImage(ftpPreView->scaledToWidth(ui->diagnostic_previewWidget->width()));
+    ui->diagnostic_previewWidget->setImage(ftpPreView->scaledToWidth(ui->diagnostic_previewWidget->width()),0);
     //
     //    if(ftpfile.FilePath==""||ftpfile.ftpFileName==""||ftpfile.ftpFileSize==0||ftpfile.ftpFileValid==0)
     //    {
@@ -654,6 +655,33 @@ void Widget::LoadAccountConfig()
     ui->account_authorityvalueLabel->setText(QString::number(network->getLogAuthority(),10));
 }
 
+void Widget::ResetOptions()
+{
+    ui->security_userNameLineEdit->clear();
+    ui->security_passwordLineEdit->clear();
+    ui->security_confirmPasswordLineEdit->clear();
+    ui->security_authorityadminButton->setChecked(false);
+    ui->security_authorityviewerButton->setChecked(false);
+
+    ui->diagnostic_ftpbrowsertablewidget->clearContents();
+    ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
+}
+
+void Widget::ResetInformation()
+{
+    cpuloadTimer->stop();
+    memoryseries->clear();
+    storageseries->clear();
+    cpuloadSeries->clear();
+    cpuloadSeries2->clear();
+}
+
+void Widget::ResetAccount()
+{
+    ui->LoginSpecifiedIPlineEdit->clear();
+    ui->Account_cameralist->clear();
+}
+
 void Widget::SetupVideo()
 {
     videothread =new QThread;
@@ -677,11 +705,12 @@ void Widget::SetupRun()
 
     SourceVideoWidget = new SourceVideo();
     connect(this,SIGNAL(getImage_Source(QImage)),SourceVideoWidget,SLOT(setImage(QImage)));
-    connect(this,SIGNAL(getImage_Source(QImage,QRect,QRect,QRect)),SourceVideoWidget,SLOT(setImage(QImage,QRect,QRect,QRect)));
     connect(SourceVideoWidget,SIGNAL(SourceVideoClose()),this,SLOT(SourceVideoWidgetClose()));
     connect(ui->run_processmodeAlgBox,SIGNAL(stateChanged(int)),config,SLOT(setLoadAlg(int)));
 
     RunVideoImage=QImage(1280,720,QImage::Format_RGB888);
+
+    ui->run_videoinputwidget->resizeImageCount(2);
     QDir savedir;
     if(savedir.mkdir("./save/"))
     {
@@ -1106,64 +1135,9 @@ void Widget::setVideoImage_Run(QImage image)
     {
         RunVideoImage=image;
         if(SourceFlag==false)
-        {
-            //            if((ui->run_processmodeSearchAreaBox->isChecked())&&(algResult.nStatusCode==0))
-            //            {
-            //                float k = (float)ui->run_videoinputwidget->height()/(float)image.height();
-            //                ConfigStr tempconfig=config->getConfig();
-            //                QRect rectl((algResult.Cir1_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir1_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir1_bt.right-algResult.Cir1_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir1_bt.low-algResult.Cir1_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-            //                QRect rectc((algResult.Cir2_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir2_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir2_bt.right-algResult.Cir2_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir2_bt.low-algResult.Cir2_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-            //                QRect rectr((algResult.Cir3_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir3_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir3_bt.right-algResult.Cir3_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                            (algResult.Cir3_bt.low-algResult.Cir3_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-
-            //                //                QRect rectl((algResult.Cir1_PixelX-algResult.Cir1_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir1_PixelY-algResult.Cir1_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir1_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir1_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-            //                //                QRect rectc((algResult.Cir2_PixelX-algResult.Cir2_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir2_PixelY-algResult.Cir2_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir2_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir2_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-            //                //                QRect rectr((algResult.Cir3_PixelX-algResult.Cir3_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir3_PixelY-algResult.Cir3_r-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir3_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k,
-            //                //                            (algResult.Cir3_r*2+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1)*k);
-            //                ui->run_videoinputwidget->setSearchRect(rectl,rectc,rectr);
-            //            }
-            ui->run_videoinputwidget->setImage(image.scaledToHeight(ui->run_videoinputwidget->height()));
-            //            ui->run_videoinputwidget->setImage(image);
-        }
+            ui->run_videoinputwidget->setImage(image.scaledToHeight(ui->run_videoinputwidget->height()),0);
         else
-        {
-            //            if((ui->run_processmodeSearchAreaBox->isChecked())&&(algResult.nStatusCode==0))
-            //            {
-            //                ConfigStr tempconfig=config->getConfig();
-            //                QRect rectl((algResult.Cir1_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir1_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir1_bt.right-algResult.Cir1_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir1_bt.low-algResult.Cir1_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1));
-            //                QRect rectc((algResult.Cir2_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir2_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir2_bt.right-algResult.Cir2_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir2_bt.low-algResult.Cir2_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1));
-            //                QRect rectr((algResult.Cir3_bt.left-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir3_bt.up-tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir3_bt.right-algResult.Cir3_bt.left+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1),
-            //                            (algResult.Cir3_bt.low-algResult.Cir3_bt.up+2*tempconfig.calibrate.value.algorithm_Speed_ExpandPixel1));
-            //                //ui->run_videoinputwidget->setSearchRect(rectl,rectc,rectr);
-            //                emit getImage_Source(image,rectl,rectc,rectr);
-            //            }
-            //            else
             emit getImage_Source(image);
-        }
     }
 }
 
@@ -1258,35 +1232,15 @@ void Widget::ConnectionLost()
         ui->Accountlist->setCurrentIndex(0);
         ui->button_Save->setEnabled(false);
         ui->button_SaveAs->setEnabled(false);
-        //ui->security_tablewidget->setColumnCount(0);
-        //ui->security_tablewidget->clearContents();
         if(ui->mainlist->currentRow()!=-1)
         {
             ui->mainlist->selectedItems()[0]->setSelected(false);
             ui->mainlist->setCurrentRow(-1);
         }
         algresultTimer->stop();
-        cpuloadTimer->stop();
-        memoryseries->clear();
-        storageseries->clear();
-        cpuloadSeries->clear();
-        cpuloadSeries2->clear();
-
-        ui->LoginSpecifiedIPlineEdit->clear();
-        //ui->run_circle1->clear();
-        //ui->run_circle2->clear();
-        //ui->run_circle3->clear();
-        //ui->run_circle1g->clear();
-        //ui->run_circle2g->clear();
-        //ui->run_circle3g->clear();
-        //ui->run_errorlabel->clear();
-        //ui->run_threhold->clear();
-        ui->security_userNameLineEdit->clear();
-        ui->security_passwordLineEdit->clear();
-        ui->security_confirmPasswordLineEdit->clear();
-        ui->security_authorityadminButton->setChecked(false);
-        ui->security_authorityviewerButton->setChecked(false);
-        ui->Account_cameralist->clear();
+        ResetOptions();
+        ResetInformation();
+        ResetAccount();
     }
 }
 
@@ -1300,17 +1254,13 @@ void Widget::setVideoImage_Camera(QImage image)
 {
     if (image.height()>0)
     {
-        //        QPixmap pix = QPixmap::fromImage(image.scaledToHeight(ui->camera_videoinputlabel->height()));
-        //        ui->camera_videoinputlabel->setPixmap(pix);
-        //ui->camera_videoinputwidget->setImage(image.scaledToHeight(ui->camera_videoinputwidget->height()));
         QImage temp;
         if(camera_videoinputwidget->ratio()>=1.778)
             temp = image.scaledToHeight(camera_videoinputwidget->height());
         else
             temp =  image.scaledToWidth(camera_videoinputwidget->width());
-        camera_videoinputwidget->setImage(temp);
+        camera_videoinputwidget->setImage(temp,0);
         ui->camera_2A_AEWeight_preWidget->setActiveRegion(temp.size());
-
     }
 }
 
@@ -1325,9 +1275,9 @@ void Widget::clearVideoImage()
     qDebug()<<"clear image labels.";
     //    ui->camera_videoinputlabel->clear();
     //    ui->run_videoinputlabel->clear();
-    ui->run_videoinputwidget->clearImage();
+    ui->run_videoinputwidget->clearImage(0);
     //ui->camera_videoinputwidget->clearImage();
-    camera_videoinputwidget->clearImage();
+    camera_videoinputwidget->clearImage(0);
     //    ui->summary_statecodelabel->setText("State Code: ");
     //    ui->summary_warningcodelabel->setText("Warning Code: ");
 }
@@ -1438,11 +1388,13 @@ void Widget::cpuloadUpdate()
     {
         LogDebug("CPU load failed");
         qDebug()<<"CPU load failed";
+        cpuloadTimer->stop();
     }
 }
 
 void Widget::algresultUpdate()
 {
+
     if(config->getAlgResultSize()!=0)
     {
         void* tempresult = (void*)malloc(config->getAlgResultSize());
@@ -1450,18 +1402,24 @@ void Widget::algresultUpdate()
         if(network->GetParams(NET_MSG_GET_ALG_RESULT,tempresult,config->getAlgResultSize()))
         {
             config->reflashAlgResult(tempresult);
+            ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_HEIGHT);
         }
         else
         {
+            algresultTimer->stop();
             LogDebug("get ALG result failed from network");
             qDebug()<<"get ALG result failed from network";
         }
+//        int test[9]={0,0,1270,710,1,2,3,4,99};
+//        config->reflashAlgResult(test);
+//        ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_WIDTH);
         free(tempresult);
     }
     else
     {
         LogDebug("invalid ALG result size");
         qDebug()<<"invalid ALG result size";
+        algresultTimer->stop();
     }
 }
 
@@ -1765,8 +1723,8 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
                 dir.chop(1);
             }
             dir.chop(1);
-            ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
             ui->diagnostic_ftpbrowsertablewidget->clearContents();
+            ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
             emit network->listFtp(dir);
         }
     }
@@ -1774,8 +1732,8 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
     {
         dir.append("/");
         dir.append(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text());
-        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
         ui->diagnostic_ftpbrowsertablewidget->clearContents();
+        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
         emit network->listFtp(dir);
     }
 }

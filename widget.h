@@ -34,6 +34,7 @@
 #include "configfile.h"
 #include "subwidget/serialport.h"
 #include "firmwareupdate.h"
+#include "multiimagewidget.h"
 
 
 #define MARGIN_L 50
@@ -55,11 +56,17 @@ public:
     void SetupAttachedWindow();
     void SetupList();//初始化菜单
     void SetupMouseEvent();//初始化鼠标事件
+    void SetupNetwork();
+    void SetupLog();
+    void SetupVideo();
+
     void SetupRun();
     void SetupOptions();//初始化options界面
     void SetupCalibrate();//初始化Calibrate界面
     void SetupInformations();
     void SetupConnection();
+    void SetupAccount();
+
     void UpdateConfigFile();//更新配置文件目录
     void LoadFullConfig();
     void LoadCalibrateConfig();
@@ -67,12 +74,12 @@ public:
     void LoadConnectionConfig();
     void LoadInfomationConfig();
     void LoadAccountConfig();
-    void SetupVideo();
-    void SetupLog();
-    void SetupNetwork();
-    void SetupAccount();
-    void VideoCMD(H264Video*,int);
 
+    void ResetOptions();
+    void ResetInformation();
+    void ResetAccount();
+
+    void VideoCMD(H264Video*,int);
 private:
     Ui::Widget *ui;
     int countFlag(QPoint,int);//鼠标区域
@@ -111,7 +118,7 @@ private:
     EzAlgResult algResult;
     ftpSaveInfo ftpfile;
     FirmwareUpdate* updateWidget=NULL;
-    imgDisplay* camera_videoinputwidget;
+    MultiImageWidget* camera_videoinputwidget;
     QImage* ftpPreView=NULL;
     void freeList();
 protected:
@@ -205,7 +212,6 @@ signals:
     void testsignal();
     void videocontrol(int);
     void getImage_Source(QImage);
-    void getImage_Source(QImage,QRect,QRect,QRect);
     void NetworkConfigtoServer();
     void previewFtp(QString);
     void openFtp(NetworkStruct);

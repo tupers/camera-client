@@ -575,7 +575,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -628,6 +628,7 @@ padding-left:-30px;
 padding-right:-40px;
 font-weight:bold;
 font-family:Arial;
+font-size:13pt;
 }
 QTabBar::tab:selectd{background-color:rgba(0,0,0,0);border-style:outset;border-left-width: 2px;border-bottom-width:0px;border-color: rgba(255,255,255,255);padding-top:0px;}
 QTabBar::tab:!selected{color:rgba(255,255,255,150);background-color:rgba(0,0,0,0);border-style:outset;border-left-width: 2px;border-color:rgba(50,50,50,0);}
@@ -718,7 +719,7 @@ font:bold 13pt Arial;}</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="imgDisplay" name="run_videoinputwidget" native="true"/>
+                        <widget class="MultiImageWidget" name="run_videoinputwidget" native="true"/>
                        </item>
                       </layout>
                      </widget>
@@ -1148,6 +1149,7 @@ QTabBar::tab {
     background-color: rgba(0,0,0,0); 
 	font-weight:bold;
 	font-family:Arial;
+	font-size:13pt;
 }
 
 QTabBar::tab:selectd{color:rgba(255,255,255,255);border-style:outset;border-bottom-width: 2px;border-color: rgba(255,255,255,255);padding-top:1px}
@@ -1209,7 +1211,7 @@ QTabBar::tab{
 	width:100px;
 	height:100px;
     color: rgb(255,255,255);
-    background-color: rgba(0,0,0,0);  
+    background-color: rgba(0,0,0,0);
 padding-left:-30px; 
 padding-right:-30px;
 font-weight:bold;
@@ -3376,6 +3378,7 @@ QTabBar::tab {
     background-color: rgba(0,0,0,0); 
 	font-weight:bold;
 	font-family:Arial;
+font-size:13pt;
 }
 
 QTabBar::tab:selectd{color:rgba(255,255,255,255);border-style:outset;border-bottom-width: 2px;border-color: rgba(255,255,255,255);padding-top:1px}
@@ -4126,6 +4129,7 @@ QTabBar::tab {
     background-color: rgba(0,0,0,0);
 font-weight:bold;   
 font-family:Arial;
+font-size:13pt;
 }
 QTabBar::tab:selectd{color:rgba(255,255,255,255);border-style:outset;border-bottom-width: 2px;border-color: rgba(255,255,255,255);padding-top:1px;}
 QTabBar::tab:!selected{color:rgba(255,255,255,150);background-color:rgba(0,0,0,0);border-style:outset;border-bottom-width: 2px;border-color:rgba(50,50,50,0);}
@@ -4668,7 +4672,7 @@ font:bold 10pt Arial;
                        <number>10</number>
                       </property>
                       <item>
-                       <widget class="imgDisplay" name="diagnostic_previewWidget" native="true"/>
+                       <widget class="MultiImageWidget" name="diagnostic_previewWidget" native="true"/>
                       </item>
                       <item>
                        <widget class="QWidget" name="widget_3" native="true"/>
@@ -4868,6 +4872,7 @@ QTabBar::tab {
     background-color: rgba(0,0,0,0);    
 font-weight:bold;
 font-family:Arial;
+font-size:13pt;
 	
 }
 QTabBar::tab:selectd{background-color:rgba(0,0,0,0);border-style:outset;border-bottom-width: 2px;border-color: rgba(255,255,255,255);padding-top:1px}
@@ -6026,15 +6031,15 @@ padding-left:25px;}
    <header>lineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>imgDisplay</class>
-   <extends>QWidget</extends>
-   <header>imgdisplay.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>weightWidget</class>
    <extends>QWidget</extends>
    <header>weightwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MultiImageWidget</class>
+   <extends>QWidget</extends>
+   <header>multiimagewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

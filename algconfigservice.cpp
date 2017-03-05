@@ -102,10 +102,29 @@ void ALGConfigService::reflashResult(void *params)
     for(i=0;i<resultList.count();i++)
     {
         ALGResultStr temp = resultList.at(i);
+        if(temp.paramType==PARAM_LABEL)
+        {
         int size=valueSize(temp.type);
         memcpy(temp.value,(char*)params+offset,size);
-        temp.ui.valueLabel->setText(value2Text(temp.value,temp.type));
+        QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+        label->setText(value2Text(temp.value,temp.type));
         offset+=size;
+        }
+        else if(temp.paramType==PARAM_RECT)
+        {
+            int size = valueSize(temp.type)*4;
+            memcpy(temp.value,(char*)params+offset,size);
+            QLabel* left = (QLabel*)temp.ui->itemAt(1)->widget();
+            left->setText(value2Text(temp.value,temp.type));
+            QLabel* top = (QLabel*)temp.ui->itemAt(2)->widget();
+            top->setText(value2Text((char*)temp.value+valueSize(temp.type),temp.type));
+            QLabel* right = (QLabel*)temp.ui->itemAt(3)->widget();
+            right->setText(value2Text((char*)temp.value+2*valueSize(temp.type),temp.type));
+            QLabel* bottom = (QLabel*)temp.ui->itemAt(4)->widget();
+            bottom->setText(value2Text((char*)temp.value+3*valueSize(temp.type),temp.type));
+            offset+=size;
+        }
+
     }
 }
 
@@ -144,25 +163,62 @@ ALGConfig_ui ALGConfigService::createConfigTag(QString name)
     return temp;
 }
 
-ALGResult_ui ALGConfigService::createResultTag(QString name)
+QLayout *ALGConfigService::createResultLabel(QString name)
 {
-    ALGResult_ui temp;
-    temp.valueLayout = new QHBoxLayout;
-    temp.nameLabel = new QLabel(name);
-    temp.nameLabel->setStyleSheet("border-style:outset;"
+    QLayout* layout = new QHBoxLayout;
+    QLabel* nameLabel = new QLabel(name);
+    nameLabel->setStyleSheet("border-style:outset;"
                                   "border-top-width:1px;"
                                   "border-right-width:1px;"
                                   "border-color:rgba(50,50,50,255);"
                                   "padding-left:15px;");
-    temp.valueLabel = new QLabel;
-    temp.valueLabel->setStyleSheet("border-style:outset;"
+    QLabel* valueLabel = new QLabel;
+    valueLabel->setStyleSheet("border-style:outset;"
                                    "border-top-width:1px;"
                                    "border-color:rgba(50,50,50,255);"
                                    "padding-left:15px;");
-    temp.valueLayout->addWidget(temp.nameLabel);
-    temp.valueLayout->addWidget(temp.valueLabel);
+   layout->addWidget(nameLabel);
+   layout->addWidget(valueLabel);
 
-    return temp;
+   return layout;
+}
+
+QLayout *ALGConfigService::createResultRect(QString name)
+{
+    QLayout* layout = new QHBoxLayout;
+    QLabel* nameLabel = new QLabel(name);
+    nameLabel->setStyleSheet("border-style:outset;"
+                                  "border-top-width:1px;"
+                                  "border-right-width:1px;"
+                                  "border-color:rgba(50,50,50,255);"
+                                  "padding-left:15px;");
+    QLabel* leftLabel = new QLabel;
+    leftLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    QLabel* topLabel = new QLabel;
+    topLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    QLabel* rightLabel = new QLabel;
+    rightLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    QLabel* bottomLabel = new QLabel;
+    bottomLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    layout->addWidget(nameLabel);
+    layout->addWidget(leftLabel);
+    layout->addWidget(topLabel);
+    layout->addWidget(rightLabel);
+    layout->addWidget(bottomLabel);
+
+    return layout;
 }
 
 ALGParamContainer ALGConfigService::createResultContainer(int posx, int posy)
@@ -229,11 +285,12 @@ void ALGConfigService::deleteTag(ALGConfig_ui tag)
     delete tag.valueLayout;
 }
 
-void ALGConfigService::deleteTag(ALGResult_ui tag)
+void ALGConfigService::deleteTag(QLayout *tag)
 {
-    delete tag.nameLabel;
-    delete tag.valueLabel;
-    delete tag.valueLayout;
+    QLayoutItem *temp;
+    while((temp = tag->takeAt(0))!=0)
+        delete temp;
+    delete tag;
 }
 
 void ALGConfigService::deleteTag(ALGParamContainer tag)
@@ -331,6 +388,17 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                         }
                         else if(reader.name()=="Title")
                             resultContainerList.last().titleLabel->setText(reader.readElementText());
+                        else if(reader.name()=="Rect")
+                        {
+                            QXmlStreamAttributes att = reader.attributes();
+                            QString labelName = reader.readElementText();
+                            int visible =att.value("visible").toInt();
+                            VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
+                            resultSize+=4*valueSize(type);
+                            void* pdata = malloc(valueSize(type)*4);
+                            resultList.append({labelName,PARAM_RECT,visible,type,pdata,createResultRect(labelName)});
+                            resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
+                        }
                         else if(reader.name()=="Label")
                         {
                             QXmlStreamAttributes att = reader.attributes();
@@ -338,8 +406,8 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                             VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
                             resultSize+=valueSize(type);
                             void* pdata = malloc(valueSize(type));
-                            resultList.append({labelName,type,pdata,createResultTag(labelName)});
-                            resultContainerList.last().containerLayout->addLayout(resultList.last().ui.valueLayout);
+                            resultList.append({labelName,PARAM_LABEL,0,type,pdata,createResultLabel(labelName)});
+                            resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
                         }
                     }
                     reader.readNext();
@@ -360,6 +428,31 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
     for(i=0;i<resultContainerList.count();i++)
         emit algResultTag(resultContainerList.at(i).containerLayout,QPoint(resultContainerList.at(i).posx,resultContainerList.at(i).posy));
     file.close();
+}
+
+QImage ALGConfigService::resultImage()
+{
+    QImage pic;
+    int i;
+    for(i=0;i<resultList.count();i++)
+    {
+        ALGResultStr temp = resultList.at(i);
+        if(temp.paramType==PARAM_RECT&&temp.visible==1)
+        {
+            QLabel* left = (QLabel*)temp.ui->itemAt(1)->widget();
+            QLabel* top = (QLabel*)temp.ui->itemAt(2)->widget();
+            QLabel* right = (QLabel*)temp.ui->itemAt(3)->widget();
+            QLabel* bottom = (QLabel*)temp.ui->itemAt(4)->widget();
+            pic=QImage(1280,720,QImage::Format_ARGB32);
+            pic.fill(QColor(0,0,0,0));
+            QPainter pa(&pic);
+            pa.setPen(Qt::NoPen);
+            pa.setBrush(QBrush(QColor(50,100,50,50)));
+            pa.drawRect(left->text().toInt(),top->text().toInt(),right->text().toInt()-left->text().toInt(),bottom->text().toInt()-top->text().toInt());
+            return pic;
+        }
+    }
+    return pic;
 }
 
 //void ALGConfigService::getParamsFromXml()

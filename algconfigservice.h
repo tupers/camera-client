@@ -7,6 +7,7 @@
 #include <QFile>
 #include "algconfigstr.h"
 #include <QDir>
+#include <QPainter>
 
 class ALGConfigService : public QObject
 {
@@ -26,14 +27,16 @@ public:
     int getConfigSize(){return configSize;}
     int getResultSize(){return resultSize;}
     ALGConfig_ui createConfigTag(QString);
-    ALGResult_ui createResultTag(QString);
+    QLayout* createResultLabel(QString);
+    QLayout* createResultRect(QString);
     ALGParamContainer createConfigContainer(int,int);
     ALGParamContainer createResultContainer(int,int);
     void deleteTag(ALGConfig_ui tag);
-    void deleteTag(ALGResult_ui tag);
+    void deleteTag(QLayout* tag);
     void deleteTag(ALGParamContainer tag);
     void generateConfig(ALG_TYPE);
     void generateResult(ALG_TYPE);
+    QImage resultImage();
     //void getParamsFromXml();
 
 signals:
