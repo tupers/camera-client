@@ -1366,11 +1366,14 @@ void NetWork::configClienttoServer(SysInfo *dst,ConfigStr *src)
 
 void NetWork::networkconfigServertoClinet(NetworkStr *dst, SysInfo *src)
 {
-    dst->value.ports_ipaddress=inet_ntoa(src->net.net_config.ip);
-//    dst->value.ports_ipaddress=src->net.net_config.ip;
-    dst->value.ports_netmask=inet_ntoa(src->net.net_config.netmask);
-    dst->value.ports_gateway=inet_ntoa(src->net.net_config.gateway);
-    dst->value.ports_dns=inet_ntoa(src->net.net_config.dns);
+//    dst->value.ports_ipaddress=inet_ntoa(src->net.net_config.ip);
+    dst->value.ports_ipaddress=src->net.net_config.ip;
+//    dst->value.ports_netmask=inet_ntoa(src->net.net_config.netmask);
+//    dst->value.ports_gateway=inet_ntoa(src->net.net_config.gateway);
+//    dst->value.ports_dns=inet_ntoa(src->net.net_config.dns);
+    dst->value.ports_netmask=src->net.net_config.netmask;
+    dst->value.ports_gateway=src->net.net_config.gateway;
+    dst->value.ports_dns=src->net.net_config.dns;
     dst->value.ports_httpport=src->net.net_config.http_port;
     dst->value.ports_httpsport=src->net.net_config.https_port;
     dst->value.ports_dhcpenable=src->net.net_config.dhcp_enable;
@@ -1405,11 +1408,14 @@ void NetWork::networkconfigServertoClinet(NetworkStr *dst, SysInfo *src)
 void NetWork::networkconfigClienttoServer(SysInfo *dst, NetworkStr *src)
 {
     qDebug()<<src->value.ports_ipaddress<<src->value.ports_netmask<<src->value.ports_gateway<<src->value.ports_dns;
-    dst->net.net_config.ip.S_un.S_addr=inet_addr(src->value.ports_ipaddress.toLatin1().data());
-//    strcpy(dst->net.net_config.ip,src->value.ports_ipaddress.toLatin1().data());
-    dst->net.net_config.netmask.S_un.S_addr=inet_addr(src->value.ports_netmask.toLatin1().data());
-    dst->net.net_config.gateway.S_un.S_addr=inet_addr(src->value.ports_gateway.toLatin1().data());
-    dst->net.net_config.dns.S_un.S_addr=inet_addr(src->value.ports_dns.toLatin1().data());
+//    dst->net.net_config.ip.S_un.S_addr=inet_addr(src->value.ports_ipaddress.toLatin1().data());
+    memcpy(dst->net.net_config.ip,src->value.ports_ipaddress.toLatin1().data(),strlen(src->value.ports_ipaddress.toLatin1().data())+1);
+    memcpy(dst->net.net_config.netmask,src->value.ports_netmask.toLatin1().data(),strlen(src->value.ports_netmask.toLatin1().data())+1);
+    memcpy(dst->net.net_config.gateway,src->value.ports_gateway.toLatin1().data(),strlen(src->value.ports_gateway.toLatin1().data())+1);
+    memcpy(dst->net.net_config.dns,src->value.ports_dns.toLatin1().data(),strlen(src->value.ports_dns.toLatin1().data())+1);
+//    dst->net.net_config.netmask.S_un.S_addr=inet_addr(src->value.ports_netmask.toLatin1().data());
+//    dst->net.net_config.gateway.S_un.S_addr=inet_addr(src->value.ports_gateway.toLatin1().data());
+//    dst->net.net_config.dns.S_un.S_addr=inet_addr(src->value.ports_dns.toLatin1().data());
     dst->net.net_config.http_port=src->value.ports_httpport;
     dst->net.net_config.https_port=src->value.ports_httpsport;
     dst->net.net_config.dhcp_enable=src->value.ports_dhcpenable;

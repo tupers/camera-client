@@ -206,6 +206,7 @@ private slots:
 
     void on_camera_2A_AEWeight_paintButton_clicked();
     void getH3AWeight(EzCamH3AWeight);
+    void on_algorithm_setdefaultButton_clicked();
 
 signals:
     void SubWindow_Init();

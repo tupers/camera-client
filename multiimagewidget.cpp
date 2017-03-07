@@ -65,14 +65,16 @@ void MultiImageWidget::setImage(QImage img, int index, IMGSCALE_TYPE type)
     else if(type==SCALE_HEIGHT)
     {
         qreal vr = (qreal)widgetHeight/(qreal)img.size().height();
-        qreal hr = (qreal)widgetWidth/((qreal)img.size().width()*vr);
-        temp->setImage(img,hr,vr);
+//        qreal hr = (qreal)widgetWidth/((qreal)img.size().width()*vr);
+//        qDebug()<<widgetHeight<<vr*img.size().height();
+//        qDebug()<<widgetWidth<<hr*vr*img.size().width();
+        temp->setImage(img,vr,vr);
     }
     else if(type==SCALE_WIDTH)
     {
         qreal hr = (qreal)widgetWidth/(qreal)img.size().width();
-        qreal vr = (qreal)widgetHeight/((qreal)img.size().height()*hr);
-        temp->setImage(img,hr,vr);
+//        qreal vr = (qreal)widgetHeight/((qreal)img.size().height()*hr);
+        temp->setImage(img,hr,hr);
     }
 }
 

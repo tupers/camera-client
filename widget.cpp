@@ -1135,7 +1135,7 @@ void Widget::setVideoImage_Run(QImage image)
     {
         RunVideoImage=image;
         if(SourceFlag==false)
-            ui->run_videoinputwidget->setImage(image.scaledToHeight(ui->run_videoinputwidget->height()),0);
+            ui->run_videoinputwidget->setImage(image.scaledToHeight(ui->run_videoinputwidget->height()),1);
         else
             emit getImage_Source(image);
     }
@@ -1275,7 +1275,7 @@ void Widget::clearVideoImage()
     qDebug()<<"clear image labels.";
     //    ui->camera_videoinputlabel->clear();
     //    ui->run_videoinputlabel->clear();
-    ui->run_videoinputwidget->clearImage(0);
+    ui->run_videoinputwidget->clearImage(1);
     //ui->camera_videoinputwidget->clearImage();
     camera_videoinputwidget->clearImage(0);
     //    ui->summary_statecodelabel->setText("State Code: ");
@@ -1398,11 +1398,12 @@ void Widget::algresultUpdate()
     if(config->getAlgResultSize()!=0)
     {
         void* tempresult = (void*)malloc(config->getAlgResultSize());
-
+//        qDebug()<<config->getAlgResultSize();
         if(network->GetParams(NET_MSG_GET_ALG_RESULT,tempresult,config->getAlgResultSize()))
         {
             config->reflashAlgResult(tempresult);
-            ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_HEIGHT);
+            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
+            ui->run_videoinputwidget->setImage(config->refreshAlgImage(),0,SCALE_HEIGHT);
         }
         else
         {
@@ -1693,7 +1694,10 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &inde
         ftpfile.ftpFileValid=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt();
         ftpfile.ftpFileName=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
         if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
+        {
+            ui->diagnostic_previewWidget->clearImage(0);
             emit network->getFtp(name);
+        }
     }
 }
 
@@ -1860,4 +1864,12 @@ void Widget::getH3AWeight(EzCamH3AWeight cfg)
     ui->camera_2A_AEWeight_width2lineEdit->editValue(cfg.width2);
     ui->camera_2A_AEWeight_height2lineEdit->editValue(cfg.height2);
     ui->camera_2A_AEWeight_weightlineEdit->editValue(cfg.weight);
+}
+
+void Widget::on_algorithm_setdefaultButton_clicked()
+{
+    void *temp = malloc(config->getAlgConfigSize());
+    config->getAlgConfig(temp);
+    network->sendConfigToServer(NET_MSG_IMGALG_DEF_PARAM,temp,config->getAlgConfigSize());
+    free(temp);
 }

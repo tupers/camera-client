@@ -432,7 +432,11 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
 
 QImage ALGConfigService::resultImage()
 {
-    QImage pic;
+    QImage pic(1280,720,QImage::Format_ARGB32);
+    pic.fill(QColor(0,0,0,0));
+    QPainter pa(&pic);
+    pa.setPen(Qt::NoPen);
+    pa.setBrush(QBrush(QColor(50,100,50,50)));
     int i;
     for(i=0;i<resultList.count();i++)
     {
@@ -443,13 +447,7 @@ QImage ALGConfigService::resultImage()
             QLabel* top = (QLabel*)temp.ui->itemAt(2)->widget();
             QLabel* right = (QLabel*)temp.ui->itemAt(3)->widget();
             QLabel* bottom = (QLabel*)temp.ui->itemAt(4)->widget();
-            pic=QImage(1280,720,QImage::Format_ARGB32);
-            pic.fill(QColor(0,0,0,0));
-            QPainter pa(&pic);
-            pa.setPen(Qt::NoPen);
-            pa.setBrush(QBrush(QColor(50,100,50,50)));
             pa.drawRect(left->text().toInt(),top->text().toInt(),right->text().toInt()-left->text().toInt(),bottom->text().toInt()-top->text().toInt());
-            return pic;
         }
     }
     return pic;
@@ -506,13 +504,13 @@ QString ALGConfigService::value2Text(void *pdata, VALUE_TYPE type)
     case VALUE_UINT:
         return QString::number(*(unsigned int*)pdata,10);
     case VALUE_SHORT:
-        return QString::number(*(int*)pdata,10);
+        return QString::number((int)*(short*)pdata,10);
     case VALUE_USHORT:
-        return QString::number(*(unsigned int*)pdata,10);
+        return QString::number((unsigned int)*(ushort*)pdata,10);
     case VALUE_CHAR:
-        return QString::number(*(int*)pdata,10);
+        return QString::number((int)*(char*)pdata,10);
     case VALUE_UCHAR:
-        return QString::number(*(unsigned int*)pdata,10);
+        return QString::number((unsigned int)*(uchar*)pdata,10);
     case VALUE_FLOAT:
         return QString::number((double)*(float*)pdata,'g',6);
     case VALUE_DOUBLE:

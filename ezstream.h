@@ -97,7 +97,7 @@ enum _NET_MSG
     NET_MSG_IMGAL_SENSOR_IMG,
     NET_MSG_IMGALG_SET_PARAM,
     NET_MSG_IMGALG_GET_PARAM,
-    NET_MSG_IMGALG_UPDATE_PARAM,
+    NET_MSG_IMGALG_DEF_PARAM,
     NET_MSG_IMGALG_NORMAL_MODE,
     NET_MSG_IMGALG_DEBUG_MODE,
 
@@ -340,16 +340,21 @@ typedef struct
 
 /* End-Onvif Structures */
 
+#define IP_STR_MAX 16
+
 /**
 * @brief Infomation of network status and user settings.
 */
 typedef struct
 {
-    struct in_addr	ip; ///< IP address in static IP mode
-//    char ip[20];
-    struct in_addr	netmask; ///< netmask in static IP mode
-    struct in_addr	gateway; ///< gateway in static IP mode
-    struct in_addr	dns; ///< DNS IP in static IP mode
+//    struct in_addr	ip; ///< IP address in static IP mode
+    char ip[IP_STR_MAX];
+    char netmask[IP_STR_MAX];
+    char gateway[IP_STR_MAX];
+    char dns[IP_STR_MAX];
+//    struct in_addr	netmask; ///< netmask in static IP mode
+//    struct in_addr	gateway; ///< gateway in static IP mode
+//    struct in_addr	dns; ///< DNS IP in static IP mode
     __u16		http_port; ///< HTTP port in web site.
     __u16		https_port; ///< HTTP port in web site.
     int			dhcp_enable; ///< current DHCP status.

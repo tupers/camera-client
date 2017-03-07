@@ -127,7 +127,26 @@ border-image: url(:/image/source/saveas_active.png);}</string>
          <number>0</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="title_paddingLayout" stretch="0">
+         <layout class="QHBoxLayout" name="title_paddingLayout" stretch="0,0">
+          <item>
+           <widget class="QLabel" name="logoLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>76</width>
+              <height>46</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="paddingLabel">
             <property name="sizePolicy">
@@ -575,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -3324,6 +3343,13 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-botto
                     </item>
                     <item>
                      <layout class="QVBoxLayout" name="algorithm_settinglayout2">
+                      <item alignment="Qt::AlignRight">
+                       <widget class="QPushButton" name="algorithm_setdefaultButton">
+                        <property name="text">
+                         <string>set Default</string>
+                        </property>
+                       </widget>
+                      </item>
                       <item alignment="Qt::AlignRight">
                        <widget class="QPushButton" name="algorithm_uploadButton">
                         <property name="text">

@@ -41,5 +41,6 @@
         <file>source/save_active.png</file>
         <file>source/saveas.png</file>
         <file>source/saveas_active.png</file>
+        <file>source/Ezlogo.png</file>
     </qresource>
 </RCC>
