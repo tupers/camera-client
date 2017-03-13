@@ -89,6 +89,10 @@ enum _NET_MSG
     NET_MSG_START_PAYLOAD,
     NET_MSG_PRINT_PAYLOAD,
     NET_MSG_GET_PAYLOAD,
+
+    NET_MSG_SET_LED,
+    NET_MSG_GET_LED,
+
     /****IMG ALG*****/
     NET_MSG_GET_ALG_RESULT,
     NET_MSG_IMGALG_ENABLE,
@@ -524,9 +528,16 @@ typedef struct
     unsigned int core_freq[MAX_CORE];			//MHZ
 }CamSystemInfo;
 
+#define EZCAM_LED_NUM 2
+
 typedef struct
 {
-    unsigned char led[8];
+    unsigned int enable;
+    unsigned int pwmduty;
+}FillLightConfig;
+typedef struct
+{
+    FillLightConfig led[EZCAM_LED_NUM];
 }CamLight_Config;
 
 typedef struct

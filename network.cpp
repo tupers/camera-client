@@ -525,6 +525,18 @@ bool NetWork::sendConfigToServerH3A(QVariant h3aparam)
     return true;
 }
 
+void NetWork::sendConfigToServerLightConfig(QVariant data)
+{
+    CalibrateValueStr temp;
+    temp = data.value<CalibrateValueStr>();
+    FillLightConfig lightconfig[2];
+    lightconfig[0].enable = temp.light_config[0].enable;
+    lightconfig[0].pwmduty = temp.light_config[0].pwmduty;
+    lightconfig[1].enable = temp.light_config[1].enable;
+    lightconfig[1].enable = temp.light_config[1].pwmduty;
+    sendConfigToServer(NET_MSG_SET_LED,lightconfig,sizeof(lightconfig));
+}
+
 void NetWork::GetFrameFromSensor()
 {
     NetMsg *msg;
@@ -1111,8 +1123,11 @@ bool NetWork::DeleteUser(QString username)
 void NetWork::configServertoClient(ConfigStr* dst,SysInfo* src)
 {
     int i;
-    for(i=0;i<8;i++)
-        dst->calibrate.value.light_led[i]=src->light_config.led[i];
+    for(i=0;i<EZCAM_LED_NUM;i++)
+    {
+       dst->calibrate.value.light_config[i].enable=src->light_config.led[i].enable;
+       dst->calibrate.value.light_config[i].pwmduty=src->light_config.led[i].pwmduty;
+    }
     dst->calibrate.value.camera_WhiteBalanceMode=src->lan_config.nWhiteBalance;
     dst->calibrate.value.camera_DayNightMode=src->lan_config.nDayNight;
     dst->calibrate.value.camera_Binning=src->lan_config.nBinning;
@@ -1246,8 +1261,11 @@ void NetWork::configServertoClient(ConfigStr* dst,SysInfo* src)
 void NetWork::configClienttoServer(SysInfo *dst,ConfigStr *src)
 {
     int i;
-    for(i=0;i<8;i++)
-        dst->light_config.led[i]=src->calibrate.value.light_led[i];
+    for(i=0;i<EZCAM_LED_NUM;i++)
+    {
+        dst->light_config.led[i].enable=src->calibrate.value.light_config[i].enable;
+        dst->light_config.led[i].pwmduty=src->calibrate.value.light_config[i].pwmduty;
+    }
     dst->lan_config.nWhiteBalance=src->calibrate.value.camera_WhiteBalanceMode;
     dst->lan_config.nDayNight=src->calibrate.value.camera_DayNightMode;
     dst->lan_config.nBinning=src->calibrate.value.camera_Binning;

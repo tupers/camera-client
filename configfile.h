@@ -59,14 +59,8 @@ private:
         {
             {
                 {
-                    "Calibrate/light_led1",
-                    "Calibrate/light_led2",
-                    "Calibrate/light_led3",
-                    "Calibrate/light_led4",
-                    "Calibrate/light_led5",
-                    "Calibrate/light_led6",
-                    "Calibrate/light_led7",
-                    "Calibrate/light_led8"
+                    {"Calibrate/camera_light1Enable","Calibrate/camera_light1PWMduty"},
+                    {"Calibrate/camera_light2Enable","Calibrate/camera_light2PWMduty"}
                 },
                 "Calibrate/camera_WhiteBalanceMode",
                 "Calibrate/camera_DayNightMode",
@@ -169,7 +163,7 @@ private:
             },
             {
                 {
-                  0,0,0,0,0,0,0,0
+                  {0,100},{0,100}
                 },
                 0,
                 0,
@@ -326,6 +320,7 @@ private slots:
     void setLDCEnable(int val);
     void setVnfEnable(int val);
     void setVnfMode(int val);
+    void setLightConfig(int val);
 signals:
     void sendToServer(_NET_MSG, QString);
     void sendToServer(_NET_MSG, unsigned char);
@@ -334,6 +329,7 @@ signals:
     void sendToServerALG(QVariant);
     void sendToServerH3A(QVariant);
     void sendToServerEntireForBoot(QVariant);
+    void sendToServerLightConfig(QVariant);
     void sendToLog(QString);
     void algConfigTag(QVBoxLayout*,QPoint);
     void algResultTag(QVBoxLayout*,QPoint);

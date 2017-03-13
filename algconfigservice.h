@@ -29,6 +29,7 @@ public:
     ALGConfig_ui createConfigTag(QString);
     QLayout* createResultLabel(QString);
     QLayout* createResultRect(QString);
+    QLayout* createResultBlock(QString);
     ALGParamContainer createConfigContainer(int,int);
     ALGParamContainer createResultContainer(int,int);
     void deleteTag(ALGConfig_ui tag);

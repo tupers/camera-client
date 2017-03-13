@@ -6,7 +6,7 @@
 #define MIN_USERNAME 4
 #define MIN_PASSWD 4
 #define MAX_FILE_PATH 160
-#define DEFAULT_PATH "sds"
+#define DEFAULT_PATH "nand"
 
 #define MSG_SOK         0
 #define MSG_SFAIL       -1

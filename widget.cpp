@@ -193,6 +193,9 @@ void Widget::SetupOptions()
 
 void Widget::SetupCalibrate()
 {
+    ui->light_led1pwmSlider->setRange(0,100);
+    ui->light_led2pwmSlider->setRange(0,100);
+
     ui->camera_contrastSlider->setRange(0,255);
     ui->camera_saturationSlider->setRange(0,255);
     ui->camera_sharpnessSlider->setRange(0,255);
@@ -201,6 +204,18 @@ void Widget::SetupCalibrate()
     ui->camera_sensorgainSlider->setRange(0,255);
     ui->camera_pipegainSlider->setRange(0,255);
     ui->video_JPEGqualitySlider->setRange(0,100);
+
+    connect(ui->light_led1pwmSlider,SIGNAL(sliderMoved(int)),ui->light_led1pwmlineEdit,SLOT(setValue(int)));
+    connect(ui->light_led1pwmSlider,SIGNAL(sliderReleased()),ui->light_led1pwmlineEdit,SLOT(sendValueSignal()));
+    connect(ui->light_led1pwmlineEdit,SIGNAL(valueFinished(int)),ui->light_led1pwmSlider,SLOT(setValue(int)));
+    connect(ui->light_led1pwmlineEdit,SIGNAL(valueUpdateStr(int)),config,SLOT(setLightConfig(int)));
+    connect(ui->light_led2pwmSlider,SIGNAL(sliderMoved(int)),ui->light_led2pwmlineEdit,SLOT(setValue(int)));
+    connect(ui->light_led2pwmSlider,SIGNAL(sliderReleased()),ui->light_led2pwmlineEdit,SLOT(sendValueSignal()));
+    connect(ui->light_led2pwmlineEdit,SIGNAL(valueFinished(int)),ui->light_led2pwmSlider,SLOT(setValue(int)));
+    connect(ui->light_led2pwmlineEdit,SIGNAL(valueUpdateStr(int)),config,SLOT(setLightConfig(int)));
+    connect(ui->light_led1enablecomboBox,SIGNAL(activated(int)),config,SLOT(setLightConfig(int)));
+    connect(ui->light_led2enablecomboBox,SIGNAL(activated(int)),config,SLOT(setLightConfig(int)));
+    connect(config,SIGNAL(sendToServerLightConfig(QVariant)),network,SLOT(sendConfigToServerLightConfig(QVariant)));
 
     //Camera_Normal immediate updating
     connect(ui->camera_contrastSlider,SIGNAL(sliderMoved(int)),ui->camera_contrastlineEdit,SLOT(setValue(int)));
@@ -481,6 +496,10 @@ void Widget::LoadFullConfig()
 void Widget::LoadCalibrateConfig()
 {
     CalibrateStr tempconfig = config->getCalibrate();
+    ui->light_led1enablecomboBox->setCurrentIndex(tempconfig.value.light_config[0].enable);
+    ui->light_led2enablecomboBox->setCurrentIndex(tempconfig.value.light_config[1].enable);
+    ui->light_led1pwmlineEdit->editValue(tempconfig.value.light_config[0].pwmduty);
+    ui->light_led2pwmlineEdit->editValue(tempconfig.value.light_config[1].pwmduty);
     ui->camera_contrastlineEdit->editValue(tempconfig.value.camera_Contrast);
     ui->camera_saturationlineEdit->editValue(tempconfig.value.camera_Saturation);
     ui->camera_sharpnesslineEdit->editValue(tempconfig.value.camera_Sharpness);
@@ -579,8 +598,8 @@ void Widget::LoadRunConfig()
     ServerState tempstate = config->getState();
     ui->run_processmodeSearchAreaBox->setChecked(false);
     //for debug.
-    ui->run_algrunmodeBox->setCurrentIndex(tempstate.algImgsrc);
-    ui->run_algjogBox->setCurrentIndex(tempstate.algTriggle);
+    ui->run_algrunmodeBox->setCurrentIndex(tempstate.algTriggle);
+    ui->run_algsourceBox->setCurrentIndex(tempstate.algImgsrc);
 }
 
 void Widget::LoadConnectionConfig()
@@ -1487,15 +1506,16 @@ void Widget::sublistService(int index)
         algresultTimer->stop();
     }
 }
-void Widget::on_run_algjogBox_activated(int index)
+void Widget::on_run_algsourceBox_activated(int index)
 {
     if(index==0)
     {
-        network->sendConfigToServer(NET_MSG_IMGAL_SENSOR_IMG,1);
+        network->sendConfigToServer(NET_MSG_IMGALG_STATIC_IMG,1);
+
     }
     else
     {
-        network->sendConfigToServer(NET_MSG_IMGALG_STATIC_IMG,1);
+        network->sendConfigToServer(NET_MSG_IMGAL_SENSOR_IMG,1);
     }
 }
 
@@ -1663,6 +1683,8 @@ void Widget::on_run_algrunmodeBox_activated(int index)
         network->sendConfigToServer(NET_MSG_IMGALG_DEBUG_MODE,1);
     }
 }
+
+
 
 void Widget::on_button_Reboot_clicked()
 {
@@ -1873,3 +1895,4 @@ void Widget::on_algorithm_setdefaultButton_clicked()
     network->sendConfigToServer(NET_MSG_IMGALG_DEF_PARAM,temp,config->getAlgConfigSize());
     free(temp);
 }
+

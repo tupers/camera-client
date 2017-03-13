@@ -104,11 +104,11 @@ void ALGConfigService::reflashResult(void *params)
         ALGResultStr temp = resultList.at(i);
         if(temp.paramType==PARAM_LABEL)
         {
-        int size=valueSize(temp.type);
-        memcpy(temp.value,(char*)params+offset,size);
-        QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
-        label->setText(value2Text(temp.value,temp.type));
-        offset+=size;
+            int size=valueSize(temp.type);
+            memcpy(temp.value,(char*)params+offset,size);
+            QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+            label->setText(value2Text(temp.value,temp.type));
+            offset+=size;
         }
         else if(temp.paramType==PARAM_RECT)
         {
@@ -122,6 +122,18 @@ void ALGConfigService::reflashResult(void *params)
             right->setText(value2Text((char*)temp.value+2*valueSize(temp.type),temp.type));
             QLabel* bottom = (QLabel*)temp.ui->itemAt(4)->widget();
             bottom->setText(value2Text((char*)temp.value+3*valueSize(temp.type),temp.type));
+            offset+=size;
+        }
+        else if(temp.paramType==PARAM_BLOCK)
+        {
+            int size = valueSize(temp.type)*3;
+            memcpy(temp.value,(char*)params+offset,size);
+            QLabel* area = (QLabel*)temp.ui->itemAt(1)->widget();
+            area->setText(value2Text(temp.value,temp.type));
+            QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
+            x->setText(value2Text((char*)temp.value+valueSize(temp.type),temp.type));
+            QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
+            y->setText(value2Text((char*)temp.value+2*valueSize(temp.type),temp.type));
             offset+=size;
         }
 
@@ -168,19 +180,19 @@ QLayout *ALGConfigService::createResultLabel(QString name)
     QLayout* layout = new QHBoxLayout;
     QLabel* nameLabel = new QLabel(name);
     nameLabel->setStyleSheet("border-style:outset;"
-                                  "border-top-width:1px;"
-                                  "border-right-width:1px;"
-                                  "border-color:rgba(50,50,50,255);"
-                                  "padding-left:15px;");
+                             "border-top-width:1px;"
+                             "border-right-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
     QLabel* valueLabel = new QLabel;
     valueLabel->setStyleSheet("border-style:outset;"
-                                   "border-top-width:1px;"
-                                   "border-color:rgba(50,50,50,255);"
-                                   "padding-left:15px;");
-   layout->addWidget(nameLabel);
-   layout->addWidget(valueLabel);
+                              "border-top-width:1px;"
+                              "border-color:rgba(50,50,50,255);"
+                              "padding-left:15px;");
+    layout->addWidget(nameLabel);
+    layout->addWidget(valueLabel);
 
-   return layout;
+    return layout;
 }
 
 QLayout *ALGConfigService::createResultRect(QString name)
@@ -188,10 +200,10 @@ QLayout *ALGConfigService::createResultRect(QString name)
     QLayout* layout = new QHBoxLayout;
     QLabel* nameLabel = new QLabel(name);
     nameLabel->setStyleSheet("border-style:outset;"
-                                  "border-top-width:1px;"
-                                  "border-right-width:1px;"
-                                  "border-color:rgba(50,50,50,255);"
-                                  "padding-left:15px;");
+                             "border-top-width:1px;"
+                             "border-right-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
     QLabel* leftLabel = new QLabel;
     leftLabel->setStyleSheet("border-style:outset;"
                              "border-top-width:1px;"
@@ -199,24 +211,56 @@ QLayout *ALGConfigService::createResultRect(QString name)
                              "padding-left:15px;");
     QLabel* topLabel = new QLabel;
     topLabel->setStyleSheet("border-style:outset;"
-                             "border-top-width:1px;"
-                             "border-color:rgba(50,50,50,255);"
-                             "padding-left:15px;");
+                            "border-top-width:1px;"
+                            "border-color:rgba(50,50,50,255);"
+                            "padding-left:15px;");
     QLabel* rightLabel = new QLabel;
     rightLabel->setStyleSheet("border-style:outset;"
-                             "border-top-width:1px;"
-                             "border-color:rgba(50,50,50,255);"
-                             "padding-left:15px;");
+                              "border-top-width:1px;"
+                              "border-color:rgba(50,50,50,255);"
+                              "padding-left:15px;");
     QLabel* bottomLabel = new QLabel;
     bottomLabel->setStyleSheet("border-style:outset;"
-                             "border-top-width:1px;"
-                             "border-color:rgba(50,50,50,255);"
-                             "padding-left:15px;");
+                               "border-top-width:1px;"
+                               "border-color:rgba(50,50,50,255);"
+                               "padding-left:15px;");
     layout->addWidget(nameLabel);
     layout->addWidget(leftLabel);
     layout->addWidget(topLabel);
     layout->addWidget(rightLabel);
     layout->addWidget(bottomLabel);
+
+    return layout;
+}
+
+QLayout *ALGConfigService::createResultBlock(QString name)
+{
+    QLayout* layout = new QHBoxLayout;
+    QLabel* nameLabel = new QLabel(name);
+    nameLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-right-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    QLabel* areaLabel = new QLabel;
+    areaLabel->setStyleSheet("border-style:outset;"
+                             "border-top-width:1px;"
+                             "border-color:rgba(50,50,50,255);"
+                             "padding-left:15px;");
+    QLabel* xLabel = new QLabel;
+    xLabel->setStyleSheet("border-style:outset;"
+                            "border-top-width:1px;"
+                            "border-color:rgba(50,50,50,255);"
+                            "padding-left:15px;");
+    QLabel* yLabel = new QLabel;
+    yLabel->setStyleSheet("border-style:outset;"
+                              "border-top-width:1px;"
+                              "border-color:rgba(50,50,50,255);"
+                              "padding-left:15px;");
+    layout->addWidget(nameLabel);
+    layout->addWidget(areaLabel);
+    layout->addWidget(xLabel);
+    layout->addWidget(yLabel);
 
     return layout;
 }
@@ -229,14 +273,14 @@ ALGParamContainer ALGConfigService::createResultContainer(int posx, int posy)
     temp.containerLayout->setSpacing(0);
     temp.titleLabel=new QLabel;
     temp.titleLabel->setStyleSheet("QLabel"
-    "{color:white;"
-    "min-width:0px;"
-    "max-width:1000px;"
-    "font:bold 15pt Arial;"
-    "margin-top:10px;"
-    "}");
-//    temp.containerLayout->setMargin(20);
-//    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+                                   "{color:white;"
+                                   "min-width:0px;"
+                                   "max-width:1000px;"
+                                   "font:bold 15pt Arial;"
+                                   "margin-top:10px;"
+                                   "}");
+    //    temp.containerLayout->setMargin(20);
+    //    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     temp.posx=posx;
     temp.posy=posy;
     temp.containerLayout->addWidget(temp.titleLabel);
@@ -259,18 +303,18 @@ ALGParamContainer ALGConfigService::createConfigContainer(int posx, int posy)
     temp.containerLayout=new QVBoxLayout;
     temp.titleLabel=new QLabel;
     temp.titleLabel->setStyleSheet("QLabel"
-    "{color:white;"
-    "min-width:0px;"
-    "max-width:1000px;"
-    "border-style:outset;"
-    "border-bottom-width:1px;"
-    "border-color:rgba(50,50,50,255);"
-    "font:bold 15pt Arial;"
-    "padding-left:15px;"
-    "margin-top:10px;"
-    "}");
+                                   "{color:white;"
+                                   "min-width:0px;"
+                                   "max-width:1000px;"
+                                   "border-style:outset;"
+                                   "border-bottom-width:1px;"
+                                   "border-color:rgba(50,50,50,255);"
+                                   "font:bold 15pt Arial;"
+                                   "padding-left:15px;"
+                                   "margin-top:10px;"
+                                   "}");
     temp.containerLayout->setMargin(20);
-//    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+    //    temp.titleLabel->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     temp.posx=posx;
     temp.posy=posy;
     temp.containerLayout->addWidget(temp.titleLabel);
@@ -392,22 +436,39 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                         {
                             QXmlStreamAttributes att = reader.attributes();
                             QString labelName = reader.readElementText();
-                            int visible =att.value("visible").toInt();
+                            int isShow =att.value("show").toInt();
+                            int visible = att.value("visible").toInt();
                             VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
                             resultSize+=4*valueSize(type);
                             void* pdata = malloc(valueSize(type)*4);
-                            resultList.append({labelName,PARAM_RECT,visible,type,pdata,createResultRect(labelName)});
-                            resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
+                            resultList.append({labelName,PARAM_RECT,visible,isShow,type,pdata,createResultRect(labelName)});
+                            if(visible==1)
+                                resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
+                        }
+                        else if(reader.name()=="Block")
+                        {
+                            QXmlStreamAttributes att = reader.attributes();
+                            QString labelName = reader.readElementText();
+                            VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
+                            int isShow =att.value("show").toInt();
+                            int visible = att.value("visible").toInt();
+                            resultSize+=3*valueSize(type);
+                            void* pdata = malloc(valueSize(type)*3);
+                            resultList.append({labelName,PARAM_BLOCK,visible,isShow,type,pdata,createResultBlock(labelName)});
+                            if(visible==1)
+                                resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
                         }
                         else if(reader.name()=="Label")
                         {
                             QXmlStreamAttributes att = reader.attributes();
                             QString labelName = reader.readElementText();
                             VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
+                            int visible = att.value("visible").toInt();
                             resultSize+=valueSize(type);
                             void* pdata = malloc(valueSize(type));
-                            resultList.append({labelName,PARAM_LABEL,0,type,pdata,createResultLabel(labelName)});
-                            resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
+                            resultList.append({labelName,PARAM_LABEL,visible,0,type,pdata,createResultLabel(labelName)});
+                            if(visible==1)
+                                resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
                         }
                     }
                     reader.readNext();
@@ -436,18 +497,32 @@ QImage ALGConfigService::resultImage()
     pic.fill(QColor(0,0,0,0));
     QPainter pa(&pic);
     pa.setPen(Qt::NoPen);
-    pa.setBrush(QBrush(QColor(50,100,50,50)));
+    pa.setBrush(QBrush(QColor(33,173,50,200)));
     int i;
     for(i=0;i<resultList.count();i++)
     {
         ALGResultStr temp = resultList.at(i);
-        if(temp.paramType==PARAM_RECT&&temp.visible==1)
+        if(temp.paramType==PARAM_RECT&&temp.isShow==1)
         {
             QLabel* left = (QLabel*)temp.ui->itemAt(1)->widget();
             QLabel* top = (QLabel*)temp.ui->itemAt(2)->widget();
             QLabel* right = (QLabel*)temp.ui->itemAt(3)->widget();
             QLabel* bottom = (QLabel*)temp.ui->itemAt(4)->widget();
             pa.drawRect(left->text().toInt(),top->text().toInt(),right->text().toInt()-left->text().toInt(),bottom->text().toInt()-top->text().toInt());
+        }
+        else if(temp.paramType==PARAM_BLOCK&&temp.isShow==1)
+        {
+            QLabel* area = (QLabel*)temp.ui->itemAt(1)->widget();
+            if(area->text().toInt()!=0)
+            {
+            QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
+            QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
+            QPen pen(QColor(223,50,0,200));
+            pen.setWidth(3);
+            pa.setPen(pen);
+            pa.drawLine(x->text().toInt()-7,y->text().toInt(),x->text().toInt()+7,y->text().toInt());
+            pa.drawLine(x->text().toInt(),y->text().toInt()-7,x->text().toInt(),y->text().toInt()+7);
+            }
         }
     }
     return pic;

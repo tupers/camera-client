@@ -51,6 +51,7 @@ typedef enum
 {
     PARAM_LABEL=0,
     PARAM_RECT,
+    PARAM_BLOCK,
     PARAM_CIRCLE
 }PARAM_TYPE;
 typedef struct
@@ -58,6 +59,7 @@ typedef struct
     QString name;
     PARAM_TYPE paramType;
     int visible;
+    int isShow;
     VALUE_TYPE type;
     void* value;
     QLayout* ui;

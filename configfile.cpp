@@ -50,8 +50,11 @@ void ConfigFile::initDefaultConfig()
 void ConfigFile::saveConfig(QSettings* conf)
 {
     int i;
-    for(i=0;i<8;i++)
-        conf->setValue(config.calibrate.name.light_led[i],config.calibrate.value.light_led[i]);
+    for(i=0;i<EZCAM_LED_NUM;i++)
+    {
+        conf->setValue(config.calibrate.name.light_config[i].Enable,config.calibrate.value.light_config[i].enable);
+        conf->setValue(config.calibrate.name.light_config[i].pwmDuty,config.calibrate.value.light_config[i].pwmduty);
+    }
     conf->setValue(config.calibrate.name.camera_WhiteBalanceMode,config.calibrate.value.camera_WhiteBalanceMode);
     conf->setValue(config.calibrate.name.camera_DayNightMode,config.calibrate.value.camera_DayNightMode);
     conf->setValue(config.calibrate.name.camera_Binning,config.calibrate.value.camera_Binning);
@@ -142,8 +145,11 @@ void ConfigFile::saveConfig(QSettings* conf)
 void ConfigFile::loadConfig(QSettings *conf)
 {
     int i;
-    for(i=0;i<8;i++)
-        config.calibrate.value.light_led[i]=conf->value(config.calibrate.name.light_led[i]).toInt();
+    for(i=0;i<EZCAM_LED_NUM;i++)
+    {
+        config.calibrate.value.light_config[i].enable=conf->value(config.calibrate.name.light_config[i].Enable).toUInt();
+        config.calibrate.value.light_config[i].pwmduty=conf->value(config.calibrate.name.light_config[i].pwmDuty).toUInt();
+    }
     config.calibrate.value.camera_WhiteBalanceMode=conf->value(config.calibrate.name.camera_WhiteBalanceMode).toInt();
     config.calibrate.value.camera_DayNightMode=conf->value(config.calibrate.name.camera_DayNightMode).toInt();
     config.calibrate.value.camera_Binning=conf->value(config.calibrate.name.camera_Binning).toInt();
@@ -365,6 +371,23 @@ void ConfigFile::setVnfMode(int val)
 {
     config.calibrate.value.camera_VnfMode=val;
     emit sendToServer(NET_MSG_SET_VNF_MODE,val);
+}
+
+void ConfigFile::setLightConfig(int val)
+{
+    QString obName=sender()->objectName();
+    if(obName=="light_led1pwmlineEdit")
+        config.calibrate.value.light_config[0].pwmduty=val;
+    else if(obName=="light_led2pwmlineEdit")
+        config.calibrate.value.light_config[1].pwmduty=val;
+    else if(obName=="light_led1enablecomboBox")
+        config.calibrate.value.light_config[0].enable =val;
+    else if(obName=="light_led2enablecomboBox")
+        config.calibrate.value.light_config[1].enable=val;
+    QVariant lightConfig;
+    lightConfig.setValue(config.calibrate.value);
+    emit sendToServerLightConfig(lightConfig);
+
 }
 
 

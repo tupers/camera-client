@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>2</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -1011,7 +1011,7 @@ font:bold 13pt Arial;}</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QComboBox" name="run_algjogBox">
+                        <widget class="QComboBox" name="run_algsourceBox">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -1026,12 +1026,12 @@ font:bold 13pt Arial;}</string>
                          </property>
                          <item>
                           <property name="text">
-                           <string>Sensor IMG</string>
+                           <string>Static IMG</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>Static IMG</string>
+                           <string>Sensor IMG</string>
                           </property>
                          </item>
                         </widget>
@@ -1105,7 +1105,7 @@ font:bold 13pt Arial;}</string>
                    <enum>QTabWidget::East</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="result_summarysubWidget">
                    <attribute name="title">
@@ -1182,9 +1182,265 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
                    <number>1</number>
                   </property>
                   <widget class="QWidget" name="subtab_Light">
+                   <property name="styleSheet">
+                    <string notr="true">QWidget#light_settingWidget
+{
+	background-color:rgba(50,50,50,120);
+	margin:20px;
+}
+QLabel{color:white;
+font:bold 11pt Arial;
+padding-left:5px;
+min-width:150px;
+max-width:150px;
+}
+
+QLabel#light_settingLabel
+{color:white;
+min-width:0px;
+max-width:1000px;
+border-style:outset;
+border-bottom-width:1px;
+border-color:rgba(50,50,50,255);
+font:bold 15pt Arial;
+padding-left:15px;
+margin-top:10px;
+}
+
+QComboBox::list{
+margin-left:10px;
+margin-right:10px;
+}</string>
+                   </property>
                    <attribute name="title">
                     <string>Light</string>
                    </attribute>
+                   <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="1,1">
+                    <property name="spacing">
+                     <number>5</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QWidget" name="light_settingWidget" native="true">
+                      <layout class="QVBoxLayout" name="verticalLayout_11">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>20</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>20</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>20</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>20</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="light_settingLabel">
+                         <property name="text">
+                          <string>Setting</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="light_led1enableLayout">
+                         <property name="rightMargin">
+                          <number>10</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="light_led1enableLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>LED 1 Enable</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item alignment="Qt::AlignRight">
+                          <widget class="QComboBox" name="light_led1enablecomboBox">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>100</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>100</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <item>
+                            <property name="text">
+                             <string>Off</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>On</string>
+                            </property>
+                           </item>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="light_led1pwmLayout">
+                         <item>
+                          <widget class="QLabel" name="light_led1pwmLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>LED 1 PWM</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="light_led1pwmsubLayout" stretch="5,1">
+                           <property name="leftMargin">
+                            <number>10</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>10</number>
+                           </property>
+                           <item>
+                            <widget class="QSlider" name="light_led1pwmSlider">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="LineEdit" name="light_led1pwmlineEdit"/>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="light_led2enableLayout">
+                         <property name="rightMargin">
+                          <number>10</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="light_led2enableLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>LED 2 Enable</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item alignment="Qt::AlignRight">
+                          <widget class="QComboBox" name="light_led2enablecomboBox">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>100</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>100</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <item>
+                            <property name="text">
+                             <string>Off</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>On</string>
+                            </property>
+                           </item>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="light_led2pwmLayout">
+                         <item>
+                          <widget class="QLabel" name="light_led2pwmLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>LED 2 PWM</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="light_led2pwmsubLayout" stretch="5,1">
+                           <property name="leftMargin">
+                            <number>10</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>10</number>
+                           </property>
+                           <item>
+                            <widget class="QSlider" name="light_led2pwmSlider">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="LineEdit" name="light_led2pwmlineEdit"/>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QWidget" name="widget_2" native="true"/>
+                    </item>
+                   </layout>
                   </widget>
                   <widget class="QWidget" name="subtab_Camera">
                    <property name="styleSheet">
@@ -1267,7 +1523,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">

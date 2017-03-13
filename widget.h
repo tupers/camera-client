@@ -167,7 +167,7 @@ private slots:
     void cpuloadUpdate();
     void algresultUpdate();
     void camera_2AmodecomboBox_Service(int index);
-    void on_run_algjogBox_activated(int index);
+    void on_run_algsourceBox_activated(int index);
     void frameFromSensor(uchar*data,int width,int height,int pitch);
     void setDebugMode(int);
     void firmwareUpdateService(int);
@@ -207,7 +207,6 @@ private slots:
     void on_camera_2A_AEWeight_paintButton_clicked();
     void getH3AWeight(EzCamH3AWeight);
     void on_algorithm_setdefaultButton_clicked();
-
 signals:
     void SubWindow_Init();
     void testsignal();

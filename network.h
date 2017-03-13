@@ -79,6 +79,7 @@ public slots:
     bool sendConfigToServerEntireForBoot(QVariant);
     bool sendConfigToServerALG(QVariant);
     bool sendConfigToServerH3A(QVariant);
+    void sendConfigToServerLightConfig(QVariant);
     void GetFrameFromSensor();
     void setSocketDebugMode();
     void sendNetworkConfig();

@@ -48,9 +48,21 @@ typedef struct
     QString unkown2;
 }CodecAdvParamName;
 
+typedef struct
+{
+    QString Enable;
+    QString pwmDuty;
+}lightConfigName;
+
+typedef struct
+{
+    unsigned int enable;
+    unsigned int pwmduty;
+}lightConfigValue;
+
 typedef struct CalibrateNameStruct
 {
-    QString light_led[8];
+    lightConfigName light_config[EZCAM_LED_NUM];
     QString camera_WhiteBalanceMode;
     QString camera_DayNightMode;
     QString camera_Binning;
@@ -126,7 +138,7 @@ typedef struct CalibrateNameStruct
 
 typedef struct CalibrateValueStruct
 {
-    unsigned char light_led[8];
+    lightConfigValue light_config[EZCAM_LED_NUM];
     int camera_WhiteBalanceMode;
     int camera_DayNightMode;
     int camera_Binning;
