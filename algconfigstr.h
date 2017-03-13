@@ -59,7 +59,6 @@ typedef struct
     QString name;
     PARAM_TYPE paramType;
     int visible;
-    int isShow;
     VALUE_TYPE type;
     void* value;
     QLayout* ui;

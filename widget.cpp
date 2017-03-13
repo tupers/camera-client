@@ -57,6 +57,8 @@ void Widget::InitGUI()
 #ifdef OFFLINE_DEBUG
     ui->sublist->setCurrentIndex(4);
     ui->mainlist->setVisible(true);
+//    config->initAlgService();
+//    qDebug()<<config->getAlgResultSize();
 #endif
 
 }

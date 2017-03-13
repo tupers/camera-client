@@ -17,56 +17,7 @@
   	<Tag posx="1" posy="0">
   		<Title>Result</Title>
   		<Label type="0" visible="1">Block_Num</Label>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="1" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
-  		<Block type="0" visible="0" show="1">Block</Block>
+  		<Block count="50" type="0" visible="0">Block</Block>
   	</Tag>
   </Result>
 </Context> 
