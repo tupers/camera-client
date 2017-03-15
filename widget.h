@@ -211,7 +211,7 @@ signals:
     void SubWindow_Init();
     void testsignal();
     void videocontrol(int);
-    void getImage_Source(QImage);
+    void getImage_Source(QImage,int);
     void NetworkConfigtoServer();
     void previewFtp(QString);
     void openFtp(NetworkStruct);

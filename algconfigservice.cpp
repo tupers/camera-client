@@ -516,8 +516,13 @@ QImage ALGConfigService::resultImage()
     QImage pic(1280,720,QImage::Format_ARGB32);
     pic.fill(QColor(0,0,0,0));
     QPainter pa(&pic);
-    QPen pen(QColor(223,50,0,200));
+    QPen pen;
     pen.setWidth(3);
+    pen.setColor(QColor(50,223,0,200));
+    pa.setPen(pen);
+    pa.drawLine(192,0,192,720);
+    pa.drawLine(1088,0,1088,720);
+    pen.setColor(QColor(223,50,0,200));
     pa.setPen(pen);
     //step1. find block num
     int blockNum=0;

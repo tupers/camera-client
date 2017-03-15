@@ -20,7 +20,7 @@ public:
 private:
     Ui::SourceVideo *ui;
 private slots:
-    void setImage(QImage);
+    void setImage(QImage,int);
 protected:
     void closeEvent(QCloseEvent*event);
 signals:

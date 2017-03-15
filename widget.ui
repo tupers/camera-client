@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -1179,7 +1179,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Light">
                    <property name="styleSheet">

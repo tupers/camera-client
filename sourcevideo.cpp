@@ -7,6 +7,7 @@ SourceVideo::SourceVideo(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setFixedSize(1280,720);
+    ui->inputwidget->resizeImageCount(2);
 }
 
 SourceVideo::~SourceVideo()
@@ -20,13 +21,13 @@ void SourceVideo::clearImage()
     ui->inputwidget->clearImage(0);
 }
 
-void SourceVideo::setImage(QImage image)
+void SourceVideo::setImage(QImage image, int index)
 {
     if (image.height()>0)
     {
 //        QPixmap pix = QPixmap::fromImage(image);
 //        ui->inputLabel->setPixmap(pix);
-        ui->inputwidget->setImage(image,0);
+        ui->inputwidget->setImage(image,index);
     }
 }
 

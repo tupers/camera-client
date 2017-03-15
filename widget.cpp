@@ -725,7 +725,7 @@ void Widget::SetupRun()
     connect(algresultTimer,SIGNAL(timeout()),this,SLOT(algresultUpdate()));
 
     SourceVideoWidget = new SourceVideo();
-    connect(this,SIGNAL(getImage_Source(QImage)),SourceVideoWidget,SLOT(setImage(QImage)));
+    connect(this,SIGNAL(getImage_Source(QImage,int)),SourceVideoWidget,SLOT(setImage(QImage,int)));
     connect(SourceVideoWidget,SIGNAL(SourceVideoClose()),this,SLOT(SourceVideoWidgetClose()));
     connect(ui->run_processmodeAlgBox,SIGNAL(stateChanged(int)),config,SLOT(setLoadAlg(int)));
 
@@ -1158,7 +1158,7 @@ void Widget::setVideoImage_Run(QImage image)
         if(SourceFlag==false)
             ui->run_videoinputwidget->setImage(image.scaledToHeight(ui->run_videoinputwidget->height()),1);
         else
-            emit getImage_Source(image);
+            emit getImage_Source(image,1);
     }
 }
 
@@ -1423,8 +1423,11 @@ void Widget::algresultUpdate()
         if(network->GetParams(NET_MSG_GET_ALG_RESULT,tempresult,config->getAlgResultSize()))
         {
             config->reflashAlgResult(tempresult);
-            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
+//            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
+            if(SourceFlag==false)
             ui->run_videoinputwidget->setImage(config->refreshAlgImage(),0,SCALE_HEIGHT);
+            else
+                emit getImage_Source(config->refreshAlgImage(),0);
         }
         else
         {
@@ -1830,7 +1833,15 @@ void Widget::on_camera_2A_AEWeight_uploadButton_clicked()
     weight.width2=ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
     weight.height2=ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
     weight.weight=ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
-
+    ConfigStr tempconfig = config->getConfig();
+    tempconfig.calibrate.value.camera_2A_weight_width1 = ui->camera_2A_AEWeight_width1lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_height1 = ui->camera_2A_AEWeight_height1lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_h_start2 = ui->camera_2A_AEWeight_h_start2lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_v_start2 = ui->camera_2A_AEWeight_v_start2lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_width2 = ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_height2 = ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
+    tempconfig.calibrate.value.camera_2A_weight_weight = ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
+    config->SetConfig(tempconfig,CONFIG_SAVEONLY);
     network->sendConfigToServer(NET_MSG_SET_2A_WEIGHT,&weight,sizeof(EzCamH3AWeight));
 }
 
