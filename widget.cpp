@@ -57,6 +57,7 @@ void Widget::InitGUI()
 #ifdef OFFLINE_DEBUG
     ui->sublist->setCurrentIndex(4);
     ui->mainlist->setVisible(true);
+    config->initAlgService();
 //    config->initAlgService();
 //    qDebug()<<config->getAlgResultSize();
 #endif
@@ -318,6 +319,7 @@ void Widget::UpdateConfigFile()
         if(fileinfo.suffix().compare("ini")==0)
         {
             config->OpenConfig(fileinfo.baseName());
+
             ui->run_processmodeConfigBox->insertItem(ui->run_processmodeConfigBox->count(),fileinfo.baseName());
             SaveasComboBox->insertItem(SaveasComboBox->count(),fileinfo.baseName());
             ui->system_configlist->insertRow(ui->system_configlist->rowCount());
@@ -1575,7 +1577,7 @@ void Widget::firmwareUpdateService(int cmd)
     case 0://FIRMWARE_C6DSP to xe674
     {
         targetPath=FIRMWARE_C6DSP;
-        localFilePath += "xe674";
+        localFilePath += "ipnc_rdk_fw_c6xdsp.xe674";
         break;
     }
     case 1:
@@ -1599,7 +1601,7 @@ void Widget::firmwareUpdateService(int cmd)
     case 4:
     {
         targetPath=SDS_SERIAL_PATH;
-        localFilePath += "SdsSerial";
+        localFilePath += "EzApp";
         break;
     }
     case 5:
@@ -1642,6 +1644,7 @@ void Widget::firmwareUpdateService(int cmd)
         fread(ba->data(),1,size,fp);
         qDebug()<<ba->length();
         emit network->putFtp(targetPath,ba);
+        fclose(fp);
     }
     else
     {
@@ -1771,6 +1774,16 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
 
 void Widget::on_system_firmwareupdateButton_clicked()
 {
+    if(!network->isFtpLogin())
+    {
+        NetworkStr networkconfigFromServer = network->getNetworkConfig();
+        networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
+        networkconfigFromServer.value.ports_ftpusername="root";
+        networkconfigFromServer.value.ports_ftppassword="ftpcam";
+        networkconfigFromServer.value.ports_ftpserverport="8010";
+        emit network->connectFtp(networkconfigFromServer.value.ports_ftpserverip,networkconfigFromServer.value.ports_ftpserverport.toInt(),
+                                 networkconfigFromServer.value.ports_ftpusername,networkconfigFromServer.value.ports_ftppassword);
+    }
     updateWidget->show();
     updateWidget->move((QApplication::desktop()->width() - updateWidget->width())/2,(QApplication::desktop()->height() - updateWidget->height())/2);
 }

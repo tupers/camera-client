@@ -499,6 +499,7 @@ void ConfigFile::saveH3AParams(EzCamH3AParam src)
 void ConfigFile::initAlgService()
 {
     algconfig->initConfigList(ALG_TYPE(config.state.algType));
+//    algconfig->initConfigList(ALG_GVSS);
 }
 
 void ConfigFile::setAlgConfig(void *params)

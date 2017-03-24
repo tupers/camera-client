@@ -3,14 +3,15 @@
 	<Config>
 		<Tag posx="0" posy="0">
 			<Title>Normal</Title>
-			<Label type="0">MaxArraySize</Label>
-			<Label type="0">MinHBlockRatio</Label>
-			<Label type="0">MaxHBlockRatio</Label>
-			<Label type="6">HBlockVarianceThreshold</Label>
-			<Label type="6">MinCodeUnitRatio</Label>
-			<Label type="6">MaxCodeUnitRatio</Label>
-			<Label type="6">MinCodeFlagRatio</Label>
-			<Label type="6">MaxCodeFlagRatio</Label>
+			<Label type="6">frameLeftRatio</Label>
+			<Label type="6">frameRightRatio</Label>
+			<Label type="6">hAngle</Label>
+			<Label type="6">vAngle</Label>
+			<Label type="6">linepairAngle</Label>
+			<Label type="6">slopeOffset</Label>
+			<Label type="1">maxArea</Label>
+			<Label type="1">minArea</Label>
+
 		</Tag>
   	</Config>
   <Result>

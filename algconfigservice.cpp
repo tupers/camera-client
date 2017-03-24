@@ -126,14 +126,14 @@ void ALGConfigService::reflashResult(void *params)
         }
         else if(temp.paramType==PARAM_BLOCK)
         {
-            int size = valueSize(temp.type)*3;
+            int size = valueSize(temp.type)*2;
             memcpy(temp.value,(char*)params+offset,size);
             QLabel* area = (QLabel*)temp.ui->itemAt(1)->widget();
             area->setText(value2Text(temp.value,temp.type));
             QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
-            x->setText(value2Text((char*)temp.value+valueSize(temp.type),temp.type));
+            x->setText(value2Text((char*)temp.value+valueSize(temp.type),VALUE_SHORT));
             QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
-            y->setText(value2Text((char*)temp.value+2*valueSize(temp.type),temp.type));
+            y->setText(value2Text((char*)temp.value+valueSize(temp.type)+valueSize(VALUE_SHORT),VALUE_SHORT));
             offset+=size;
         }
 
@@ -463,7 +463,7 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                             int visible = att.value("visible").toInt();
                             for(i=0;i<count;i++)
                             {
-                            resultSize+=3*valueSize(type);
+                            resultSize+=2*valueSize(type);
                             void* pdata = malloc(valueSize(type)*3);
                             resultList.append({labelName,PARAM_BLOCK,visible,type,pdata,createResultBlock(labelName)});
                             if(visible==1)

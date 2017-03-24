@@ -365,7 +365,7 @@ int NetWork::getConfigFromSever(_NET_MSG cmd, void *dst, int size)
 }
 
 void NetWork::sendConfigToServerEntire(QVariant configentire)
-{
+{           
     NetMsg *msg;
     NetMsg *ackMsg;
     int32_t ret;
