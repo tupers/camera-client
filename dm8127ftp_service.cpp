@@ -102,10 +102,12 @@ void DM8127Ftp_Service::loginService()
     {
         serverState=Server_Loggedin;
         qDebug()<<"connected. open data server";
-        if(!dataServer->listen(QHostAddress::Any,dataPort))
+        if(!dataServer->listen(QHostAddress::Any,0))
             qDebug()<<"listen failed";
         else
         {
+
+            dataPort = dataServer->serverPort();
             curState=true;
             list();
         }

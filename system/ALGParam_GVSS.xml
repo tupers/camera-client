@@ -9,8 +9,8 @@
 			<Label type="6">vAngle</Label>
 			<Label type="6">linepairAngle</Label>
 			<Label type="6">slopeOffset</Label>
-			<Label type="1">maxArea</Label>
-			<Label type="1">minArea</Label>
+			<Label type="0">maxArea</Label>
+			<Label type="0">minArea</Label>
 
 		</Tag>
   	</Config>

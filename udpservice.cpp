@@ -6,10 +6,10 @@ udpservice::~udpservice()
         delete databuf;
 }
 
-udpservice::udpservice(int port, int datasize, QObject *parent) : QObject(parent)
+udpservice::udpservice(QHostAddress ip, int datasize, QObject *parent) : QObject(parent)
 {
     udpsocket = new QUdpSocket(this);
-    udpsocket->bind(port,QUdpSocket::ReuseAddressHint);
+    udpsocket->bind(ip,0);
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(dataRecv()));
     if(datasize==0)
         mode=1;

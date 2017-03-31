@@ -10,14 +10,17 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     LogTimer->setObjectName("Timer");
     ClientSocket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 //    qDebug()<<"network thread id: "<<QThread::currentThreadId();
-    udpFrameRcv = new udpservice(8000,1920*1080);
+    QHostAddress localIP;
+    localIP.setAddress(getLocalIP("本机连接"));
+
+    udpFrameRcv = new udpservice(localIP,1920*1080);
     udpThread = new QThread;
     udpFrameRcv->moveToThread(udpThread);
     connect(udpFrameRcv,SIGNAL(sendToLog(QString)),this,SIGNAL(sendToLog(QString)));
     connect(udpFrameRcv,SIGNAL(recvDataInfo(uchar*,int,int,int)),this,SIGNAL(udpRcvDataInfo(uchar*,int,int,int)));
     udpThread->start();
 
-    udpDebugRcv = new udpservice(8001);
+    udpDebugRcv = new udpservice(localIP);
     udpDebugThread = new QThread;
     udpDebugRcv->moveToThread(udpDebugThread);
     connect(udpDebugRcv,SIGNAL(sendToLog(QString)),this,SIGNAL(sendToLog(QString)));
@@ -547,7 +550,7 @@ void NetWork::GetFrameFromSensor()
     emit sendToLog("Get frame from server...");
     qDebug()<<"Get frame from server...";
     EzFrameInfo frameinfo;
-    frameinfo.udpPort = 8000;
+    frameinfo.udpPort = udpFrameRcv->socket()->localPort();
 
     QString addr = getLocalIP("本地连接");
     strcpy((char*)frameinfo.udpIp,addr.toLatin1().data());
@@ -583,7 +586,7 @@ void NetWork::setSocketDebugMode()
     emit sendToLog("Set socket debug mode...");
     qDebug()<<"Set socket debug mode...";
     DebugParams debuginfo;
-    debuginfo.port = 8001;
+    debuginfo.port = udpDebugRcv->socket()->localPort();
 
     QString addr = getLocalIP("本地连接");
     strcpy((char*)debuginfo.ip,addr.toLatin1().data());
@@ -732,7 +735,6 @@ bool NetWork::GetSysinfo(ConfigStr* pstr)
 
     emit sendToLog("get system info...");
     qDebug()<<"get system info...";
-
     len = sizeof(NetMsg);
     msg = (NetMsg *)malloc(len);
     memset(msg,0,len);
@@ -997,7 +999,7 @@ bool NetWork::GetParams(_NET_MSG cmd , void *src , int size)
     if(ret != MSG_SOK)
     {
         emit sendToLog(QString("get cmd:%1 Params fail").arg(cmd));
-        qDebug()<<QString("get cmd:%1 Params fail").arg(cmd);
+        qDebug()<<QString("get cmd:%1 Params fail, ret: %2").arg(cmd).arg(ret);
 
         free(msg);
         free(ackMsg);

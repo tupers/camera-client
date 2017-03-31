@@ -42,6 +42,9 @@ void logMessage(QtMsgType type, const QMessageLogContext &context, const QString
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QFile f("./log/log.txt");
+    if(f.exists())
+        f.remove();
 //    qInstallMessageHandler(logMessage);
     Widget w;
     w.show();

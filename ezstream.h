@@ -381,12 +381,30 @@ typedef struct
 
 typedef struct
 {
+    int width1;
+    int height1;
+    int h_start2;
+    int v_start2;
+    int width2;
+    int height2;
+    int weight;
+}EzCamH3AWeight;
+
+typedef struct
+{
     unsigned int width;
     unsigned int height;
     unsigned int pitch;
     unsigned int imgInfoSize;
     unsigned char imgInfo[0];
 }EzImgFileHeader;
+
+typedef struct
+{
+    unsigned char Alg_saveImgdirName[10];
+    unsigned char Alg_saveImgIndex;
+    unsigned int errNo;
+}EzImgFileInfo;
 
 /**
 * @brief event log data structure.
@@ -431,16 +449,7 @@ typedef struct {
     unsigned int vertIncr;
 }EzCamH3AParam;
 
-typedef struct
-{
-    int width1;
-    int height1;
-    int h_start2;
-    int v_start2;
-    int width2;
-    int height2;
-    int weight;
-}EzCamH3AWeight;
+
 
 typedef struct
 {

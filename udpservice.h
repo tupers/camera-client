@@ -14,8 +14,9 @@ class udpservice : public QObject
     Q_OBJECT
 public:
     ~udpservice();
-    explicit udpservice(int port = 8000,int datasize = 0,QObject *parent = 0);
+    explicit udpservice(QHostAddress ip,int datasize = 0,QObject *parent = 0);
     void initRecvBuf(int size);
+    QUdpSocket* socket(){return udpsocket;}
 
 private:
     QUdpSocket *udpsocket;

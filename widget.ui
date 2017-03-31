@@ -4911,7 +4911,7 @@ padding-left:15px;
 margin-top:10px
 }
 #diagnostic_itemnameLabel,#diagnostic_itemnamecurrentLabel
-{
+,#diagnostic_errorLabel,#diagnostic_errorvalueLabel{
 color:white;
 border-color:rgba(50,50,50,255);
 font:bold 10pt Arial;
@@ -4937,7 +4937,7 @@ font:bold 10pt Arial;
                      <number>0</number>
                     </property>
                     <item>
-                     <layout class="QVBoxLayout" name="diagnostic_previewLayout">
+                     <layout class="QVBoxLayout" name="diagnostic_previewLayout" stretch="1,1">
                       <property name="spacing">
                        <number>10</number>
                       </property>
@@ -4957,7 +4957,49 @@ font:bold 10pt Arial;
                        <widget class="MultiImageWidget" name="diagnostic_previewWidget" native="true"/>
                       </item>
                       <item>
-                       <widget class="QWidget" name="widget_3" native="true"/>
+                       <widget class="QWidget" name="diagnostic_InfoWidget" native="true">
+                        <layout class="QGridLayout" name="gridLayout_2">
+                         <property name="leftMargin">
+                          <number>10</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>10</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>10</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>10</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="diagnostic_errorLabel">
+                           <property name="text">
+                            <string>Error No:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QLabel" name="diagnostic_errorvalueLabel">
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="diagnostic_paddingLabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
                       </item>
                      </layout>
                     </item>
@@ -5164,7 +5206,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="subtab_Resource">
                    <property name="styleSheet">

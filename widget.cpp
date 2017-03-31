@@ -411,7 +411,7 @@ void Widget::reflashFtp()
         ui->diagnostic_ftpbrowsertablewidget->clearContents();
         ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
         NetworkStr networkconfigFromServer = network->getNetworkConfig();
-        networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
+        networkconfigFromServer.value.ports_ftpserverip=networkconfigFromServer.value.ports_ipaddress;
         networkconfigFromServer.value.ports_ftpusername="root";
         networkconfigFromServer.value.ports_ftppassword="ftpcam";
         networkconfigFromServer.value.ports_ftpserverport="8010";
@@ -450,6 +450,9 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
 
     int headsize = sizeof(EzImgFileHeader)+header.imgInfoSize;
+    EzImgFileInfo info;
+    memcpy(&info,data.data()+sizeof(EzImgFileHeader),sizeof(EzImgFileInfo));
+    ui->diagnostic_errorvalueLabel->setText(QString::number(info.errNo,10));
     if(ftpPreView!=NULL)
     {
         delete ftpPreView;
@@ -458,6 +461,7 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     ftpPreView = new QImage((unsigned char*)data.data()+headsize,1280,720,header.pitch,QImage::Format_Grayscale8);
     *ftpPreView=ftpPreView->copy();
     ui->diagnostic_previewWidget->setImage(ftpPreView->scaledToWidth(ui->diagnostic_previewWidget->width()),0);
+
     //
     //    if(ftpfile.FilePath==""||ftpfile.ftpFileName==""||ftpfile.ftpFileSize==0||ftpfile.ftpFileValid==0)
     //    {
@@ -1197,6 +1201,7 @@ void Widget::LoginSuccess(uint8_t authority)
     //set config with specified config from server and load ui params
     config->SetConfig(configFromServer);//reload
     config->initAlgService();
+
     if(config->getAlgConfigSize()!=0)
     {
         void* algparam = (void*)malloc(config->getAlgConfigSize());
@@ -1726,6 +1731,7 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &inde
         if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
         {
             ui->diagnostic_previewWidget->clearImage(0);
+            ui->diagnostic_errorvalueLabel->clear();
             emit network->getFtp(name);
         }
     }
@@ -1752,7 +1758,7 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
         }
         else
         {
-            while("/"!=dir.at(dir.length()-1))
+            while(!(QString("/")==dir.at(dir.length()-1)))
             {
                 dir.chop(1);
             }
@@ -1777,7 +1783,7 @@ void Widget::on_system_firmwareupdateButton_clicked()
     if(!network->isFtpLogin())
     {
         NetworkStr networkconfigFromServer = network->getNetworkConfig();
-        networkconfigFromServer.value.ports_ftpserverip="192.168.1.224";
+        networkconfigFromServer.value.ports_ftpserverip = networkconfigFromServer.value.ports_ipaddress;
         networkconfigFromServer.value.ports_ftpusername="root";
         networkconfigFromServer.value.ports_ftppassword="ftpcam";
         networkconfigFromServer.value.ports_ftpserverport="8010";
