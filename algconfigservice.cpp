@@ -30,6 +30,10 @@ void ALGConfigService::initConfigList(ALG_TYPE type)
     currentAlg=type;
     generateConfig(type);
     generateResult(type);
+    if(type==ALG_GVSS)
+    {
+        updateResultImg = updateResultImg_GVSS;
+    }
 }
 
 void ALGConfigService::clearList(QVector<ALGConfigStr> *list)
@@ -134,6 +138,15 @@ void ALGConfigService::reflashResult(void *params)
             x->setText(value2Text((char*)temp.value+valueSize(temp.type),VALUE_SHORT));
             QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
             y->setText(value2Text((char*)temp.value+valueSize(temp.type)+valueSize(VALUE_SHORT),VALUE_SHORT));
+            offset+=size;
+        }
+        else if(temp.paramType==PARAM_CHART)
+        {
+            int size=valueSize(temp.type);
+            float val=0;
+            memcpy(&val,(char*)params+offset,size);
+            RTChart* view = (RTChart*)temp.value;
+            view->updateData(val);
             offset+=size;
         }
 
@@ -262,6 +275,13 @@ QLayout *ALGConfigService::createResultBlock(QString name)
     layout->addWidget(xLabel);
     layout->addWidget(yLabel);
 
+    return layout;
+}
+
+QLayout *ALGConfigService::createResultChart(RTChart* rtChart)
+{
+    QLayout* layout = new QHBoxLayout;
+    layout->addWidget(rtChart->getView());
     return layout;
 }
 
@@ -489,6 +509,33 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                                 resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
                             }
                         }
+                        else if(reader.name()=="Chart")
+                        {
+                            QXmlStreamAttributes att = reader.attributes();
+                            int i;
+                            int count = 1;
+                            if(att.value("count")!="")
+                                count=att.value("count").toInt();
+                            QString labelName = reader.readElementText();
+                            VALUE_TYPE type = VALUE_TYPE(att.value("type").toInt());
+                            int visible = att.value("visible").toInt();
+                            for(i=0;i<count;i++)
+                            {
+                                resultSize += valueSize(type);
+
+                                RTChart* chart = new RTChart;
+                                qreal min=0;
+                                qreal max=1;
+                                if(att.value("min")!="")
+                                    min = att.value("min").toFloat();
+                                if(att.value("max")!="")
+                                    max = att.value("max").toFloat();
+                                chart->setYRange(min,max);
+                                resultList.append({labelName,PARAM_CHART,visible,type,chart,createResultChart(chart)});
+                                if(visible==1)
+                                    resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
+                            }
+                        }
                     }
                     reader.readNext();
                 }
@@ -524,34 +571,35 @@ QImage ALGConfigService::resultImage()
     pa.drawLine(1088,0,1088,720);
     pen.setColor(QColor(223,50,0,200));
     pa.setPen(pen);
-    //step1. find block num
-    int blockNum=0;
-    int i;
-    for(i=0;i<resultList.count();i++)
-    {
-        ALGResultStr temp = resultList.at(i);
-        if(temp.name=="Block_Num")
-        {
-            QLabel* labelName = (QLabel*)temp.ui->itemAt(1)->widget();
-            blockNum = labelName->text().toInt();
-            break;
-        }
-    }
-    //step2. draw valid block
-    for(i=0;i<resultList.count();i++)
-    {
-        if(blockNum==0)
-            break;
-        ALGResultStr temp = resultList.at(i);
-        if(temp.paramType==PARAM_BLOCK)
-        {
-            QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
-            QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
-            pa.drawLine(x->text().toInt()-7,y->text().toInt(),x->text().toInt()+7,y->text().toInt());
-            pa.drawLine(x->text().toInt(),y->text().toInt()-7,x->text().toInt(),y->text().toInt()+7);
-            blockNum--;
-        }
-    }
+    updateResultImg(&pa,&resultList);
+//    //step1. find block num
+//    int blockNum=0;
+//    int i;
+//    for(i=0;i<resultList.count();i++)
+//    {
+//        ALGResultStr temp = resultList.at(i);
+//        if(temp.name=="Block_Num")
+//        {
+//            QLabel* labelName = (QLabel*)temp.ui->itemAt(1)->widget();
+//            blockNum = labelName->text().toInt();
+//            break;
+//        }
+//    }
+//    //step2. draw valid block
+//    for(i=0;i<resultList.count();i++)
+//    {
+//        if(blockNum==0)
+//            break;
+//        ALGResultStr temp = resultList.at(i);
+//        if(temp.paramType==PARAM_BLOCK)
+//        {
+//            QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
+//            QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
+//            pa.drawLine(x->text().toInt()-7,y->text().toInt(),x->text().toInt()+7,y->text().toInt());
+//            pa.drawLine(x->text().toInt(),y->text().toInt()-7,x->text().toInt(),y->text().toInt()+7);
+//            blockNum--;
+//        }
+//    }
     return pic;
 }
 

@@ -46,7 +46,10 @@ SOURCES += main.cpp\
     weightwidget.cpp \
     algconfigservice.cpp \
     imagewidget.cpp \
-    multiimagewidget.cpp
+    multiimagewidget.cpp \
+    resultservice.cpp \
+    algConfig/alg_gvss.cpp \
+    rtchart.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -69,7 +72,10 @@ HEADERS  += widget.h \
     algconfigstr.h \
     algconfigservice.h \
     imagewidget.h \
-    multiimagewidget.h
+    multiimagewidget.h \
+    resultservice.h \
+    algConfig/alg_gvss.h \
+    rtchart.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

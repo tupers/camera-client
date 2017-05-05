@@ -4,12 +4,17 @@
 NetWork::NetWork(QObject *parent) : QObject(parent)
 {
     ClientSocket = new QTcpSocket(this);
-    LogTimer = new QTimer();
+    LogTimer = new QTimer(this);
     LogTimer->setInterval(10000);
     LogTimer->setSingleShot(true);
     LogTimer->setObjectName("Timer");
     ClientSocket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
-//    qDebug()<<"network thread id: "<<QThread::currentThreadId();
+
+    algResult = new resultService(this);
+    connect(algResult,SIGNAL(resultData(QByteArray)),this,SIGNAL(sendAlgRsult(QByteArray)));
+    connect(algResult,SIGNAL(sendToLog(QString)),this,SIGNAL(sendToLog(QString)));
+
+    //     qDebug()<<"network thread id: "<<QThread::currentThreadId();
     QHostAddress localIP;
     localIP.setAddress(getLocalIP("本机连接"));
 
@@ -29,7 +34,7 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
 
     cameraSearch = new dm8127scan_service;
     cameraSearchThread = new QThread;
-    cameraSearch->moveToThread(cameraSearchThread);\
+    cameraSearch->moveToThread(cameraSearchThread);
     connect(cameraSearch,SIGNAL(sendToLog(QString)),this,SIGNAL(sendToLog(QString)));
     connect(this,SIGNAL(cameraScan()),cameraSearch,SLOT(scan()));
     connect(cameraSearch,SIGNAL(findDevice(int,QString)),this,SIGNAL(cameraDevice(int,QString)));
@@ -38,8 +43,8 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
 
 
     ftp =new DM8127Ftp_Service;
-//    ftpThread = new QThread;
-//    ftp->moveToThread(ftpThread);
+    //    ftpThread = new QThread;
+    //    ftp->moveToThread(ftpThread);
     connect(this,SIGNAL(connectFtp(QString,int,QString,QString)),ftp,SLOT(connectToHost(QString,int,QString,QString)));
     connect(this,SIGNAL(listFtp(QString)),ftp,SLOT(list(QString)));
     connect(this,SIGNAL(getFtp(QString)),ftp,SLOT(get(QString)));
@@ -47,7 +52,7 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     connect(ftp,SIGNAL(listInfo(FileList*)),this,SIGNAL(listInfoFtp(FileList*)));
     connect(ftp,SIGNAL(getData(QByteArray)),this,SIGNAL(getDataFtp(QByteArray)));
     connect(this,SIGNAL(putFtp(QString,QByteArray*)),ftp,SLOT(put(QString,QByteArray*)));
-//    ftpThread->start();
+    //    ftpThread->start();
 
     connect(ClientSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(reportError(QAbstractSocket::SocketError)));
     connect(ClientSocket,SIGNAL(disconnected()),this,SIGNAL(disconnectfromServer()));
@@ -127,51 +132,51 @@ NetWork::~NetWork()
 
 int NetWork::SendServerMsg(QTcpSocket *ClientSocket, NetMsg *msg, int len, NetMsg *ackMsg, int32_t *acklen)
 {
-        int32_t ret = MSG_SOK;
-        int32_t size;
-        NetMsg *tmpMsg;
-        QByteArray ackData;
+    int32_t ret = MSG_SOK;
+    int32_t size;
+    NetMsg *tmpMsg;
+    QByteArray ackData;
 
-        size = ClientSocket->write((const char *)msg,len);
-        if(size != len)
+    size = ClientSocket->write((const char *)msg,len);
+    if(size != len)
+    {
+        ret = MSG_NETERROR;
+
+        return ret;
+    }
+
+    if(ClientSocket->waitForReadyRead(2000))
+    {
+        while(ClientSocket->bytesAvailable())
+            ackData = ClientSocket->readAll();
+        if(ackData.length()!=*acklen)
         {
-            ret = MSG_NETERROR;
+
+            ret = MSG_SFAIL;
 
             return ret;
         }
 
-        if(ClientSocket->waitForReadyRead(2000))
+        *acklen = ackData.length();
+        tmpMsg = (NetMsg *)(ackData.data());
+
+        if((tmpMsg->ackCmd == ACKCMD_SOK)&&(tmpMsg->cmd==msg->cmd))
         {
-            while(ClientSocket->bytesAvailable())
-                ackData = ClientSocket->readAll();
-            if(ackData.length()!=*acklen)
-            {
-
-                ret = MSG_SFAIL;
-
-                return ret;
-            }
-
-            *acklen = ackData.length();
-            tmpMsg = (NetMsg *)(ackData.data());
-
-            if((tmpMsg->ackCmd == ACKCMD_SOK)&&(tmpMsg->cmd==msg->cmd))
-            {
-                 memcpy(ackMsg,tmpMsg,*acklen);
-            }
-            else
-            {
-                ret = MSG_SFAIL;
-            }
+            memcpy(ackMsg,tmpMsg,*acklen);
         }
         else
         {
-            emit sendToLog("tcp socket receive time out!!!");
-            qDebug()<<"tcp socket receive time out!!!";
-            ret = MSG_OVERTIME;
+            ret = MSG_SFAIL;
         }
+    }
+    else
+    {
+        emit sendToLog("tcp socket receive time out!!!");
+        qDebug()<<"tcp socket receive time out!!!";
+        ret = MSG_OVERTIME;
+    }
 
-        return ret;
+    return ret;
 }
 
 void NetWork::Login(QString username,QString password)
@@ -347,7 +352,7 @@ int NetWork::getConfigFromSever(_NET_MSG cmd, void *dst, int size)
     memset(msg,0,len);
     msg->cmdValueLen=0;
     msg->cmd = cmd;
-   // memcpy(msg->cmdValue,&val,sizeof(unsigned char));
+    // memcpy(msg->cmdValue,&val,sizeof(unsigned char));
 
     acklen = sizeof(NetMsg)+sizeof(unsigned char)*size;
     ackMsg = (NetMsg *)malloc(acklen);
@@ -1127,8 +1132,8 @@ void NetWork::configServertoClient(ConfigStr* dst,SysInfo* src)
     int i;
     for(i=0;i<EZCAM_LED_NUM;i++)
     {
-       dst->calibrate.value.light_config[i].enable=src->light_config.led[i].enable;
-       dst->calibrate.value.light_config[i].pwmduty=src->light_config.led[i].pwmduty;
+        dst->calibrate.value.light_config[i].enable=src->light_config.led[i].enable;
+        dst->calibrate.value.light_config[i].pwmduty=src->light_config.led[i].pwmduty;
     }
     dst->calibrate.value.camera_WhiteBalanceMode=src->lan_config.nWhiteBalance;
     dst->calibrate.value.camera_DayNightMode=src->lan_config.nDayNight;
@@ -1211,34 +1216,34 @@ void NetWork::configServertoClient(ConfigStr* dst,SysInfo* src)
         dst->calibrate.value.codec_advconfig[i].unkown1=src->codec_config.codec_advconfig[i].unkown1;
         dst->calibrate.value.codec_advconfig[i].unkown2=src->codec_config.codec_advconfig[i].unkown2;
     }
-//    dst->run.value.LoadAlg=src->algparam.algEnable;
-//    dst->run.value.LoadAlg=0;
-//    dst->calibrate.value.algorithm_ROI_startX=src->algparam.ROI_startX;
-//    dst->calibrate.value.algorithm_ROI_endX=src->algparam.ROI_endX;
-//    dst->calibrate.value.algorithm_ROI_startY=src->algparam.ROI_startY;
-//    dst->calibrate.value.algorithm_ROI_endY=src->algparam.ROI_endY;
-//    dst->calibrate.value.algorithm_f_RDifSideCir=src->algparam.f_RDifSideCir;
-//    dst->calibrate.value.algorithm_fCirGood_1=src->algparam.fCirGood_1;
-//    dst->calibrate.value.algorithm_fCirGood_2=src->algparam.fCirGood_2;
-//    dst->calibrate.value.algorithm_fCirGood_3=src->algparam.fCirGood_3;
-//    dst->calibrate.value.algorithm_fCirWarning_1=src->algparam.fCirWarning_1;
-//    dst->calibrate.value.algorithm_fCirWarning_2=src->algparam.fCirWarning_2;
-//    dst->calibrate.value.algorithm_fCirWarning_3=src->algparam.fCirWarning_3;
-//    dst->calibrate.value.algorithm_fCenterCirGoodOffset=src->algparam.fCenterCirGoodOffset;
-//    dst->calibrate.value.algorithm_fCenterCirWarningOffset=src->algparam.fCenterCirWarningOffset;
-//    dst->calibrate.value.algorithm_nBiggestRaduis=src->algparam.nBiggestRaduis;
-//    dst->calibrate.value.algorithm_nSmallestRaduis=src->algparam.nSmallestRaduis;
-//    dst->calibrate.value.algorithm_Blot_BiggestArea=src->algparam.Blot_BiggestArea;
-//    dst->calibrate.value.algorithm_Blot_SmallestArea=src->algparam.Blot_SmallestArea;
-//    dst->calibrate.value.algorithm_Blot_xyOffset=src->algparam.Blot_xyOffset;
-//    dst->calibrate.value.algorithm_Cir_SmallestArea=src->algparam.Cir_SmallestArea;
-//    dst->calibrate.value.algorithm_Cir_xyOffset=src->algparam.Cir_xyOffset;
-//    dst->calibrate.value.algorithm_Cir_errf=src->algparam.Cir_errf;
-//    dst->calibrate.value.algorithm_Judge_xyOffset=src->algparam.Judge_xyOffset;
-//    dst->calibrate.value.algorithm_Speed_k1=src->algparam.Speed_k1;
-//    dst->calibrate.value.algorithm_Speed_k2=src->algparam.Speed_k2;
-//    dst->calibrate.value.algorithm_Speed_ExpandPixel1=src->algparam.Speed_ExpandPixel1;
-//    dst->calibrate.value.algorithm_Speed_ExpandPixel2=src->algparam.Speed_ExpandPixel2;
+    //    dst->run.value.LoadAlg=src->algparam.algEnable;
+    //    dst->run.value.LoadAlg=0;
+    //    dst->calibrate.value.algorithm_ROI_startX=src->algparam.ROI_startX;
+    //    dst->calibrate.value.algorithm_ROI_endX=src->algparam.ROI_endX;
+    //    dst->calibrate.value.algorithm_ROI_startY=src->algparam.ROI_startY;
+    //    dst->calibrate.value.algorithm_ROI_endY=src->algparam.ROI_endY;
+    //    dst->calibrate.value.algorithm_f_RDifSideCir=src->algparam.f_RDifSideCir;
+    //    dst->calibrate.value.algorithm_fCirGood_1=src->algparam.fCirGood_1;
+    //    dst->calibrate.value.algorithm_fCirGood_2=src->algparam.fCirGood_2;
+    //    dst->calibrate.value.algorithm_fCirGood_3=src->algparam.fCirGood_3;
+    //    dst->calibrate.value.algorithm_fCirWarning_1=src->algparam.fCirWarning_1;
+    //    dst->calibrate.value.algorithm_fCirWarning_2=src->algparam.fCirWarning_2;
+    //    dst->calibrate.value.algorithm_fCirWarning_3=src->algparam.fCirWarning_3;
+    //    dst->calibrate.value.algorithm_fCenterCirGoodOffset=src->algparam.fCenterCirGoodOffset;
+    //    dst->calibrate.value.algorithm_fCenterCirWarningOffset=src->algparam.fCenterCirWarningOffset;
+    //    dst->calibrate.value.algorithm_nBiggestRaduis=src->algparam.nBiggestRaduis;
+    //    dst->calibrate.value.algorithm_nSmallestRaduis=src->algparam.nSmallestRaduis;
+    //    dst->calibrate.value.algorithm_Blot_BiggestArea=src->algparam.Blot_BiggestArea;
+    //    dst->calibrate.value.algorithm_Blot_SmallestArea=src->algparam.Blot_SmallestArea;
+    //    dst->calibrate.value.algorithm_Blot_xyOffset=src->algparam.Blot_xyOffset;
+    //    dst->calibrate.value.algorithm_Cir_SmallestArea=src->algparam.Cir_SmallestArea;
+    //    dst->calibrate.value.algorithm_Cir_xyOffset=src->algparam.Cir_xyOffset;
+    //    dst->calibrate.value.algorithm_Cir_errf=src->algparam.Cir_errf;
+    //    dst->calibrate.value.algorithm_Judge_xyOffset=src->algparam.Judge_xyOffset;
+    //    dst->calibrate.value.algorithm_Speed_k1=src->algparam.Speed_k1;
+    //    dst->calibrate.value.algorithm_Speed_k2=src->algparam.Speed_k2;
+    //    dst->calibrate.value.algorithm_Speed_ExpandPixel1=src->algparam.Speed_ExpandPixel1;
+    //    dst->calibrate.value.algorithm_Speed_ExpandPixel2=src->algparam.Speed_ExpandPixel2;
     dst->information.value.resource_totalmem=src->camInfo.total_mem;
     dst->information.value.resource_freemem=src->camInfo.free_mem;
     dst->information.value.resource_sharedmem=src->camInfo.share_mem;
@@ -1353,44 +1358,44 @@ void NetWork::configClienttoServer(SysInfo *dst,ConfigStr *src)
     dst->state.algTriggle=src->state.algTriggle;
     dst->state.algImgsrc=src->state.algImgsrc;
     dst->state.enableEncode=src->state.enableEncode;
-//    dst->algparam.ROI_startX=src->calibrate.value.algorithm_ROI_startX;
-//    dst->algparam.ROI_endX=src->calibrate.value.algorithm_ROI_endX;
-//    dst->algparam.ROI_startY=src->calibrate.value.algorithm_ROI_startY;
-//    dst->algparam.ROI_endY=src->calibrate.value.algorithm_ROI_endY;
-//    dst->algparam.f_RDifSideCir=src->calibrate.value.algorithm_f_RDifSideCir;
-//    dst->algparam.fCirGood_1=src->calibrate.value.algorithm_fCirGood_1;
-//    dst->algparam.fCirGood_2=src->calibrate.value.algorithm_fCirGood_2;
-//    dst->algparam.fCirGood_3=src->calibrate.value.algorithm_fCirGood_3;
-//    dst->algparam.fCirWarning_1=src->calibrate.value.algorithm_fCirWarning_1;
-//    dst->algparam.fCirWarning_2=src->calibrate.value.algorithm_fCirWarning_2;
-//    dst->algparam.fCirWarning_3=src->calibrate.value.algorithm_fCirWarning_3;
-//    dst->algparam.fCenterCirGoodOffset=src->calibrate.value.algorithm_fCenterCirGoodOffset;
-//    dst->algparam.fCenterCirWarningOffset=src->calibrate.value.algorithm_fCenterCirWarningOffset;
-//    dst->algparam.nBiggestRaduis=src->calibrate.value.algorithm_nBiggestRaduis;
-//    dst->algparam.nSmallestRaduis=src->calibrate.value.algorithm_nSmallestRaduis;
-//    dst->algparam.Blot_BiggestArea=src->calibrate.value.algorithm_Blot_BiggestArea;
-//    dst->algparam.Blot_SmallestArea=src->calibrate.value.algorithm_Blot_SmallestArea;
-//    dst->algparam.Blot_xyOffset=src->calibrate.value.algorithm_Blot_xyOffset;
-//    dst->algparam.Cir_SmallestArea=src->calibrate.value.algorithm_Cir_SmallestArea;
-//    dst->algparam.Cir_xyOffset=src->calibrate.value.algorithm_Cir_xyOffset;
-//    dst->algparam.Cir_errf=src->calibrate.value.algorithm_Cir_errf;
-//    dst->algparam.Judge_xyOffset=src->calibrate.value.algorithm_Judge_xyOffset;
-//    dst->algparam.Speed_k1=src->calibrate.value.algorithm_Speed_k1;
-//    dst->algparam.Speed_k2=src->calibrate.value.algorithm_Speed_k2;
-//    dst->algparam.Speed_ExpandPixel1=src->calibrate.value.algorithm_Speed_ExpandPixel1;
-//    dst->algparam.Speed_ExpandPixel2=src->calibrate.value.algorithm_Speed_ExpandPixel2;
-//    dst->algparam.algEnable=src->run.value.LoadAlg;
+    //    dst->algparam.ROI_startX=src->calibrate.value.algorithm_ROI_startX;
+    //    dst->algparam.ROI_endX=src->calibrate.value.algorithm_ROI_endX;
+    //    dst->algparam.ROI_startY=src->calibrate.value.algorithm_ROI_startY;
+    //    dst->algparam.ROI_endY=src->calibrate.value.algorithm_ROI_endY;
+    //    dst->algparam.f_RDifSideCir=src->calibrate.value.algorithm_f_RDifSideCir;
+    //    dst->algparam.fCirGood_1=src->calibrate.value.algorithm_fCirGood_1;
+    //    dst->algparam.fCirGood_2=src->calibrate.value.algorithm_fCirGood_2;
+    //    dst->algparam.fCirGood_3=src->calibrate.value.algorithm_fCirGood_3;
+    //    dst->algparam.fCirWarning_1=src->calibrate.value.algorithm_fCirWarning_1;
+    //    dst->algparam.fCirWarning_2=src->calibrate.value.algorithm_fCirWarning_2;
+    //    dst->algparam.fCirWarning_3=src->calibrate.value.algorithm_fCirWarning_3;
+    //    dst->algparam.fCenterCirGoodOffset=src->calibrate.value.algorithm_fCenterCirGoodOffset;
+    //    dst->algparam.fCenterCirWarningOffset=src->calibrate.value.algorithm_fCenterCirWarningOffset;
+    //    dst->algparam.nBiggestRaduis=src->calibrate.value.algorithm_nBiggestRaduis;
+    //    dst->algparam.nSmallestRaduis=src->calibrate.value.algorithm_nSmallestRaduis;
+    //    dst->algparam.Blot_BiggestArea=src->calibrate.value.algorithm_Blot_BiggestArea;
+    //    dst->algparam.Blot_SmallestArea=src->calibrate.value.algorithm_Blot_SmallestArea;
+    //    dst->algparam.Blot_xyOffset=src->calibrate.value.algorithm_Blot_xyOffset;
+    //    dst->algparam.Cir_SmallestArea=src->calibrate.value.algorithm_Cir_SmallestArea;
+    //    dst->algparam.Cir_xyOffset=src->calibrate.value.algorithm_Cir_xyOffset;
+    //    dst->algparam.Cir_errf=src->calibrate.value.algorithm_Cir_errf;
+    //    dst->algparam.Judge_xyOffset=src->calibrate.value.algorithm_Judge_xyOffset;
+    //    dst->algparam.Speed_k1=src->calibrate.value.algorithm_Speed_k1;
+    //    dst->algparam.Speed_k2=src->calibrate.value.algorithm_Speed_k2;
+    //    dst->algparam.Speed_ExpandPixel1=src->calibrate.value.algorithm_Speed_ExpandPixel1;
+    //    dst->algparam.Speed_ExpandPixel2=src->calibrate.value.algorithm_Speed_ExpandPixel2;
+    //    dst->algparam.algEnable=src->run.value.LoadAlg;
 
 
 }
 
 void NetWork::networkconfigServertoClinet(NetworkStr *dst, SysInfo *src)
 {
-//    dst->value.ports_ipaddress=inet_ntoa(src->net.net_config.ip);
+    //    dst->value.ports_ipaddress=inet_ntoa(src->net.net_config.ip);
     dst->value.ports_ipaddress=src->net.net_config.ip;
-//    dst->value.ports_netmask=inet_ntoa(src->net.net_config.netmask);
-//    dst->value.ports_gateway=inet_ntoa(src->net.net_config.gateway);
-//    dst->value.ports_dns=inet_ntoa(src->net.net_config.dns);
+    //    dst->value.ports_netmask=inet_ntoa(src->net.net_config.netmask);
+    //    dst->value.ports_gateway=inet_ntoa(src->net.net_config.gateway);
+    //    dst->value.ports_dns=inet_ntoa(src->net.net_config.dns);
     dst->value.ports_netmask=src->net.net_config.netmask;
     dst->value.ports_gateway=src->net.net_config.gateway;
     dst->value.ports_dns=src->net.net_config.dns;
@@ -1428,14 +1433,14 @@ void NetWork::networkconfigServertoClinet(NetworkStr *dst, SysInfo *src)
 void NetWork::networkconfigClienttoServer(SysInfo *dst, NetworkStr *src)
 {
     qDebug()<<src->value.ports_ipaddress<<src->value.ports_netmask<<src->value.ports_gateway<<src->value.ports_dns;
-//    dst->net.net_config.ip.S_un.S_addr=inet_addr(src->value.ports_ipaddress.toLatin1().data());
+    //    dst->net.net_config.ip.S_un.S_addr=inet_addr(src->value.ports_ipaddress.toLatin1().data());
     memcpy(dst->net.net_config.ip,src->value.ports_ipaddress.toLatin1().data(),strlen(src->value.ports_ipaddress.toLatin1().data())+1);
     memcpy(dst->net.net_config.netmask,src->value.ports_netmask.toLatin1().data(),strlen(src->value.ports_netmask.toLatin1().data())+1);
     memcpy(dst->net.net_config.gateway,src->value.ports_gateway.toLatin1().data(),strlen(src->value.ports_gateway.toLatin1().data())+1);
     memcpy(dst->net.net_config.dns,src->value.ports_dns.toLatin1().data(),strlen(src->value.ports_dns.toLatin1().data())+1);
-//    dst->net.net_config.netmask.S_un.S_addr=inet_addr(src->value.ports_netmask.toLatin1().data());
-//    dst->net.net_config.gateway.S_un.S_addr=inet_addr(src->value.ports_gateway.toLatin1().data());
-//    dst->net.net_config.dns.S_un.S_addr=inet_addr(src->value.ports_dns.toLatin1().data());
+    //    dst->net.net_config.netmask.S_un.S_addr=inet_addr(src->value.ports_netmask.toLatin1().data());
+    //    dst->net.net_config.gateway.S_un.S_addr=inet_addr(src->value.ports_gateway.toLatin1().data());
+    //    dst->net.net_config.dns.S_un.S_addr=inet_addr(src->value.ports_dns.toLatin1().data());
     dst->net.net_config.http_port=src->value.ports_httpport;
     dst->net.net_config.https_port=src->value.ports_httpsport;
     dst->net.net_config.dhcp_enable=src->value.ports_dhcpenable;
@@ -1455,7 +1460,7 @@ void NetWork::networkconfigClienttoServer(SysInfo *dst, NetworkStr *src)
     dst->net.net_config.MAC[4]=macS.left(macS.indexOf(":")).toInt(&ok,16);
     macS=macS.right(macS.count()-macS.indexOf(":")-1);
     dst->net.net_config.MAC[5]=macS.left(macS.indexOf(":")).toInt(&ok,16);
-//    qDebug()<<dst->net.net_config.MAC[0]<<dst->net.net_config.MAC[1]<<dst->net.net_config.MAC[2]<<dst->net.net_config.MAC[3]<<dst->net.net_config.MAC[4]<<dst->net.net_config.MAC[5];
+    //    qDebug()<<dst->net.net_config.MAC[0]<<dst->net.net_config.MAC[1]<<dst->net.net_config.MAC[2]<<dst->net.net_config.MAC[3]<<dst->net.net_config.MAC[4]<<dst->net.net_config.MAC[5];
     strcpy(dst->net.ftp_config.servier_ip,src->value.ports_ftpserverip.toLatin1().data());
     dst->net.ftp_config.port=src->value.ports_ftpserverport.toInt();
     strcpy(dst->net.ftp_config.username,src->value.ports_ftpusername.toLatin1().data());
@@ -1553,13 +1558,13 @@ QString NetWork::getLocalIP(QString name)
     {
         if(interfaces.humanReadableName()==name)
         {
-//        qDebug()<<interfaces.humanReadableName();
-        QList<QNetworkAddressEntry>entryList = interfaces.addressEntries();
-        foreach(QNetworkAddressEntry entry,entryList)
-        {
-            if(entry.ip().protocol()==QAbstractSocket::IPv4Protocol)
-            return entry.ip().toString();
-        }
+            //        qDebug()<<interfaces.humanReadableName();
+            QList<QNetworkAddressEntry>entryList = interfaces.addressEntries();
+            foreach(QNetworkAddressEntry entry,entryList)
+            {
+                if(entry.ip().protocol()==QAbstractSocket::IPv4Protocol)
+                    return entry.ip().toString();
+            }
         }
     }
     return NULL;
@@ -1574,5 +1579,11 @@ void NetWork::disconnectConnection()
 void NetWork::reportError(QAbstractSocket::SocketError err)
 {
     qDebug()<<"error: "<<err;
+}
+
+void NetWork::openAlgResultService()
+{
+    if(algResult->socketState()!=QAbstractSocket::ConnectedState)
+        algResult->connectSocket(network.value.ports_ipaddress,EZ_SERVERRESULTPORT);
 }
 

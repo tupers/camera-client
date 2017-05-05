@@ -3,23 +3,39 @@
 	<Config>
 		<Tag posx="0" posy="0">
 			<Title>Normal</Title>
-			<Label type="6">frameLeftRatio</Label>
-			<Label type="6">frameRightRatio</Label>
-			<Label type="6">hAngle</Label>
-			<Label type="6">vAngle</Label>
-			<Label type="6">linepairAngle</Label>
-			<Label type="6">slopeOffset</Label>
-			<Label type="0">maxArea</Label>
-			<Label type="0">minArea</Label>
-
+			<Label type="0">MaxArraySize</Label>
+			<Label type="0">MinHBlockRatio</Label>
+			<Label type="0">MaxHBlockRatio</Label>
+			<Label type="6">HBlockVarianceThreshold</Label>
+			<Label type="6">MinCodeUnitRatio</Label>
+			<Label type="6">MaxCodeUnitRatio</Label>
+			<Label type="6">MinCodeFlagRatio</Label>
+			<Label type="6">MaxCodeFlagRatio</Label>
 		</Tag>
   	</Config>
   <Result>
   	<Tag posx="1" posy="0">
   		<Title>Result</Title>
-  		<Label type="0" visible="1">Block_Num</Label>
-		<Block count="10" type="0" visible="1">Block</Block>
-  		<Block count="40" type="0" visible="0">Block</Block>
+  		<Rect type="0" visible="1">Rect_0_0</Rect>
+  		<Rect type="0" visible="1">Rect_0_1</Rect>
+  		<Rect type="0" visible="1">Rect_0_2</Rect>
+  		<Rect type="0" visible="1">Rect_1_0</Rect>
+  		<Rect type="0" visible="1">Rect_1_1</Rect>
+  		<Rect type="0" visible="1">Rect_1_2</Rect>
+  		<Rect type="0" visible="1">Rect_2_0</Rect>
+  		<Rect type="0" visible="1">Rect_2_1</Rect>
+  		<Rect type="0" visible="1">Rect_2_2</Rect>
+  		<Label type="5">code_0_0</Label>
+  		<Label type="5">code_0_1</Label>
+  		<Label type="5">code_1_0</Label>
+  		<Label type="5">code_1_1</Label>
+  		<Label type="5">code_2_0</Label>
+  		<Label type="5">code_2_1</Label>
+  		<Label type="5">padding</Label>
+  		<Label type="5">padding</Label>
+  		<Label type="6">index</Label>
+  		<Label type="0">center_x</Label>
+  		<Label type="0">center_y</Label>
   	</Tag>
   </Result>
 </Context> 

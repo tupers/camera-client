@@ -12,6 +12,7 @@
 #include "udpservice.h"
 #include "dm8127ftp_service.h"
 #include "dm8127scan_service.h"
+#include "resultservice.h"
 
 class NetWork : public QObject
 {
@@ -58,6 +59,7 @@ signals:
     void putFtp(QString,QByteArray*);
     void cameraScan();
     void cameraDevice(int,QString);
+    void sendAlgRsult(QByteArray);
 
 
 public slots:
@@ -86,8 +88,11 @@ public slots:
     void disconnectConnection();
     void reportError(QAbstractSocket::SocketError);
     QString getFtpCurrentDir(){return ftp->getCurrentDir();}
+    void closeAlgResultService(){algResult->disconnectSocket();}
+    void openAlgResultService();
 private:
     QTcpSocket *ClientSocket;
+    resultService *algResult;
     QTimer *LogTimer=NULL;
     QString LogUserName="";
     QString LogPassWd="";

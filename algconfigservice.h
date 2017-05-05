@@ -5,7 +5,10 @@
 #include <QVector>
 #include <QXmlStreamReader>
 #include <QFile>
+#include <QtCharts>
 #include "algconfigstr.h"
+#include "./algConfig/alg_gvss.h"
+#include "rtchart.h"
 #include <QDir>
 #include <QPainter>
 
@@ -30,6 +33,7 @@ public:
     QLayout* createResultLabel(QString);
     QLayout* createResultRect(QString);
     QLayout* createResultBlock(QString);
+    QLayout* createResultChart(RTChart *);
     ALGParamContainer createConfigContainer(int,int);
     ALGParamContainer createResultContainer(int,int);
     void deleteTag(ALGConfig_ui tag);
@@ -58,6 +62,7 @@ private:
     void text2Value(QString,void*,VALUE_TYPE);
     int valueSize(VALUE_TYPE);
     QString algParamPath(ALG_TYPE);
+    void (*updateResultImg)(QPainter* painter,QVector<ALGResultStr>* list);
 
 };
 

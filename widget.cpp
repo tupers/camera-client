@@ -58,8 +58,8 @@ void Widget::InitGUI()
     ui->sublist->setCurrentIndex(4);
     ui->mainlist->setVisible(true);
     config->initAlgService();
-//    config->initAlgService();
-//    qDebug()<<config->getAlgResultSize();
+    //    config->initAlgService();
+    //    qDebug()<<config->getAlgResultSize();
 #endif
 
 }
@@ -604,7 +604,7 @@ void Widget::LoadRunConfig()
     //    RunStr tempconfig = config->getRun();
     //    ui->run_processmodeAlgBox->setChecked(tempconfig.value.LoadAlg);
     ServerState tempstate = config->getState();
-    ui->run_processmodeSearchAreaBox->setChecked(false);
+    ui->run_saveResultBox->setChecked(false);
     //for debug.
     ui->run_algrunmodeBox->setCurrentIndex(tempstate.algTriggle);
     ui->run_algsourceBox->setCurrentIndex(tempstate.algImgsrc);
@@ -617,6 +617,7 @@ void Widget::LoadConnectionConfig()
     ui->ports_netmaskLineEdit->setText(tempconfig.value.ports_netmask);
     ui->ports_gatewayLineEdit->setText(tempconfig.value.ports_gateway);
     ui->ports_primarynameserverLineEdit->setText(tempconfig.value.ports_dns);
+    ui->ports_macaddressLineEdit->setText(tempconfig.value.ports_mac);
     ui->ports_ftpserverLineEdit->setText(tempconfig.value.ports_ftpserverip);
     ui->ports_ftpserverportLineEdit->setText(tempconfig.value.ports_ftpserverport);
     ui->ports_usernameLineEdit->setText(tempconfig.value.ports_ftpusername);
@@ -725,15 +726,11 @@ void Widget::SetupVideo()
 
 void Widget::SetupRun()
 {
-    algresultTimer = new QTimer;
-    algresultTimer->setInterval(1000);
-    algresultTimer->setSingleShot(false);
-    connect(algresultTimer,SIGNAL(timeout()),this,SLOT(algresultUpdate()));
-
     SourceVideoWidget = new SourceVideo();
     connect(this,SIGNAL(getImage_Source(QImage,int)),SourceVideoWidget,SLOT(setImage(QImage,int)));
     connect(SourceVideoWidget,SIGNAL(SourceVideoClose()),this,SLOT(SourceVideoWidgetClose()));
     connect(ui->run_processmodeAlgBox,SIGNAL(stateChanged(int)),config,SLOT(setLoadAlg(int)));
+    connect(ui->run_saveResultBox,SIGNAL(stateChanged(int)),this,SLOT(resultLog(int)));
 
     RunVideoImage=QImage(1280,720,QImage::Format_RGB888);
 
@@ -830,7 +827,7 @@ void Widget::SetupConnection()
 
 void Widget::SetupNetwork()
 {
-    network = new NetWork;
+    network = new NetWork();
     connect(network,SIGNAL(udpRcvDataInfo(uchar*,int,int,int)),SLOT(frameFromSensor(uchar*,int,int,int)));
     connect(network,SIGNAL(udpRcvDataInfo(QByteArray)),SerialPortWidget,SLOT(udpDataRcv(QByteArray)));
     connect(ui->run_videosavesensorButton,SIGNAL(clicked()),network,SLOT(GetFrameFromSensor()));
@@ -848,6 +845,7 @@ void Widget::SetupNetwork()
     connect(config,SIGNAL(sendToServerEntireForBoot(QVariant)),network,SLOT(sendConfigToServerEntireForBoot(QVariant)));
     connect(config,SIGNAL(sendToServerALG(QVariant)),network,SLOT(sendConfigToServerALG(QVariant)));
     connect(config,SIGNAL(sendToServerH3A(QVariant)),network,SLOT(sendConfigToServerH3A(QVariant)));
+    connect(network,SIGNAL(sendAlgRsult(QByteArray)),this,SLOT(algresultUpdate(QByteArray)));
 
 }
 
@@ -856,7 +854,7 @@ void Widget::SetupAccount()
     connect(network,SIGNAL(cameraDevice(int,QString)),this,SLOT(UpdateCameraList(int,QString)));
     ui->LoginSpecifiedIPlineEdit->setVisible(false);
     ui->LoginSpecifiedIPLabel->setVisible(false);
-    emit network->cameraScan();
+    //emit network->cameraScan();
     ui->Accountlist->setCurrentIndex(0);
 }
 
@@ -1253,8 +1251,11 @@ void Widget::ConnectionLost()
         //登出处理内容:关闭视频流
         //
         VideoCMD(h264video,VIDEO_TERMINATE);
+        //close ftp
         emit network->closeFtp();
-
+        //close result socket;
+        network->closeAlgResultService();
+        //ui operation
         ui->sublist->setCurrentIndex(5);
         ui->mainlist->setVisible(false);
         ui->Accountlist->setCurrentIndex(0);
@@ -1265,7 +1266,6 @@ void Widget::ConnectionLost()
             ui->mainlist->selectedItems()[0]->setSelected(false);
             ui->mainlist->setCurrentRow(-1);
         }
-        algresultTimer->stop();
         ResetOptions();
         ResetInformation();
         ResetAccount();
@@ -1364,6 +1364,7 @@ void Widget::on_ports_setButton_clicked()
     tempconfig.value.ports_netmask=ui->ports_netmaskLineEdit->text();
     tempconfig.value.ports_gateway=ui->ports_gatewayLineEdit->text();
     tempconfig.value.ports_dns=ui->ports_primarynameserverLineEdit->text();
+    tempconfig.value.ports_mac=ui->ports_macaddressLineEdit->text();
     tempconfig.value.ports_ftpserverip=ui->ports_ftpserverLineEdit->text();
     tempconfig.value.ports_ftpserverport=ui->ports_ftpserverportLineEdit->text();
     tempconfig.value.ports_ftpusername=ui->ports_usernameLineEdit->text();
@@ -1420,38 +1421,48 @@ void Widget::cpuloadUpdate()
     }
 }
 
-void Widget::algresultUpdate()
+void Widget::algresultUpdate(QByteArray ba)
 {
 
     if(config->getAlgResultSize()!=0)
     {
-        void* tempresult = (void*)malloc(config->getAlgResultSize());
-//        qDebug()<<config->getAlgResultSize();
-        if(network->GetParams(NET_MSG_GET_ALG_RESULT,tempresult,config->getAlgResultSize()))
+        if(isRunOnScreen==true)
         {
+            void* tempresult = (void*)malloc(config->getAlgResultSize());
+            memcpy(tempresult,ba.data(),config->getAlgResultSize());
+        //    qDebug()<<config->getAlgResultSize()<<"recieve: "<<ba.size();
+        //    qDebug()<<"hostResult:"<<sizeof(testResult)<<"algRsult"<<sizeof(uiAlgResult);
+//            testResult* hostResult = (testResult*)ba.data();
+//            uiAlgResult* clientAlgResult = (uiAlgResult*)tempresult;
+//            clientAlgResult->blockNum = hostResult->num;
+//            for(int i=0;i<40;i++)
+//            {
+//                clientAlgResult->block[i].area=hostResult->area[i];
+//                clientAlgResult->block[i].x=hostResult->xyPair[i].x;
+//                clientAlgResult->block[i].y=hostResult->xyPair[i].y;
+//            }
+//            clientAlgResult->position=*(float*)((char*)((char*)hostResult+254));
+//            clientAlgResult->distance=*(float*)((char*)((char*)hostResult+254+4));
+
+            if(resultFile!=NULL)
+                fprintf(resultFile,QString("%1\t%2\n").arg(*(float*)tempresult).arg(*(float*)((char*)(tempresult+4))).toLatin1().data());
+
             config->reflashAlgResult(tempresult);
-//            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
+            //            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
             if(SourceFlag==false)
-            ui->run_videoinputwidget->setImage(config->refreshAlgImage(),0,SCALE_HEIGHT);
+                ui->run_videoinputwidget->setImage(config->refreshAlgImage(),0,SCALE_HEIGHT);
             else
                 emit getImage_Source(config->refreshAlgImage(),0);
+            //        int test[9]={0,0,1270,710,1,2,3,4,99};
+            //        config->reflashAlgResult(test);
+            //        ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_WIDTH);
+            free(tempresult);
         }
-        else
-        {
-            algresultTimer->stop();
-            LogDebug("get ALG result failed from network");
-            qDebug()<<"get ALG result failed from network";
-        }
-//        int test[9]={0,0,1270,710,1,2,3,4,99};
-//        config->reflashAlgResult(test);
-//        ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_WIDTH);
-        free(tempresult);
     }
     else
     {
         LogDebug("invalid ALG result size");
         qDebug()<<"invalid ALG result size";
-        algresultTimer->stop();
     }
 }
 
@@ -1510,12 +1521,13 @@ void Widget::sublistService(int index)
     if(index==0)
     {
         //qDebug()<<"enable alg result";
-        algresultTimer->start();
+        network->openAlgResultService();
+        isRunOnScreen=true;
     }
     else
     {
         //qDebug()<<"disable alg result";
-        algresultTimer->stop();
+        isRunOnScreen=false;
     }
 }
 void Widget::on_run_algsourceBox_activated(int index)
@@ -1926,5 +1938,29 @@ void Widget::on_algorithm_setdefaultButton_clicked()
     config->getAlgConfig(temp);
     network->sendConfigToServer(NET_MSG_IMGALG_DEF_PARAM,temp,config->getAlgConfigSize());
     free(temp);
+}
+
+void Widget::resultLog(int state)
+{
+    if(state==2)
+    {
+        if(resultFile!=NULL)
+        {
+            fclose(resultFile);
+            resultFile=NULL;
+        }
+        QString filename = "./log/";
+        filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+        filename+=".xls";
+        resultFile = fopen(filename.toLatin1().data(),"w");
+    }
+    else if(state ==0)
+    {
+        if(resultFile!=NULL)
+        {
+            fclose(resultFile);
+            resultFile=NULL;
+        }
+    }
 }
 

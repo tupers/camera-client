@@ -114,13 +114,14 @@ private:
     QLineSeries* cpuloadSeries2=NULL;
     QChart* cpuloadChart=NULL;
     QDateTimeAxis *axisX=NULL;
-    QTimer* algresultTimer=NULL;
     EzAlgResult algResult;
     ftpSaveInfo ftpfile;
     FirmwareUpdate* updateWidget=NULL;
     MultiImageWidget* camera_videoinputwidget;
     QImage* ftpPreView=NULL;
     void freeList();
+    bool isRunOnScreen;
+    FILE* resultFile=NULL;
 protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -165,7 +166,7 @@ private slots:
     void on_security_addusercontrolcancelButton_clicked();
     void sublistService(int);
     void cpuloadUpdate();
-    void algresultUpdate();
+    void algresultUpdate(QByteArray);
     void camera_2AmodecomboBox_Service(int index);
     void on_run_algsourceBox_activated(int index);
     void frameFromSensor(uchar*data,int width,int height,int pitch);
@@ -207,6 +208,7 @@ private slots:
     void on_camera_2A_AEWeight_paintButton_clicked();
     void getH3AWeight(EzCamH3AWeight);
     void on_algorithm_setdefaultButton_clicked();
+    void resultLog(int);
 signals:
     void SubWindow_Init();
     void testsignal();

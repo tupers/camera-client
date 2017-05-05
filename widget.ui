@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>3</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -971,7 +971,7 @@ font:bold 13pt Arial;}</string>
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,1,1">
+                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,0,1">
                        <property name="spacing">
                         <number>5</number>
                        </property>
@@ -1037,7 +1037,7 @@ font:bold 13pt Arial;}</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="run_processmodeSearchAreaBox">
+                        <widget class="QCheckBox" name="run_saveResultBox">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -1057,7 +1057,7 @@ font:bold 13pt Arial;}</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>Show Search Area</string>
+                          <string>Save Result</string>
                          </property>
                         </widget>
                        </item>
@@ -1179,7 +1179,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Light">
                    <property name="styleSheet">
@@ -3714,7 +3714,7 @@ font:bold 15pt Arial;
 padding-left:15px;
 margin-top:10px
 }
-QLabel#ports_ipaddresslabel,#ports_netmasklabel,#ports_gatewaylabel,#ports_primarynameserverlabel,#ports_ftpserverlabel,#ports_usernamelabel,#ports_passwordlabel,#ports_fileuploadpathlabel,#ports_rtspportlabel,#ports_multicastlabel
+QLabel#ports_ipaddresslabel,#ports_netmasklabel,#ports_gatewaylabel,#ports_primarynameserverlabel,#ports_ftpserverlabel,#ports_usernamelabel,#ports_passwordlabel,#ports_fileuploadpathlabel,#ports_rtspportlabel,#ports_multicastlabel,#ports_macaddresslabel
 {color:white;
 font:bold 13pt Arial;
 padding-left:5px;
@@ -3936,6 +3936,51 @@ max-width:50px;
                          </item>
                          <item>
                           <widget class="LineEdit" name="ports_primarynameserverLineEdit">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="ports_macaddresslayout">
+                         <property name="spacing">
+                          <number>10</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>10</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="ports_macaddresslabel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Mac Address</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="LineEdit" name="ports_macaddressLineEdit">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -4421,7 +4466,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>2</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -5206,7 +5251,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="subtab_Resource">
                    <property name="styleSheet">

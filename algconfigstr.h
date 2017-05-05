@@ -52,7 +52,8 @@ typedef enum
     PARAM_LABEL=0,
     PARAM_RECT,
     PARAM_BLOCK,
-    PARAM_CIRCLE
+    PARAM_CIRCLE,
+    PARAM_CHART
 }PARAM_TYPE;
 typedef struct
 {
