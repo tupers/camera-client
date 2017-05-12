@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     multiimagewidget.cpp \
     resultservice.cpp \
     algConfig/alg_gvss.cpp \
-    rtchart.cpp
+    utils/fpscnt.cpp \
+    utils/rtchart.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -58,7 +59,6 @@ HEADERS  += widget.h \
     configfile.h \
     lineedit.h \
     h264video.h \
-    sourcevideo.h \
     ezstream.h \
     network.h \
     configstruct.h \
@@ -75,7 +75,9 @@ HEADERS  += widget.h \
     multiimagewidget.h \
     resultservice.h \
     algConfig/alg_gvss.h \
-    rtchart.h
+    utils/fpscnt.h \
+    utils/rtchart.h \
+    sourcevideo.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

@@ -700,8 +700,7 @@ void Widget::ResetInformation()
     cpuloadTimer->stop();
     memoryseries->clear();
     storageseries->clear();
-    cpuloadSeries->clear();
-    cpuloadSeries2->clear();
+    cpuChart->clear();
 }
 
 void Widget::ResetAccount()
@@ -721,6 +720,7 @@ void Widget::SetupVideo()
     connect(h264video,SIGNAL(clearImage()),this,SLOT(clearVideoImage()));
     //    connect(h264video,SIGNAL(getVideoInfo(int,int,int)),this,SLOT(setVideoInfo(int,int,int)));
     connect(h264video,SIGNAL(sendToLog(QString)),this,SLOT(LogDebug(QString)));
+    connect(h264video,&H264Video::closeVideo,this,[=](){network->sendConfigToServer(NET_MSG_GET_DISABLE_ENCODE,0);});
     videothread->start();
 }
 
@@ -788,36 +788,11 @@ void Widget::SetupInformations()
     cpuloadTimer = new QTimer;
     cpuloadTimer->setInterval(1000);
     cpuloadTimer->setSingleShot(false);
+    cpuChart = new RTChart("cpu",2);
+    cpuChart->setDataRange(0,100);
     connect(ui->sublist,SIGNAL(currentChanged(int)),this,SLOT(sublistService(int)));
     connect(cpuloadTimer,SIGNAL(timeout()),this,SLOT(cpuloadUpdate()));
-
-    cpuloadSeries = new QLineSeries();
-    cpuloadSeries->append(QDateTime::currentMSecsSinceEpoch(),5.0);
-    cpuloadSeries2 = new QLineSeries();
-    cpuloadSeries2->append(QDateTime::currentMSecsSinceEpoch(),3.0);
-    //    cpuloadSeries2->append(0.0,1.0);
-    cpuloadChart = new QChart();
-    cpuloadChart->addSeries(cpuloadSeries);
-    cpuloadChart->addSeries(cpuloadSeries2);
-    cpuloadChart->createDefaultAxes();
-    axisX = new QDateTimeAxis;
-    //    QValueAxis* axisX = new QValueAxis;
-    axisX->setTickCount(12);
-    axisX->setFormat("h:mm:ss");
-    QDateTime mint=QDateTime::currentDateTime().addSecs(-119);
-    QDateTime maxt=QDateTime::currentDateTime().addSecs(1);
-    axisX->setRange(mint,maxt);
-    cpuloadChart->setAxisX(axisX,cpuloadSeries);
-    cpuloadSeries2->attachAxis(axisX);
-    cpuloadChart->axisY()->setRange(0,10);
-    cpuloadChart->legend()->hide();
-    cpuloadChart->setAnimationOptions(QChart::SeriesAnimations);
-    QChartView *cpuloadView = new QChartView(cpuloadChart);
-    cpuloadView->setRenderHint(QPainter::Antialiasing);
-    cpuloadView->setStyleSheet("background-color:rgba(0,0,0,0);");
-    ui->resource_cpuloadlayout->addWidget(cpuloadView);
-    qsrand((uint) QTime::currentTime().msec());
-    //    testtime.setDate(QDate::currentDate());
+    ui->resource_cpuloadlayout->addWidget(cpuChart);
 }
 
 void Widget::SetupConnection()
@@ -860,6 +835,8 @@ void Widget::SetupAccount()
 
 void Widget::VideoCMD(H264Video* video,int cmd)
 {
+    if(!video->isVideoInit())
+        network->sendConfigToServer(NET_MSG_GET_ENABLE_ENCODE,0);
     video->changeVideoStatus();
     emit videocontrol(cmd);
 }
@@ -1390,28 +1367,22 @@ void Widget::cpuloadUpdate()
     EzcpuDynamicParam cpuload;
     if(network->GetCpuloadresult(&cpuload))
     {
-        //        qDebug()<<"arm: "<<cpuload.prf_a8<<"dsp: "<<cpuload.prf_dsp;
-        int minload=0;
-        int maxload=0;
+        int minLoad,maxLoad;
         if(cpuload.prf_a8>cpuload.prf_dsp)
         {
-            maxload=cpuload.prf_a8;
-            minload=cpuload.prf_dsp;
+            minLoad=cpuload.prf_dsp;
+            maxLoad=cpuload.prf_a8;
         }
         else
         {
-            maxload=cpuload.prf_dsp;
-            minload=cpuload.prf_a8;
+            minLoad=cpuload.prf_a8;
+            maxLoad=cpuload.prf_dsp;
         }
-        maxload=maxload>95?100:(maxload+5);
-        minload=minload<5?0:(minload-5);
-        ui->resource_armcortexa8loadlabel->setText("ARM cortex-A8 load:\t"+QString::number(cpuload.prf_a8)+"%");
-        ui->resource_dsp674xloadlabel->setText("DSP674x load:\t"+QString::number(cpuload.prf_dsp)+"%");
-        QDateTime currenttime(QDate::currentDate(),QTime::currentTime());
-        cpuloadSeries->append(currenttime.toMSecsSinceEpoch(),cpuload.prf_a8);
-        cpuloadSeries2->append(currenttime.toMSecsSinceEpoch(),cpuload.prf_dsp);
-        cpuloadChart->axisY()->setRange(minload,maxload);
-        axisX->setRange(currenttime.addSecs(-119),currenttime.addSecs(1));
+        minLoad=(minLoad-5)>0?(minLoad-5):0;
+        maxLoad=(maxLoad+5)<100?(maxLoad+5):100;
+        cpuChart->setDataRange(minLoad,maxLoad);
+        cpuChart->updateData(cpuload.prf_a8,0);
+        cpuChart->updateData(cpuload.prf_dsp,1);
     }
     else
     {
@@ -1430,32 +1401,20 @@ void Widget::algresultUpdate(QByteArray ba)
         {
             void* tempresult = (void*)malloc(config->getAlgResultSize());
             memcpy(tempresult,ba.data(),config->getAlgResultSize());
-        //    qDebug()<<config->getAlgResultSize()<<"recieve: "<<ba.size();
-        //    qDebug()<<"hostResult:"<<sizeof(testResult)<<"algRsult"<<sizeof(uiAlgResult);
-//            testResult* hostResult = (testResult*)ba.data();
-//            uiAlgResult* clientAlgResult = (uiAlgResult*)tempresult;
-//            clientAlgResult->blockNum = hostResult->num;
-//            for(int i=0;i<40;i++)
-//            {
-//                clientAlgResult->block[i].area=hostResult->area[i];
-//                clientAlgResult->block[i].x=hostResult->xyPair[i].x;
-//                clientAlgResult->block[i].y=hostResult->xyPair[i].y;
-//            }
-//            clientAlgResult->position=*(float*)((char*)((char*)hostResult+254));
-//            clientAlgResult->distance=*(float*)((char*)((char*)hostResult+254+4));
 
-            if(resultFile!=NULL)
-                fprintf(resultFile,QString("%1\t%2\n").arg(*(float*)tempresult).arg(*(float*)((char*)(tempresult+4))).toLatin1().data());
+            if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
+            {
+                fprintf(resultFile,QString("%1\t%2\t%3\n").arg(*(float*)tempresult).arg(*(int*)((char*)tempresult+8)).arg(*(int*)((char*)tempresult+28)).toLatin1().data());
+                int offset = 32;
+                for(int i=0;i<50;i++)
+                    fprintf(resultFile,QString("%1\t%2\t%3\n").arg(*(int*)((char*)tempresult+offset+i*8)).arg(*(short*)((char*)tempresult+offset+i*8+4)).arg(*(short*)((char*)tempresult+offset+i*8+6)).toLatin1().data());
+            }
 
             config->reflashAlgResult(tempresult);
-            //            QImage temp =config->refreshAlgImage().scaledToHeight(ui->run_videoinputwidget->height());
             if(SourceFlag==false)
                 ui->run_videoinputwidget->setImage(config->refreshAlgImage(),0,SCALE_HEIGHT);
             else
                 emit getImage_Source(config->refreshAlgImage(),0);
-            //        int test[9]={0,0,1270,710,1,2,3,4,99};
-            //        config->reflashAlgResult(test);
-            //        ui->run_videoinputwidget->setImage(config->refreshAlgImage(),1,SCALE_WIDTH);
             free(tempresult);
         }
     }

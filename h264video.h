@@ -53,6 +53,7 @@ public:
     void setH264VideoUrl(QString u){url=u;}
     void H264VideoFree();
     void changeVideoStatus(){VideoStatus=!VideoStatus;}
+    bool isVideoInit(){return InitFlag;}
     bool getVideoStatus(){return VideoStatus;}
 public slots:
     void H264VideoOpen(int);
@@ -82,6 +83,7 @@ signals:
     void getVideoInfo(int,int,int);
     void clearImage();
     void sendToLog(QString);
+    void closeVideo();
 
 };
 

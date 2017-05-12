@@ -110,10 +110,7 @@ private:
     QTimer* cpuloadTimer=NULL;
     QPieSeries *memoryseries=NULL;
     QPieSeries *storageseries=NULL;
-    QLineSeries* cpuloadSeries=NULL;
-    QLineSeries* cpuloadSeries2=NULL;
-    QChart* cpuloadChart=NULL;
-    QDateTimeAxis *axisX=NULL;
+    RTChart* cpuChart;
     EzAlgResult algResult;
     ftpSaveInfo ftpfile;
     FirmwareUpdate* updateWidget=NULL;

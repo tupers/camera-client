@@ -143,10 +143,9 @@ void ALGConfigService::reflashResult(void *params)
         else if(temp.paramType==PARAM_CHART)
         {
             int size=valueSize(temp.type);
-            float val=0;
-            memcpy(&val,(char*)params+offset,size);
-            RTChart* view = (RTChart*)temp.value;
-            view->updateData(val);
+            memcpy(temp.value,(char*)params+offset,size);
+            RTChart* chart = (RTChart*)temp.ui->itemAt(0)->widget();
+            chart->updateData(*(float*)temp.value,0);
             offset+=size;
         }
 
@@ -278,10 +277,10 @@ QLayout *ALGConfigService::createResultBlock(QString name)
     return layout;
 }
 
-QLayout *ALGConfigService::createResultChart(RTChart* rtChart)
+QLayout *ALGConfigService::createResultChart(RTChart* chart)
 {
     QLayout* layout = new QHBoxLayout;
-    layout->addWidget(rtChart->getView());
+    layout->addWidget(chart);
     return layout;
 }
 
@@ -522,16 +521,16 @@ void ALGConfigService::generateResult(ALG_TYPE algtype)
                             for(i=0;i<count;i++)
                             {
                                 resultSize += valueSize(type);
-
-                                RTChart* chart = new RTChart;
+                                void* pdata = malloc(valueSize(type));
+                                RTChart* chart = new RTChart(labelName);
                                 qreal min=0;
                                 qreal max=1;
                                 if(att.value("min")!="")
                                     min = att.value("min").toFloat();
                                 if(att.value("max")!="")
                                     max = att.value("max").toFloat();
-                                chart->setYRange(min,max);
-                                resultList.append({labelName,PARAM_CHART,visible,type,chart,createResultChart(chart)});
+                                chart->setDataRange(min,max);
+                                resultList.append({labelName,PARAM_CHART,visible,type,pdata,createResultChart(chart)});
                                 if(visible==1)
                                     resultContainerList.last().containerLayout->addLayout(resultList.last().ui);
                             }
@@ -563,15 +562,15 @@ QImage ALGConfigService::resultImage()
     QImage pic(1280,720,QImage::Format_ARGB32);
     pic.fill(QColor(0,0,0,0));
     QPainter pa(&pic);
-    QPen pen;
-    pen.setWidth(3);
-    pen.setColor(QColor(50,223,0,200));
-    pa.setPen(pen);
-    pa.drawLine(192,0,192,720);
-    pa.drawLine(1088,0,1088,720);
-    pen.setColor(QColor(223,50,0,200));
-    pa.setPen(pen);
-    updateResultImg(&pa,&resultList);
+//    QPen pen;
+//    pen.setWidth(3);
+//    pen.setColor(QColor(50,223,0,200));
+//    pa.setPen(pen);
+//    pa.drawLine(160,0,160,720);
+//    pa.drawLine(1056,0,1056,720);
+//    pen.setColor(QColor(223,50,0,200));
+//    pa.setPen(pen);
+    updateResultImg(&pa,&resultList,&configList);
 //    //step1. find block num
 //    int blockNum=0;
 //    int i;

@@ -12,37 +12,6 @@
 /***************** **************************
  server information
 ***********************************************/
-typedef struct
-{
-    unsigned short x;
-    unsigned short y;
-}pair;
-
-typedef struct
-{
-    unsigned short flag[4];
-    unsigned short size;
-    unsigned short num;
-    unsigned short area[40];
-    unsigned short pad;
-    pair xyPair[40];
-    float position;
-    float distance;
-} testResult;
-typedef struct
-{
-    unsigned int area;
-    unsigned short x;
-    unsigned short y;
-}coord;
-
-typedef struct
-{
-    unsigned int blockNum;
-    coord block[40];
-    float position;
-    float distance;
-}uiAlgResult;
 
 enum _NET_MSG
 {

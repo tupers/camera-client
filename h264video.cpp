@@ -147,6 +147,7 @@ void H264Video::H264VideoFree()
         pSwsContext=NULL;
     }
     InitFlag=false;
+    emit closeVideo();
 }
 
 
@@ -203,6 +204,7 @@ void H264Video::H264VideoTimeout()
     emit sendToLog("Video Timer timeout, close stream.");
     qDebug()<<"Video Timer timeout, close stream.";
     H264VideoFree();
+
 }
 
 void H264Video::InitVideoInfo()
