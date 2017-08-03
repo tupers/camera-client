@@ -1,13 +1,30 @@
 #include "alg_gvss.h"
 
-void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* list)
+void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* result,QVector<ALGConfigStr>* config)
 {
+    int i;
+    //step0. draw ROI and edge
+    QPen pen;
+    pen.setWidth(3);
+    pen.setColor(QColor(150,150,0,200));
+    painter->setPen(pen);
+    for(i=0;i<config->count();i++)
+    {
+        ALGConfigStr tempconfig = config->at(i);
+        if(tempconfig.name=="frameLeftRatio"||tempconfig.name=="frameRightRatio")
+        {
+            float pos = *(float*)tempconfig.value*1280;
+            pos = pos*32;
+            pos = pos/32;
+            painter->drawLine(pos,0,pos,720);
+        }
+    }
+
     //step1. find block num
     int blockNum=0;
-    int i;
-    for(i=0;i<list->count();i++)
+    for(i=0;i<result->count();i++)
     {
-        ALGResultStr temp = list->at(i);
+        ALGResultStr temp = result->at(i);
         if(temp.name=="Block_Num")
         {
             QLabel* labelName = (QLabel*)temp.ui->itemAt(1)->widget();
@@ -16,11 +33,14 @@ void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* list)
         }
     }
     //step2. draw valid block
-    for(i=0;i<list->count();i++)
+    pen.setColor(QColor(223,50,0,200));
+    painter->setPen(pen);
+    int code_top,code_bottom,code_left,code_right;
+    for(i=0;i<result->count();i++)
     {
         if(blockNum==0)
             break;
-        ALGResultStr temp = list->at(i);
+        ALGResultStr temp = result->at(i);
         if(temp.paramType==PARAM_BLOCK)
         {
             QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
@@ -29,5 +49,28 @@ void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* list)
             painter->drawLine(x->text().toInt(),y->text().toInt()-7,x->text().toInt(),y->text().toInt()+7);
             blockNum--;
         }
+        else if(temp.name=="top")
+        {
+            QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+            code_top=label->text().toInt();
+        }
+        else if(temp.name=="bottom")
+        {
+            QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+            code_bottom=label->text().toInt();
+        }
+        else if(temp.name=="left")
+        {
+            QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+            code_left=label->text().toInt();
+        }
+        else if(temp.name=="right")
+        {
+            QLabel* label = (QLabel*)temp.ui->itemAt(1)->widget();
+            code_right=label->text().toInt();
+        }
+
     }
+    painter->drawRect(code_left,code_top,code_right-code_left,code_bottom-code_top);
+
 }

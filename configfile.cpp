@@ -516,7 +516,7 @@ void ConfigFile::getAlgConfig(void *params)
 
 void ConfigFile::reflashAlgResult(void *params)
 {
-    algconfig->reflashResult(params);
+    algconfig->refreshResult(params);
 }
 
 QImage ConfigFile::refreshAlgImage()

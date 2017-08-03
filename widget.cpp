@@ -746,6 +746,42 @@ void Widget::SetupRun()
         LogDebug("find save dir.");
         qDebug()<<"find save dir.";
     }
+
+    QDir logdir;
+    if(logdir.mkdir("./log/"))
+    {
+        LogDebug("did not find log dir, create log dir.");
+        qDebug()<<"did not find log dir, create log dir.";
+    }
+    else
+    {
+        LogDebug("find log dir.");
+        qDebug()<<"find log dir.";
+    }
+
+    QDir loglogdir;
+    if(loglogdir.mkdir("./log/log/"))
+    {
+        LogDebug("did not find log log dir, create log log dir.");
+        qDebug()<<"did not find log log dir, create log log dir.";
+    }
+    else
+    {
+        LogDebug("find log log dir.");
+        qDebug()<<"find log log dir.";
+    }
+
+    QDir logerrdir;
+    if(logerrdir.mkdir("./log/err/"))
+    {
+        LogDebug("did not find log err dir, create log err dir.");
+        qDebug()<<"did not find log err dir, create log err dir.";
+    }
+    else
+    {
+        LogDebug("find log err dir.");
+        qDebug()<<"find log err dir.";
+    }
 }
 
 void Widget::SetupLog()
@@ -848,6 +884,7 @@ void Widget::LogDebug(QString msg)
 
 void Widget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     //    QPainterPath path;
     //    path.setFillRule(Qt::WindingFill);
     //    path.addRect(0, 0, this->width()+20, this->height()+20);
@@ -869,6 +906,7 @@ void Widget::paintEvent(QPaintEvent *event)
 
 void Widget::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
     SerialPortWidget->close();
     SourceVideoWidget->close();
 
@@ -1394,7 +1432,9 @@ void Widget::cpuloadUpdate()
 
 void Widget::algresultUpdate(QByteArray ba)
 {
-
+    unsigned int position,distance;
+    unsigned logSize = 0;
+    int rectNum = 0;
     if(config->getAlgResultSize()!=0)
     {
         if(isRunOnScreen==true)
@@ -1402,13 +1442,19 @@ void Widget::algresultUpdate(QByteArray ba)
             void* tempresult = (void*)malloc(config->getAlgResultSize());
             memcpy(tempresult,ba.data(),config->getAlgResultSize());
 
+            rectNum = *(int *)((char*)tempresult+32);
+            logSize = config->getAlgResultSize() - (8*(50 - rectNum));
+
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
-            {
-                fprintf(resultFile,QString("%1\t%2\t%3\n").arg(*(float*)tempresult).arg(*(int*)((char*)tempresult+8)).arg(*(int*)((char*)tempresult+28)).toLatin1().data());
-                int offset = 32;
-                for(int i=0;i<50;i++)
-                    fprintf(resultFile,QString("%1\t%2\t%3\n").arg(*(int*)((char*)tempresult+offset+i*8)).arg(*(short*)((char*)tempresult+offset+i*8+4)).arg(*(short*)((char*)tempresult+offset+i*8+6)).toLatin1().data());
-            }
+                  fwrite(tempresult,logSize,1,resultFile);
+
+//            if(resultLogFile!=NULL)
+//            {
+//                position = *(float*)tempresult;
+//                distance = *(float *)((char*)tempresult+4);
+
+//                fprintf(resultLogFile,QString("%1\t%2\t\n").arg(position).arg(distance).toLatin1().data());
+//            }
 
             config->reflashAlgResult(tempresult);
             if(SourceFlag==false)
@@ -1908,10 +1954,16 @@ void Widget::resultLog(int state)
             fclose(resultFile);
             resultFile=NULL;
         }
-        QString filename = "./log/";
+        QString filename = "./log/err/";
+        filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+        filename+=".txt";
+        resultFile = fopen(filename.toLatin1().data(),"w");
+
+        filename.clear();
+        filename =  "./log/log/";
         filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
         filename+=".xls";
-        resultFile = fopen(filename.toLatin1().data(),"w");
+        resultLogFile = fopen(filename.toLatin1().data(),"w");
     }
     else if(state ==0)
     {
@@ -1919,6 +1971,12 @@ void Widget::resultLog(int state)
         {
             fclose(resultFile);
             resultFile=NULL;
+        }
+
+        if(resultLogFile != NULL)
+        {
+            fclose(resultLogFile);
+            resultLogFile=NULL;
         }
     }
 }

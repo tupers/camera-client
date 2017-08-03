@@ -28,6 +28,7 @@ SerialPort::~SerialPort()
 }
 void SerialPort::closeEvent(QCloseEvent*event)
 {
+    Q_UNUSED(event);
     ui->SPTextEdit->clear();
     if(spconsole->SP_isOpen())
         emit SerialPort_Close();

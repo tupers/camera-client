@@ -23,13 +23,6 @@ typedef struct
     LineEdit* valuelineEdit;
 }ALGConfig_ui;
 
-//typedef struct
-//{
-//    QHBoxLayout* valueLayout;
-//    QLabel* nameLabel;
-//    QLabel* valueLabel;
-//}ALGResult_ui;
-
 typedef struct
 {
     QVBoxLayout* containerLayout;

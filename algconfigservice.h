@@ -24,7 +24,7 @@ public:
     void clearList(QVector<ALGParamContainer>*list);
     void setConfig(void*);
     void getConfig(void*);
-    void reflashResult(void*);
+    void refreshResult(void*);
     void saveConfig();
     void loadConfig();
     int getConfigSize(){return configSize;}

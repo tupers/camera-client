@@ -31,9 +31,7 @@ void ALGConfigService::initConfigList(ALG_TYPE type)
     generateConfig(type);
     generateResult(type);
     if(type==ALG_GVSS)
-    {
         updateResultImg = updateResultImg_GVSS;
-    }
 }
 
 void ALGConfigService::clearList(QVector<ALGConfigStr> *list)
@@ -99,7 +97,7 @@ void ALGConfigService::getConfig(void *params)
     }
 }
 
-void ALGConfigService::reflashResult(void *params)
+void ALGConfigService::refreshResult(void *params)
 {
     int i;
     int offset=0;
@@ -562,87 +560,10 @@ QImage ALGConfigService::resultImage()
     QImage pic(1280,720,QImage::Format_ARGB32);
     pic.fill(QColor(0,0,0,0));
     QPainter pa(&pic);
-//    QPen pen;
-//    pen.setWidth(3);
-//    pen.setColor(QColor(50,223,0,200));
-//    pa.setPen(pen);
-//    pa.drawLine(160,0,160,720);
-//    pa.drawLine(1056,0,1056,720);
-//    pen.setColor(QColor(223,50,0,200));
-//    pa.setPen(pen);
     updateResultImg(&pa,&resultList,&configList);
-//    //step1. find block num
-//    int blockNum=0;
-//    int i;
-//    for(i=0;i<resultList.count();i++)
-//    {
-//        ALGResultStr temp = resultList.at(i);
-//        if(temp.name=="Block_Num")
-//        {
-//            QLabel* labelName = (QLabel*)temp.ui->itemAt(1)->widget();
-//            blockNum = labelName->text().toInt();
-//            break;
-//        }
-//    }
-//    //step2. draw valid block
-//    for(i=0;i<resultList.count();i++)
-//    {
-//        if(blockNum==0)
-//            break;
-//        ALGResultStr temp = resultList.at(i);
-//        if(temp.paramType==PARAM_BLOCK)
-//        {
-//            QLabel* x = (QLabel*)temp.ui->itemAt(2)->widget();
-//            QLabel* y = (QLabel*)temp.ui->itemAt(3)->widget();
-//            pa.drawLine(x->text().toInt()-7,y->text().toInt(),x->text().toInt()+7,y->text().toInt());
-//            pa.drawLine(x->text().toInt(),y->text().toInt()-7,x->text().toInt(),y->text().toInt()+7);
-//            blockNum--;
-//        }
-//    }
     return pic;
 }
 
-//void ALGConfigService::getParamsFromXml()
-//{
-//    QFile file("xmltest.xml");
-//    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-//    {
-//        QXmlStreamReader reader(&file);
-//        while(!reader.atEnd())
-//        {
-//            reader.readNext();
-//            if(reader.isStartElement()&&reader.name()=="Config")
-//            {
-//                configSize=0;
-//                while(!(reader.isEndElement()&&reader.name()=="Config"))
-//                {
-//                    if(reader.isStartElement())
-//                    {
-//                        qDebug()<<reader.name();
-//                        if(reader.name()=="Label")
-//                        {
-//                            QXmlStreamAttributes att = reader.attributes();
-//                            configSize+=valueSize(VALUE_TYPE(att.value("type").toInt()));
-//                        }
-//                        //                    if(reader.name()=="Tag")
-//                        //                    {
-//                        //                        QXmlStreamAttributes att = reader.attributes();
-//                        //                        qDebug()<<att.value("posx")<<att.value("posy");
-//                        //                    }
-//                        //                    if(reader.name()=="Title")
-//                        //                        qDebug()<<reader.name()<<":"<<reader.readElementText();
-//                    }
-//                    reader.readNext();
-//                }
-//                break;
-//            }
-//            else
-//                continue;
-//        }
-//    }
-//    qDebug()<<configSize;
-//    file.close();
-//}
 
 QString ALGConfigService::value2Text(void *pdata, VALUE_TYPE type)
 {

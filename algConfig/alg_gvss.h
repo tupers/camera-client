@@ -4,7 +4,6 @@
 #include <QPainter>
 #include "../algconfigstr.h"
 
-
-void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* list);
+void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* result,QVector<ALGConfigStr>* config);
 
 #endif // ALG_GVSS_H

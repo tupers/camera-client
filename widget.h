@@ -119,6 +119,7 @@ private:
     void freeList();
     bool isRunOnScreen;
     FILE* resultFile=NULL;
+    FILE* resultLogFile = NULL;
 protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
