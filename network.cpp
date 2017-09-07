@@ -149,6 +149,7 @@ int NetWork::SendServerMsg(QTcpSocket *ClientSocket, NetMsg *msg, int len, NetMs
     {
         while(ClientSocket->bytesAvailable())
             ackData = ClientSocket->readAll();
+        //qDebug()<<ackData.length();
         if(ackData.length()!=*acklen)
         {
 
@@ -161,13 +162,9 @@ int NetWork::SendServerMsg(QTcpSocket *ClientSocket, NetMsg *msg, int len, NetMs
         tmpMsg = (NetMsg *)(ackData.data());
 
         if((tmpMsg->ackCmd == ACKCMD_SOK)&&(tmpMsg->cmd==msg->cmd))
-        {
             memcpy(ackMsg,tmpMsg,*acklen);
-        }
         else
-        {
             ret = MSG_SFAIL;
-        }
     }
     else
     {
@@ -558,6 +555,8 @@ void NetWork::GetFrameFromSensor()
     frameinfo.udpPort = udpFrameRcv->socket()->localPort();
 
     QString addr = getLocalIP("本地连接");
+    if(addr==NULL)
+        addr = getLocalIP("以太网");
     strcpy((char*)frameinfo.udpIp,addr.toLatin1().data());
 
     len = sizeof(NetMsg) + sizeof(EzFrameInfo);
@@ -594,6 +593,8 @@ void NetWork::setSocketDebugMode()
     debuginfo.port = udpDebugRcv->socket()->localPort();
 
     QString addr = getLocalIP("本地连接");
+        if(addr==NULL)
+            addr = getLocalIP("以太网");
     strcpy((char*)debuginfo.ip,addr.toLatin1().data());
 
     len = sizeof(NetMsg) + sizeof(DebugParams);
@@ -1558,7 +1559,6 @@ QString NetWork::getLocalIP(QString name)
     {
         if(interfaces.humanReadableName()==name)
         {
-            //        qDebug()<<interfaces.humanReadableName();
             QList<QNetworkAddressEntry>entryList = interfaces.addressEntries();
             foreach(QNetworkAddressEntry entry,entryList)
             {

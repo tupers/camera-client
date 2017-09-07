@@ -14,9 +14,16 @@ void updateResultImg_GVSS(QPainter* painter,QVector<ALGResultStr>* result,QVecto
         if(tempconfig.name=="frameLeftRatio"||tempconfig.name=="frameRightRatio")
         {
             float pos = *(float*)tempconfig.value*1280;
-            pos = pos*32;
-            pos = pos/32;
+            pos = (int)pos/32;
+            pos = (int)pos*32;
             painter->drawLine(pos,0,pos,720);
+        }
+        else if(tempconfig.name=="frameTopRatio"||tempconfig.name=="frameBottomRatio")
+        {
+            float pos = *(float*)tempconfig.value*720;
+            pos = (int)pos/32;
+            pos = (int)pos*32;
+            painter->drawLine(0,pos,1280,pos);
         }
     }
 

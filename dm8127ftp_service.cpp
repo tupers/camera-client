@@ -196,6 +196,8 @@ void DM8127Ftp_Service::list(QString path)
     tempfile.port=dataPort;
 
     QString addr = getLocalIP("本地连接");
+//    if(addr==NULL)
+//        addr = getLocalIP("以太网");
     strcpy((char*)tempfile.ip,addr.toLatin1().data());
 
     strcpy(tempfile.filepath,path.toLatin1().data());
@@ -237,6 +239,8 @@ void DM8127Ftp_Service::get(QString file)
     tempfile.port=dataPort;
 
     QString addr = getLocalIP("本地连接");
+    if(addr==NULL)
+        addr = getLocalIP("以太网");
     strcpy((char*)tempfile.ip,addr.toLatin1().data());
 
     QString filepath = currentDir+"/"+file;
@@ -282,6 +286,8 @@ void DM8127Ftp_Service::put(QString path,QByteArray *data)
     tempfile.port=dataPort;
 
     QString addr = getLocalIP("本地连接");
+    if(addr==NULL)
+        addr = getLocalIP("以太网");
     strcpy((char*)tempfile.ip,addr.toLatin1().data());
 
     strcpy(tempfile.filepath,path.toLatin1().data());

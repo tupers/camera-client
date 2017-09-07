@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -806,7 +806,7 @@ font:bold 13pt Arial;}
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="1">
+                       <item row="0" column="2">
                         <widget class="QPushButton" name="run_videosourceButton">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -831,7 +831,7 @@ font:bold 13pt Arial;}
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="2">
+                       <item row="0" column="3">
                         <widget class="QPushButton" name="run_videosavesensorButton">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -973,7 +973,7 @@ font:bold 13pt Arial;}
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,0,1">
+                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,0,1,0">
                        <property name="spacing">
                         <number>5</number>
                        </property>
@@ -1085,6 +1085,13 @@ font:bold 13pt Arial;}
                          </property>
                          <property name="text">
                           <string>Load Algorithm(for debug)</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="run_algviewchangeBox">
+                         <property name="text">
+                          <string>change view</string>
                          </property>
                         </widget>
                        </item>
@@ -1525,7 +1532,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>1</number>
+                       <number>3</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">
@@ -4468,7 +4475,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -5911,7 +5918,7 @@ margin:50px;
                 <item row="0" column="0">
                  <widget class="QStackedWidget" name="Accountlist">
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="Account_login">
                    <property name="styleSheet">

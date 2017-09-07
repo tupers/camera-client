@@ -43,18 +43,18 @@ void SerialPort::SerialPort_Init()
     }
     if(ui->DebugModeSelectBox->currentIndex()==1)
     {
-    if(ui->SPSelectBox->currentIndex()==-1)
-    {
-        ui->openSPButton->setEnabled(false);
-        ui->clearButton->setEnabled(false);
-        ui->closeSPButton->setEnabled(false);
-    }
-    else
-    {
-        ui->openSPButton->setEnabled(true);
-        ui->clearButton->setEnabled(true);
-        ui->closeSPButton->setEnabled(true);
-    }
+        if(ui->SPSelectBox->currentIndex()==-1)
+        {
+            ui->openSPButton->setEnabled(false);
+            ui->clearButton->setEnabled(false);
+            ui->closeSPButton->setEnabled(false);
+        }
+        else
+        {
+            ui->openSPButton->setEnabled(true);
+            ui->clearButton->setEnabled(true);
+            ui->closeSPButton->setEnabled(true);
+        }
     }
     else
     {
@@ -84,6 +84,7 @@ void SerialPort::on_openSPButton_clicked()
 }
 void SerialPort::SerialPort_ReadData(QString data)
 {
+
     ui->SPTextEdit->insertPlainText(data);
     ui->SPTextEdit->verticalScrollBar()->setValue(ui->SPTextEdit->verticalScrollBar()->maximum());
 }
@@ -128,7 +129,7 @@ void SerialPort::on_DebugModeSelectBox_activated(int index)
             ui->clearButton->setEnabled(true);
             ui->closeSPButton->setEnabled(true);
         }
-         ui->SPTextEdit->setEnabled(false);
+        ui->SPTextEdit->setEnabled(false);
     }
     else
     {

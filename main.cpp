@@ -1,5 +1,6 @@
 #include "widget.h"
 #include <QApplication>
+#include <QTextCodec>
 void logMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     static QMutex mutex;
@@ -46,6 +47,7 @@ int main(int argc, char *argv[])
     if(f.exists())
         f.remove();
 //    qInstallMessageHandler(logMessage);
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB2312"));
     Widget w;
     w.show();
 

@@ -731,6 +731,7 @@ void Widget::SetupRun()
     connect(SourceVideoWidget,SIGNAL(SourceVideoClose()),this,SLOT(SourceVideoWidgetClose()));
     connect(ui->run_processmodeAlgBox,SIGNAL(stateChanged(int)),config,SLOT(setLoadAlg(int)));
     connect(ui->run_saveResultBox,SIGNAL(stateChanged(int)),this,SLOT(resultLog(int)));
+    connect(ui->run_algviewchangeBox,&QPushButton::clicked,[=](){network->sendConfigToServer(NET_MSG_OUTPUT_IMGSOURCE,1);});
 
     RunVideoImage=QImage(1280,720,QImage::Format_RGB888);
 
@@ -1218,6 +1219,7 @@ void Widget::LoginSuccess(uint8_t authority)
     if(config->getAlgConfigSize()!=0)
     {
         void* algparam = (void*)malloc(config->getAlgConfigSize());
+        //qDebug()<<config->getAlgConfigSize();
         if(network->GetParams(NET_MSG_IMGALG_GET_PARAM,algparam,config->getAlgConfigSize()))
             config->setAlgConfig(algparam);
         free(algparam);
@@ -1446,15 +1448,25 @@ void Widget::algresultUpdate(QByteArray ba)
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
 
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
-                  fwrite(tempresult,logSize,1,resultFile);
+            //if(resultFile!=NULL)
+                fwrite(tempresult,logSize,1,resultFile);
 
-//            if(resultLogFile!=NULL)
-//            {
-//                position = *(float*)tempresult;
-//                distance = *(float *)((char*)tempresult+4);
+            //            if(resultLogFile!=NULL)
+            //            {
+            //                position = *(float*)tempresult;
+            //                distance = *(float *)((char*)tempresult+4);
 
-//                fprintf(resultLogFile,QString("%1\t%2\t\n").arg(position).arg(distance).toLatin1().data());
-//            }
+            //                fprintf(resultLogFile,QString("%1\t%2\t\n").arg(position).arg(distance).toLatin1().data());
+            //                unsigned char* pblock = (unsigned char*)tempresult+36;
+            //                for(int i=0;i<rectNum;i++)
+            //                {
+            //                    int area = *(int*)(pblock+8*i);
+            //                    short x = *(short*)(pblock+8*i+4);
+            //                    short y = *(short*)(pblock+8*i+4+2);
+            //                    QString info = QString("%1\t%2\t%3\t\n").arg(area).arg(x).arg(y);
+            //                    fprintf(resultLogFile,info.toLatin1().data());
+            //                }
+            //            }
 
             config->reflashAlgResult(tempresult);
             if(SourceFlag==false)
@@ -1540,7 +1552,6 @@ void Widget::on_run_algsourceBox_activated(int index)
     if(index==0)
     {
         network->sendConfigToServer(NET_MSG_IMGALG_STATIC_IMG,1);
-
     }
     else
     {
@@ -1959,11 +1970,11 @@ void Widget::resultLog(int state)
         filename+=".txt";
         resultFile = fopen(filename.toLatin1().data(),"w");
 
-        filename.clear();
-        filename =  "./log/log/";
-        filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-        filename+=".xls";
-        resultLogFile = fopen(filename.toLatin1().data(),"w");
+        //        filename.clear();
+        //        filename =  "./log/log/";
+        //        filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+        //        filename+=".xls";
+        //        resultLogFile = fopen(filename.toLatin1().data(),"w");
     }
     else if(state ==0)
     {
@@ -1973,11 +1984,11 @@ void Widget::resultLog(int state)
             resultFile=NULL;
         }
 
-        if(resultLogFile != NULL)
-        {
-            fclose(resultLogFile);
-            resultLogFile=NULL;
-        }
+        //        if(resultLogFile != NULL)
+        //        {
+        //            fclose(resultLogFile);
+        //            resultLogFile=NULL;
+        //        }
     }
 }
 
