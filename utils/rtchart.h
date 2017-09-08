@@ -63,6 +63,7 @@ private:
     QPushButton* saveButton;
     QPushButton* displayButton;
     QPushButton* m_hPauseButton;
+    QLabel* m_hNameLabel;
     QPushButton* m_hZoomInButton;
     QPushButton* m_hZoomOutButton;
     QChartView* chartView=NULL;

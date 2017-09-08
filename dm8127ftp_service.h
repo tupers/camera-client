@@ -29,6 +29,7 @@ signals:
     void sendToLog(QString);
     void listInfo(FileList*);
     void getData(QByteArray);
+    void PutProgress(int);
 public slots:
     void connectToHost(QString, int, QString username, QString password);
     void loginService();

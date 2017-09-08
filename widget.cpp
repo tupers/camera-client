@@ -128,6 +128,9 @@ void Widget::SetupOptions()
     updateWidget->setWindowFlags(Qt::Popup);
     connect(updateWidget,SIGNAL(updateOption(int)),this,SLOT(firmwareUpdateService(int)));
 
+    ui->system_firmwareProgressBar->setMaximum(100);
+    ui->system_firmwareProgressBar->setValue(0);
+
 
     /* for config list browser*/
     ui->system_configlist->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -825,7 +828,7 @@ void Widget::SetupInformations()
     cpuloadTimer = new QTimer;
     cpuloadTimer->setInterval(1000);
     cpuloadTimer->setSingleShot(false);
-    cpuChart = new RTChart("cpu",2);
+    cpuChart = new RTChart("CPU PayLoad",2);
     cpuChart->setDataRange(0,100);
     connect(ui->sublist,SIGNAL(currentChanged(int)),this,SLOT(sublistService(int)));
     connect(cpuloadTimer,SIGNAL(timeout()),this,SLOT(cpuloadUpdate()));
@@ -858,6 +861,11 @@ void Widget::SetupNetwork()
     connect(config,SIGNAL(sendToServerALG(QVariant)),network,SLOT(sendConfigToServerALG(QVariant)));
     connect(config,SIGNAL(sendToServerH3A(QVariant)),network,SLOT(sendConfigToServerH3A(QVariant)));
     connect(network,SIGNAL(sendAlgRsult(QByteArray)),this,SLOT(algresultUpdate(QByteArray)));
+    //firmware progress bar
+    connect(network,&NetWork::ftpPutProgress,this,[=](int leftSize){
+        int size = ui->system_firmwareProgressBar->maximum();
+        ui->system_firmwareProgressBar->setValue(size-leftSize);
+    });
 
 }
 
@@ -1675,7 +1683,11 @@ void Widget::firmwareUpdateService(int cmd)
         QByteArray* ba = new QByteArray;
         ba->resize(size);
         fread(ba->data(),1,size,fp);
-        qDebug()<<ba->length();
+        QString name = localFilePath.remove(0,9);
+        ui->system_firmwareNameLabel->setText(name);
+        ui->system_firmwareProgressBar->setMaximum(ba->length());
+        ui->system_firmwareProgressBar->setValue(0);
+        //qDebug()<<ba->length();
         emit network->putFtp(targetPath,ba);
         fclose(fp);
     }

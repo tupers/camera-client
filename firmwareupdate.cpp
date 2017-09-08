@@ -21,4 +21,5 @@ void FirmwareUpdate::on_comboBox_activated(int index)
 void FirmwareUpdate::on_pushButton_clicked()
 {
     emit updateOption(updateoption);
+    this->close();
 }

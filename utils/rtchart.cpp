@@ -46,6 +46,9 @@ RTChart::RTChart(QString name,int num,QWidget *parent) : QWidget(parent)
     m_hCtrlLayout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding));
     m_hSubLayout->addLayout(m_hCtrlLayout);
 
+    m_hNameLabel = createLabel(m_ChartName);
+    m_hCtrlLayout->addWidget(m_hNameLabel);
+
     m_hPauseButton = createButton("pause");
     connect(m_hPauseButton,&QPushButton::clicked,[=](){ if(m_hPauseButton->text()=="pause")
             m_hPauseButton->setText("continue");

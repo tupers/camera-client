@@ -46,6 +46,7 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     //    ftpThread = new QThread;
     //    ftp->moveToThread(ftpThread);
     connect(this,SIGNAL(connectFtp(QString,int,QString,QString)),ftp,SLOT(connectToHost(QString,int,QString,QString)));
+    connect(ftp,&DM8127Ftp_Service::PutProgress,this,&NetWork::ftpPutProgress);
     connect(this,SIGNAL(listFtp(QString)),ftp,SLOT(list(QString)));
     connect(this,SIGNAL(getFtp(QString)),ftp,SLOT(get(QString)));
     connect(this,SIGNAL(closeFtp()),ftp,SLOT(close()));

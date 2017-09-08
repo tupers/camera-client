@@ -6,6 +6,13 @@ ftpData::ftpData(QTcpSocket *socket, QByteArray *data, QObject *parent) : QObjec
     sendData=data;
     connect(dataSocket,SIGNAL(readyRead()),this,SLOT(readData()));
     connect(dataSocket,SIGNAL(disconnected()),this,SLOT(diconnectservice()));
+    connect(dataSocket,&QTcpSocket::bytesWritten,this,[=](qint64 num){
+        if(m_nPutSize>0)
+        {
+            m_nPutSize-=num;
+            emit putProgress(m_nPutSize);
+        }
+    });
 
     rcvData.resize(0);
 }
@@ -30,8 +37,9 @@ void ftpData::readData()
             {
                 if(temp.status==0)
                 {
-                    qDebug()<<sendData->length();
+                    //qDebug()<<sendData->length();
                     dataSocket->write(sendData->data(),sendData->length());
+                    m_nPutSize = sendData->length();
                     qDebug()<<"data write";
                 }
                 else

@@ -60,6 +60,8 @@ signals:
     void cameraScan();
     void cameraDevice(int,QString);
     void sendAlgRsult(QByteArray);
+    //firmware update progress data
+    void ftpPutProgress(int);
 
 
 public slots:

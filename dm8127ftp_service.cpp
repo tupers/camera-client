@@ -86,7 +86,7 @@ QString DM8127Ftp_Service::getLocalIP(QString name)
 
 void DM8127Ftp_Service::connectToHost(QString ip, int port, QString username, QString password)
 {
-    qDebug()<<cmdSocket->state();
+    //qDebug()<<cmdSocket->state();
     cmdSocket->abort();
     cmdSocket->connectToHost(ip,port);
     userName=username;
@@ -97,7 +97,7 @@ void DM8127Ftp_Service::connectToHost(QString ip, int port, QString username, QS
 
 void DM8127Ftp_Service::loginService()
 {
-    qDebug()<<cmdSocket->state();
+    //qDebug()<<cmdSocket->state();
     if(loginAccountCheck(userName,passWord))
     {
         serverState=Server_Loggedin;
@@ -196,8 +196,8 @@ void DM8127Ftp_Service::list(QString path)
     tempfile.port=dataPort;
 
     QString addr = getLocalIP("本地连接");
-//    if(addr==NULL)
-//        addr = getLocalIP("以太网");
+    if(addr==NULL)
+        addr = getLocalIP("以太网");
     strcpy((char*)tempfile.ip,addr.toLatin1().data());
 
     strcpy(tempfile.filepath,path.toLatin1().data());
@@ -324,6 +324,7 @@ void DM8127Ftp_Service::newConnectionService()
         ftpData* dataRcv = new ftpData(remoteSocket,sendData);
         putFtpFlag=0;
         connect(dataRcv,SIGNAL(dataFinished(int,QByteArray)),this,SLOT(remoteDataRcv(int,QByteArray)));
+        connect(dataRcv,&ftpData::putProgress,this,&DM8127Ftp_Service::PutProgress);
     }
     else
     {

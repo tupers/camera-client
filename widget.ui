@@ -1188,7 +1188,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>2</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="subtab_Light">
                    <property name="styleSheet">
@@ -1532,7 +1532,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>3</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">
@@ -2165,7 +2165,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-botto
                            <enum>QTabWidget::North</enum>
                           </property>
                           <property name="currentIndex">
-                           <number>1</number>
+                           <number>0</number>
                           </property>
                           <widget class="QWidget" name="camera_2A_AE">
                            <attribute name="title">
@@ -4475,7 +4475,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>2</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -4629,12 +4629,16 @@ font:bold 15pt Arial;
 padding-left:15px;
 margin-top:10px
 }
-#system_configuilabel,#system_configcurrentlabel
+#system_configuilabel,#system_configcurrentlabel,#system_firmwareNameLabel
 {
 	color:white;
 border-color:rgba(50,50,50,255);
 font:bold 10pt Arial;
 padding-left:10px;
+}
+#system_firmwareProgressBar{
+color:white;
+font:bold 10pt Arial;
 }</string>
                    </property>
                    <attribute name="title">
@@ -4821,13 +4825,6 @@ padding-left:10px;
                            <property name="verticalSpacing">
                             <number>20</number>
                            </property>
-                           <item row="0" column="0">
-                            <widget class="QLabel" name="system_paddinglabel1">
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
                            <item row="1" column="0">
                             <widget class="QPushButton" name="system_firmwareupdateButton">
                              <property name="sizePolicy">
@@ -4856,7 +4853,7 @@ padding-left:10px;
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="0">
+                           <item row="5" column="0">
                             <widget class="QPushButton" name="system_firmwarefullupdateButton">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4881,12 +4878,49 @@ padding-left:10px;
                              </property>
                             </widget>
                            </item>
-                           <item row="3" column="0">
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="system_paddinglabel1">
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="6" column="0">
                             <widget class="QLabel" name="system_paddinglabel2">
                              <property name="text">
                               <string/>
                              </property>
                             </widget>
+                           </item>
+                           <item row="2" column="0">
+                            <layout class="QHBoxLayout" name="system_firmwareInfoLayout">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QLabel" name="system_firmwareNameLabel">
+                               <property name="text">
+                                <string/>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QProgressBar" name="system_firmwareProgressBar">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="value">
+                                <number>24</number>
+                               </property>
+                               <property name="invertedAppearance">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
                            </item>
                           </layout>
                          </item>
