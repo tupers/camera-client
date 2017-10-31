@@ -10,6 +10,7 @@ udpservice::udpservice(QHostAddress ip, int datasize, QObject *parent) : QObject
 {
     udpsocket = new QUdpSocket(this);
     udpsocket->bind(ip,0);
+    //qDebug()<<ip;
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(dataRecv()));
     if(datasize==0)
         mode=1;

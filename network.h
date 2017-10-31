@@ -10,9 +10,9 @@
 #include "configstruct.h"
 #include "winsock.h"
 #include "udpservice.h"
-#include "dm8127ftp_service.h"
 #include "dm8127scan_service.h"
 #include "resultservice.h"
+#include "utils/ftp_service.h"
 
 class NetWork : public QObject
 {
@@ -40,8 +40,7 @@ public:
     QString getLogUserName(){return LogUserName;}
     int getLogAuthority(){return LogAuthority;}
     QString getLocalIP(QString);
-    bool isFtpLogin(){return ftp->isLogin();}
-//    bool GetCpuload();
+
 signals:
     void sendToLog(QString);
     void loginFailed();
@@ -50,19 +49,18 @@ signals:
     void AccountUpdate();
     void udpRcvDataInfo(uchar*data,int width,int height,int pitch);
     void udpRcvDataInfo(QByteArray data);
-    void connectFtp(QString , int,QString ,QString);
-    void listFtp(QString path=DEFAULT_PATH);
-    void closeFtp();
-    void listInfoFtp(FileList*);
-    void getFtp(QString);
-    void getDataFtp(QByteArray);
-    void putFtp(QString,QByteArray*);
     void cameraScan();
     void cameraDevice(int,QString);
     void sendAlgRsult(QByteArray);
-    //firmware update progress data
-    void ftpPutProgress(int);
-
+    //ftp signal for thread
+    void ftp_receiveFileList(QByteArray ba);
+    void ftp_receiveData(QByteArray ba);
+    void ftp_del(QString);
+    void ftp_close();
+    void ftp_put(QString,QByteArray);
+    void ftp_list(QString);
+    void ftp_list();
+    void ftp_login(QString,int,QString,QString);
 
 public slots:
     void resetPayload();
@@ -84,14 +82,16 @@ public slots:
     bool sendConfigToServerALG(QVariant);
     bool sendConfigToServerH3A(QVariant);
     void sendConfigToServerLightConfig(QVariant);
-    void GetFrameFromSensor();
     void setSocketDebugMode();
     void sendNetworkConfig();
     void disconnectConnection();
     void reportError(QAbstractSocket::SocketError);
-    QString getFtpCurrentDir(){return ftp->getCurrentDir();}
+//    QString getFtpCurrentDir(){return ftp->getCurrentDir();}
     void closeAlgResultService(){algResult->disconnectSocket();}
     void openAlgResultService();
+    //ftp
+    void ftp_refresh();
+    QString ftp_curDir(){return m_hFtp->getCurrentDir();}
 private:
     QTcpSocket *ClientSocket;
     resultService *algResult;
@@ -103,10 +103,12 @@ private:
     QThread *udpThread=NULL;
     udpservice *udpDebugRcv=NULL;
     QThread *udpDebugThread=NULL;
-    DM8127Ftp_Service* ftp=NULL;
-    QThread *ftpThread=NULL;
     dm8127scan_service* cameraSearch=NULL;
     QThread *cameraSearchThread=NULL;
+
+    //ftp service
+    ftp_service* m_hFtp=NULL;
+    QThread* m_hFtpThread=NULL;
 
 
     NetworkStr network=

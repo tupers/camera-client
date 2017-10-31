@@ -12,10 +12,16 @@ Widget::Widget(QWidget *parent) :
 Widget::~Widget()
 {
     freeList();
+
     if(ftpPreView!=NULL)
     {
         delete ftpPreView;
         ftpPreView=NULL;
+    }
+    if(m_hLocalAlgDebug!=NULL)
+    {
+        delete m_hLocalAlgDebug;
+        m_hLocalAlgDebug=NULL;
     }
     delete ui;
 }
@@ -128,10 +134,6 @@ void Widget::SetupOptions()
     updateWidget->setWindowFlags(Qt::Popup);
     connect(updateWidget,SIGNAL(updateOption(int)),this,SLOT(firmwareUpdateService(int)));
 
-    ui->system_firmwareProgressBar->setMaximum(100);
-    ui->system_firmwareProgressBar->setValue(0);
-
-
     /* for config list browser*/
     ui->system_configlist->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->system_configlist->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -164,22 +166,30 @@ void Widget::SetupOptions()
     //    for(i=0;i<ui->security_tablewidget->rowCount();i++)
     //        ui->security_tablewidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
 
+    /*for local alg debug*/
+    m_hLocalAlgDebug = new algDebug;
+    m_hLocalAlgDebug->setDisplayWidget(ui->diagnostic_previewWidget);
+    connect(m_hLocalAlgDebug,&algDebug::sendFrameToServer,this,[=](QByteArray ba){
+        QString targetPath = ALG_DBGIMG;
+        emit network->ftp_put(targetPath,ba);
+    });
+    connect(ui->diagnostic_local_loadButton_2,&QPushButton::clicked,this,[=](){
+        network->sendConfigToServer(NET_MSG_IMGALG_UPDATE_DBGIMG,1);
+    });
+
+
     /*for ftp browser*/
-    //    QFtp ftp;
-    //    int ret = ftp.connectToHost("192.168.1.61");
-    //    qDebug()<<"handle is: "<<ret;
-    //    ftpthread =new QThread;
-    //    ftpmanager = new Ftp_Manager;
-    //    ftpmanager->moveToThread(ftpthread);
-    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),this,SLOT(reflashFtp()));
-    //    connect(ui->diagnostic_refreshButton,SIGNAL(clicked()),network,SIGNAL(listFtp()));
-    //    connect(ftpmanager,SIGNAL(sendToLog(QString)),this,SLOT(LogDebug(QString)));
-    connect(network,SIGNAL(listInfoFtp(FileList*)),this,SLOT(UpdateFtpList(FileList*)));
-    connect(network,SIGNAL(getDataFtp(QByteArray)),this,SLOT(saveFtpData(QByteArray)));
-    //    connect(this,SIGNAL(downloadFtpFile(QString,QFile*)),ftpmanager,SLOT(downloadFtp(QString,QFile*)));
-    //    connect(ftpmanager,SIGNAL(getFtpState(bool)),this,SLOT(downloadFtpFinished(bool)));
-    //    connect(this,SIGNAL(openFtp(NetworkStruct)),ftpmanager,SLOT(openFtp(NetworkStruct)));
-    //    ftpthread->start();
+    connect(ui->diagnostic_refreshButton,&QPushButton::clicked,network,&NetWork::ftp_refresh);
+    connect(network,&NetWork::ftp_receiveFileList,this,[=](QByteArray ba){
+        FileList list;
+        memcpy(&list,ba.data(),sizeof(FileList));
+        UpdateFtpList(&list);
+    });
+    connect(network,&NetWork::ftp_receiveData,this,&Widget::saveFtpData);
+    connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
+        emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
+        emit network->ftp_list();
+    });
     ui->diagnostic_ftpbrowsertablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->diagnostic_ftpbrowsertablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->diagnostic_ftpbrowsertablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -407,22 +417,6 @@ void Widget::UpdateCameraList(int id, QString IP)
     //    camerainfolayout->addWidget(id);
 }
 
-void Widget::reflashFtp()
-{
-    if(!network->isFtpLogin())
-    {
-        ui->diagnostic_ftpbrowsertablewidget->clearContents();
-        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
-        NetworkStr networkconfigFromServer = network->getNetworkConfig();
-        networkconfigFromServer.value.ports_ftpserverip=networkconfigFromServer.value.ports_ipaddress;
-        networkconfigFromServer.value.ports_ftpusername="root";
-        networkconfigFromServer.value.ports_ftppassword="ftpcam";
-        networkconfigFromServer.value.ports_ftpserverport="8010";
-        emit network->connectFtp(networkconfigFromServer.value.ports_ftpserverip,networkconfigFromServer.value.ports_ftpserverport.toInt(),
-                                 networkconfigFromServer.value.ports_ftpusername,networkconfigFromServer.value.ports_ftppassword);
-    }
-}
-
 void Widget::UpdateFtpList(FileList* list)
 {
     ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
@@ -442,20 +436,10 @@ void Widget::UpdateFtpList(FileList* list)
 
 void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
 {
-    //    FILE* fp;
-    //    fp = fopen("D:/DM8127/data.dat","wb");
-    //    fwrite(data.data(),1,data.count(),fp);
-    //    fclose(fp);
-    //get img info (result size)
-    EzImgFileHeader header;
-    memcpy(&header,data.data(),sizeof(EzImgFileHeader));
-    //    int resultsize;
-    //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
-
-    int headsize = sizeof(EzImgFileHeader)+header.imgInfoSize;
-    EzImgFileInfo info;
-    memcpy(&info,data.data()+sizeof(EzImgFileHeader),sizeof(EzImgFileInfo));
-    ui->diagnostic_errorvalueLabel->setText(QString::number(info.errNo,10));
+    EzImgFrameHeader header;
+    memcpy(&header,data.data(),sizeof(EzImgFrameHeader));
+    int headsize = sizeof(EzImgFrameHeader)+header.infoSize;
+    qDebug()<<header.height<<header.width<<header.pitch<<header.infoSize;
     if(ftpPreView!=NULL)
     {
         delete ftpPreView;
@@ -464,35 +448,6 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     ftpPreView = new QImage((unsigned char*)data.data()+headsize,1280,720,header.pitch,QImage::Format_Grayscale8);
     *ftpPreView=ftpPreView->copy();
     ui->diagnostic_previewWidget->setImage(ftpPreView->scaledToWidth(ui->diagnostic_previewWidget->width()),0);
-
-    //
-    //    if(ftpfile.FilePath==""||ftpfile.ftpFileName==""||ftpfile.ftpFileSize==0||ftpfile.ftpFileValid==0)
-    //    {
-    //        qDebug()<<"ftp str error";
-    //        return;
-    //    }
-    //    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".yuv";
-    //    QString dir0 = ftpfile.FilePath+"/"+ftpfile.ftpFileName;
-    //    ftpfile.ftpFile = fopen(dir.toLatin1().data(),"wb");
-    //    //get img info (result size)
-    //    int resultsize;
-    //    memcpy(&resultsize,data.data()+sizeof(int)*2,sizeof(int));
-    //    int headsize = sizeof(EzImgFileHeader)+resultsize;
-    //    //
-    //    fwrite(data.data()+headsize,1,ftpfile.ftpFileSize-headsize,ftpfile.ftpFile);
-    //    unsigned char* uv=new unsigned char[(ftpfile.ftpFileSize-headsize)/2];
-
-    //    memset(uv,128,(ftpfile.ftpFileSize-headsize)/2);
-    //    fwrite(uv,1,(ftpfile.ftpFileSize-headsize)/2,ftpfile.ftpFile);
-    //    fclose(ftpfile.ftpFile);
-    //    qDebug()<<"save ftp file finished";
-    //    delete(uv);
-
-    //    ftpfile.ftpFile = fopen(dir0.toLatin1().data(),"wb");
-    //    fwrite(data.data(),1,ftpfile.ftpFileSize,ftpfile.ftpFile);
-    //    fclose(ftpfile.ftpFile);
-
-    //    ftpfile.ftpFile=NULL;
 }
 
 void Widget::LoadFullConfig()
@@ -694,8 +649,7 @@ void Widget::ResetOptions()
     ui->security_authorityadminButton->setChecked(false);
     ui->security_authorityviewerButton->setChecked(false);
 
-    ui->diagnostic_ftpbrowsertablewidget->clearContents();
-    ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
+    ResetFtpBrowser();
 }
 
 void Widget::ResetInformation()
@@ -710,6 +664,12 @@ void Widget::ResetAccount()
 {
     ui->LoginSpecifiedIPlineEdit->clear();
     ui->Account_cameralist->clear();
+}
+
+void Widget::ResetFtpBrowser()
+{
+    ui->diagnostic_ftpbrowsertablewidget->clearContents();
+    ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
 }
 
 void Widget::SetupVideo()
@@ -734,7 +694,7 @@ void Widget::SetupRun()
     connect(SourceVideoWidget,SIGNAL(SourceVideoClose()),this,SLOT(SourceVideoWidgetClose()));
     connect(ui->run_processmodeAlgBox,SIGNAL(stateChanged(int)),config,SLOT(setLoadAlg(int)));
     connect(ui->run_saveResultBox,SIGNAL(stateChanged(int)),this,SLOT(resultLog(int)));
-    connect(ui->run_algviewchangeBox,&QPushButton::clicked,[=](){network->sendConfigToServer(NET_MSG_OUTPUT_IMGSOURCE,1);});
+    //connect(ui->run_algviewchangeBox,&QPushButton::clicked,[=](){network->sendConfigToServer(NET_MSG_OUTPUT_IMGSOURCE,1);});
 
     RunVideoImage=QImage(1280,720,QImage::Format_RGB888);
 
@@ -845,7 +805,12 @@ void Widget::SetupNetwork()
     network = new NetWork();
     connect(network,SIGNAL(udpRcvDataInfo(uchar*,int,int,int)),SLOT(frameFromSensor(uchar*,int,int,int)));
     connect(network,SIGNAL(udpRcvDataInfo(QByteArray)),SerialPortWidget,SLOT(udpDataRcv(QByteArray)));
-    connect(ui->run_videosavesensorButton,SIGNAL(clicked()),network,SLOT(GetFrameFromSensor()));
+    //    connect(ui->run_videosavesensorButton,SIGNAL(clicked()),network,SLOT(GetFrameFromSensor()));
+    connect(ui->run_videosavesensorButton,&QPushButton::clicked,this,[=](){
+        QString time =QDateTime::currentDateTime().toString("yyyyMMddHHmmss");
+        qDebug()<<time<<time.size();
+        network->sendConfigToServer(NET_MSG_GET_FRAME_IMG,time.toLatin1().data(),time.size());
+    });
     connect(SerialPortWidget,SIGNAL(setDebugMode(int)),this,SLOT(setDebugMode(int)));
     connect(ui->LogoutButton,SIGNAL(clicked()),network,SLOT(disconnectConnection()));
     connect(network,SIGNAL(AccountUpdate()),this,SLOT(UpdateUserAccountList()));
@@ -861,11 +826,6 @@ void Widget::SetupNetwork()
     connect(config,SIGNAL(sendToServerALG(QVariant)),network,SLOT(sendConfigToServerALG(QVariant)));
     connect(config,SIGNAL(sendToServerH3A(QVariant)),network,SLOT(sendConfigToServerH3A(QVariant)));
     connect(network,SIGNAL(sendAlgRsult(QByteArray)),this,SLOT(algresultUpdate(QByteArray)));
-    //firmware progress bar
-    connect(network,&NetWork::ftpPutProgress,this,[=](int leftSize){
-        int size = ui->system_firmwareProgressBar->maximum();
-        ui->system_firmwareProgressBar->setValue(size-leftSize);
-    });
 
 }
 
@@ -1277,7 +1237,7 @@ void Widget::ConnectionLost()
         //
         VideoCMD(h264video,VIDEO_TERMINATE);
         //close ftp
-        emit network->closeFtp();
+        emit network->ftp_close();
         //close result socket;
         network->closeAlgResultService();
         //ui operation
@@ -1442,7 +1402,7 @@ void Widget::cpuloadUpdate()
 
 void Widget::algresultUpdate(QByteArray ba)
 {
-    unsigned int position,distance;
+    // unsigned int position,distance;
     unsigned logSize = 0;
     int rectNum = 0;
     if(config->getAlgResultSize()!=0)
@@ -1456,25 +1416,8 @@ void Widget::algresultUpdate(QByteArray ba)
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
 
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
-            //if(resultFile!=NULL)
+                //           if(resultFile!=NULL)
                 fwrite(tempresult,logSize,1,resultFile);
-
-            //            if(resultLogFile!=NULL)
-            //            {
-            //                position = *(float*)tempresult;
-            //                distance = *(float *)((char*)tempresult+4);
-
-            //                fprintf(resultLogFile,QString("%1\t%2\t\n").arg(position).arg(distance).toLatin1().data());
-            //                unsigned char* pblock = (unsigned char*)tempresult+36;
-            //                for(int i=0;i<rectNum;i++)
-            //                {
-            //                    int area = *(int*)(pblock+8*i);
-            //                    short x = *(short*)(pblock+8*i+4);
-            //                    short y = *(short*)(pblock+8*i+4+2);
-            //                    QString info = QString("%1\t%2\t%3\t\n").arg(area).arg(x).arg(y);
-            //                    fprintf(resultLogFile,info.toLatin1().data());
-            //                }
-            //            }
 
             config->reflashAlgResult(tempresult);
             if(SourceFlag==false)
@@ -1680,15 +1623,10 @@ void Widget::firmwareUpdateService(int cmd)
             return;
         }
         int size = localFile.size();
-        QByteArray* ba = new QByteArray;
-        ba->resize(size);
-        fread(ba->data(),1,size,fp);
-        QString name = localFilePath.remove(0,9);
-        ui->system_firmwareNameLabel->setText(name);
-        ui->system_firmwareProgressBar->setMaximum(ba->length());
-        ui->system_firmwareProgressBar->setValue(0);
-        //qDebug()<<ba->length();
-        emit network->putFtp(targetPath,ba);
+        QByteArray ba;
+        ba.resize(size);
+        fread(ba.data(),1,size,fp);
+        emit network->ftp_put(targetPath,ba);
         fclose(fp);
     }
     else
@@ -1746,35 +1684,35 @@ void Widget::on_button_Reboot_clicked()
 
 void Widget::on_diagnostic_downloadButton_clicked()
 {
-    ftpfile.FilePath=ui->diagnostic_dirLineEdit->text();
-    if(ftpfile.FilePath=="")
-    {
-        qDebug()<<"invalid file path";
-        return;
-    }
-    //   emit network->getFtp(ftpfile.ftpFileName);
-    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".jpg";
-    //    qDebug()<<dir<<ftpPreView->byteCount();
-    ftpPreView->save(dir);
+    //    ftpfile.FilePath=ui->diagnostic_dirLineEdit->text();
+    //    if(ftpfile.FilePath=="")
+    //    {
+    //        qDebug()<<"invalid file path";
+    //        return;
+    //    }
+    //    //   emit network->getFtp(ftpfile.ftpFileName);
+    //    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".jpg";
+    //    //    qDebug()<<dir<<ftpPreView->byteCount();
+    //    ftpPreView->save(dir);
 
 }
 
 void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &index)
 {
-    if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
-    {
-        QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
-        ui->diagnostic_itemnamecurrentLabel->setText(name);
-        ftpfile.ftpFileSize=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),1)->text().toInt();
-        ftpfile.ftpFileValid=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt();
-        ftpfile.ftpFileName=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
-        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
-        {
-            ui->diagnostic_previewWidget->clearImage(0);
-            ui->diagnostic_errorvalueLabel->clear();
-            emit network->getFtp(name);
-        }
-    }
+    //    if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
+    //    {
+    //        QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+    //        ui->diagnostic_itemnamecurrentLabel->setText(name);
+    //        ftpfile.ftpFileSize=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),1)->text().toInt();
+    //        ftpfile.ftpFileValid=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt();
+    //        ftpfile.ftpFileName=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+    //        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
+    //        {
+    //            ui->diagnostic_previewWidget->clearImage(0);
+    //            ui->diagnostic_errorvalueLabel->clear();
+    //            emit network->getFtp(name);
+    //        }
+    //    }
 }
 
 void Widget::on_diagnostic_dirButton_clicked()
@@ -1787,9 +1725,10 @@ void Widget::on_diagnostic_dirButton_clicked()
 
 void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex &index)
 {
-    QString dir = network->getFtpCurrentDir();
+    QString dir = network->ftp_curDir();
     if("..."==ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text())
     {
+
 
         if(dir==DEFAULT_PATH)
         {
@@ -1803,33 +1742,22 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
                 dir.chop(1);
             }
             dir.chop(1);
-            ui->diagnostic_ftpbrowsertablewidget->clearContents();
-            ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
-            emit network->listFtp(dir);
+            ResetFtpBrowser();
+            emit network->ftp_list(dir);
         }
     }
     else if(0==ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt())
     {
         dir.append("/");
         dir.append(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text());
-        ui->diagnostic_ftpbrowsertablewidget->clearContents();
-        ui->diagnostic_ftpbrowsertablewidget->setRowCount(0);
-        emit network->listFtp(dir);
+        ResetFtpBrowser();
+        emit network->ftp_list(dir);
     }
 }
 
 void Widget::on_system_firmwareupdateButton_clicked()
 {
-    if(!network->isFtpLogin())
-    {
-        NetworkStr networkconfigFromServer = network->getNetworkConfig();
-        networkconfigFromServer.value.ports_ftpserverip = networkconfigFromServer.value.ports_ipaddress;
-        networkconfigFromServer.value.ports_ftpusername="root";
-        networkconfigFromServer.value.ports_ftppassword="ftpcam";
-        networkconfigFromServer.value.ports_ftpserverport="8010";
-        emit network->connectFtp(networkconfigFromServer.value.ports_ftpserverip,networkconfigFromServer.value.ports_ftpserverport.toInt(),
-                                 networkconfigFromServer.value.ports_ftpusername,networkconfigFromServer.value.ports_ftppassword);
-    }
+    network->ftp_refresh();
     updateWidget->show();
     updateWidget->move((QApplication::desktop()->width() - updateWidget->width())/2,(QApplication::desktop()->height() - updateWidget->height())/2);
 }
@@ -1979,7 +1907,7 @@ void Widget::resultLog(int state)
         }
         QString filename = "./log/err/";
         filename+=QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-        filename+=".txt";
+        filename+=".bin";
         resultFile = fopen(filename.toLatin1().data(),"w");
 
         //        filename.clear();
@@ -1992,6 +1920,7 @@ void Widget::resultLog(int state)
     {
         if(resultFile!=NULL)
         {
+            fflush(resultFile);
             fclose(resultFile);
             resultFile=NULL;
         }
@@ -2004,3 +1933,14 @@ void Widget::resultLog(int state)
     }
 }
 
+
+void Widget::on_diagnostic_local_loadButton_clicked()
+{
+    network->ftp_refresh();
+
+    //        QString dstName = QFileDialog::getOpenFileName(this,tr("Open file"),"/home",tr("Allfile(*.*)"),Q_NULLPTR,QFileDialog::DontResolveSymlinks) ;
+    //        if(dstName!="")
+    //        {
+    m_hLocalAlgDebug->loadLocalImage("G:/20171020_142823_sensor.jpg");
+    //        }
+}

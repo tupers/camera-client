@@ -7,6 +7,16 @@
 #define EZ_SERVERRESULTPORT         9800
 #define EZ_SERVERIP                 "192.168.1.224"
 
+//ftp info
+#define FIRMWARE_C6DSP  "/opt/ipnc/update/ipnc_rdk_fw_c6xdsp.xe674"
+#define FIRMWARE_VPSSM3 "/opt/ipnc/update/ipnc_rdk_fw_m3vpss.xem3"
+#define FIRMWARE_VIDEOM3 "/opt/ipnc/update/ipnc_rdk_fw_m3video.xem3"
+#define SDS_EZFTP_PATH  "/opt/ipnc/update/Ezftp"
+#define SDS_SERIAL_PATH "/opt/ipnc/update/EzApp"
+#define SDS_MCFW_PATH   "/opt/ipnc/update/ipnc_rdk_mcfw.out"
+#define SDS_APP_SERVER  "/opt/ipnc/update/system_server"
+#define ALG_DBGIMG  "/opt/ipnc/update/alg_staticImg"
+#define SDS_TEST_PATH   "/opt/test"
 
 
 /***************** **************************
@@ -105,6 +115,7 @@ enum _NET_MSG
     NET_MSG_IMGALG_DEF_PARAM,
     NET_MSG_IMGALG_NORMAL_MODE,
     NET_MSG_IMGALG_DEBUG_MODE,
+    NET_MSG_IMGALG_UPDATE_DBGIMG,
 
     NET_MSG_GET_FRAME_IMG,
     NET_MSG_GET_ENABLE_ENCODE,
@@ -134,6 +145,14 @@ typedef struct __EzFrameInfo
     unsigned int height;
     unsigned int pitch;
 }EzFrameInfo;
+
+typedef struct
+{
+    unsigned int width;
+    unsigned int height;
+    unsigned int pitch;
+    unsigned int infoSize;
+}EzImgFrameHeader;
 
 #define ACOUNT_NUM				16 		///< How many acounts which are stored in system.
 #define USER_LEN				32 		///< Maximum of acount username length.
@@ -392,14 +411,14 @@ typedef struct
     int weight;
 }EzCamH3AWeight;
 
-typedef struct
-{
-    unsigned int width;
-    unsigned int height;
-    unsigned int pitch;
-    unsigned int imgInfoSize;
-    unsigned char imgInfo[0];
-}EzImgFileHeader;
+//typedef struct
+//{
+//    unsigned int width;
+//    unsigned int height;
+//    unsigned int pitch;
+//    unsigned int imgInfoSize;
+//    unsigned char imgInfo[0];
+//}EzImgFileHeader;
 
 typedef struct
 {

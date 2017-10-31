@@ -17,14 +17,7 @@
 #define ACKCMD_SOK      0
 #define ACKCMD_SFAIL    -1
 
-#define FIRMWARE_C6DSP  "/opt/ipnc/update/ipnc_rdk_fw_c6xdsp.xe674"
-#define FIRMWARE_VPSSM3 "/opt/ipnc/update/ipnc_rdk_fw_m3vpss.xem3"
-#define FIRMWARE_VIDEOM3 "/opt/ipnc/update/ipnc_rdk_fw_m3video.xem3"
-#define SDS_EZFTP_PATH  "/opt/ipnc/update/Ezftp"
-#define SDS_SERIAL_PATH "/opt/ipnc/update/EzApp"
-#define SDS_MCFW_PATH   "/opt/ipnc/update/ipnc_rdk_mcfw.out"
-#define SDS_APP_SERVER  "/opt/ipnc/update/system_server"
-#define SDS_TEST_PATH   "/opt/test"
+
 
 
 
@@ -61,7 +54,8 @@ enum _FTP_MSG
     FTP_MSG_CLOSE,
     FTP_MSG_LIST,
     FTP_MSG_PUT,
-    FTP_MSG_GET
+    FTP_MSG_GET,
+    FTP_MSG_DELETE
 };
 
 typedef struct _EzFtp_File

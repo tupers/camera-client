@@ -28,7 +28,7 @@ void dm8127scan_service::scan()
     for(i=0;i<num;i++)
         data.crc+=*(pdata+i);
 //    qDebug()<<data.crc;
-    int ret=BroadcastSocket->writeDatagram(pdata,sizeof(NetCamScanData),QHostAddress::Broadcast,SCAN_SERVER_PORT);
+    BroadcastSocket->writeDatagram(pdata,sizeof(NetCamScanData),QHostAddress::Broadcast,SCAN_SERVER_PORT);
 //    qDebug()<<ret<<sizeof(NetCamScanData);
 
 }

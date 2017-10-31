@@ -39,8 +39,6 @@ SOURCES += main.cpp\
     sourcevideo.cpp \
     network.cpp \
     udpservice.cpp \
-    dm8127ftp_service.cpp \
-    ftpdata.cpp \
     firmwareupdate.cpp \
     dm8127scan_service.cpp \
     weightwidget.cpp \
@@ -50,7 +48,10 @@ SOURCES += main.cpp\
     resultservice.cpp \
     algConfig/alg_gvss.cpp \
     utils/fpscnt.cpp \
-    utils/rtchart.cpp
+    utils/rtchart.cpp \
+    utils/algdebug.cpp \
+    utils/network_service.cpp \
+    utils/ftp_service.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -63,8 +64,6 @@ HEADERS  += widget.h \
     network.h \
     configstruct.h \
     udpservice.h \
-    dm8127ftp_service.h \
-    ftpdata.h \
     ftp_cmdlist.h \
     firmwareupdate.h \
     dm8127scan_service.h \
@@ -77,7 +76,10 @@ HEADERS  += widget.h \
     algConfig/alg_gvss.h \
     utils/fpscnt.h \
     utils/rtchart.h \
-    sourcevideo.h
+    sourcevideo.h \
+    utils/algdebug.h \
+    utils/network_service.h \
+    utils/ftp_service.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

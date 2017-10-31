@@ -18,6 +18,29 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     QHostAddress localIP;
     localIP.setAddress(getLocalIP("本机连接"));
 
+    /* ftp service */
+    m_hFtpThread = new QThread;
+    m_hFtp = new ftp_service;
+    connect(m_hFtp,&ftp_service::sendToLog,this,[=](QString log){
+        qDebug()<<log;
+        emit sendToLog(log);
+    });
+    m_hFtp->moveToThread(m_hFtpThread);
+    m_hFtpThread->start();
+    connect(this,&NetWork::ftp_close,m_hFtp,&ftp_service::closeFtp);
+    connect(this,&NetWork::ftp_put,m_hFtp,&ftp_service::put);
+    connect(this,&NetWork::ftp_del,m_hFtp,&ftp_service::del);
+    connect(this,static_cast<void (NetWork::*)()>(&NetWork::ftp_list),this,[=](){
+        m_hFtp->list();
+    });
+    connect(this,static_cast<void(NetWork::*)(QString)>(&NetWork::ftp_list),this,[=](QString path){
+        m_hFtp->list(path);
+    });
+
+    connect(m_hFtp,&ftp_service::receiveFileList,this,&NetWork::ftp_receiveFileList);
+    connect(m_hFtp,&ftp_service::receiveData,this,&NetWork::ftp_receiveData);
+    connect(this,&NetWork::ftp_login,m_hFtp,&ftp_service::loginFtp);
+
     udpFrameRcv = new udpservice(localIP,1920*1080);
     udpThread = new QThread;
     udpFrameRcv->moveToThread(udpThread);
@@ -39,21 +62,6 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     connect(this,SIGNAL(cameraScan()),cameraSearch,SLOT(scan()));
     connect(cameraSearch,SIGNAL(findDevice(int,QString)),this,SIGNAL(cameraDevice(int,QString)));
     cameraSearchThread->start();
-
-
-
-    ftp =new DM8127Ftp_Service;
-    //    ftpThread = new QThread;
-    //    ftp->moveToThread(ftpThread);
-    connect(this,SIGNAL(connectFtp(QString,int,QString,QString)),ftp,SLOT(connectToHost(QString,int,QString,QString)));
-    connect(ftp,&DM8127Ftp_Service::PutProgress,this,&NetWork::ftpPutProgress);
-    connect(this,SIGNAL(listFtp(QString)),ftp,SLOT(list(QString)));
-    connect(this,SIGNAL(getFtp(QString)),ftp,SLOT(get(QString)));
-    connect(this,SIGNAL(closeFtp()),ftp,SLOT(close()));
-    connect(ftp,SIGNAL(listInfo(FileList*)),this,SIGNAL(listInfoFtp(FileList*)));
-    connect(ftp,SIGNAL(getData(QByteArray)),this,SIGNAL(getDataFtp(QByteArray)));
-    connect(this,SIGNAL(putFtp(QString,QByteArray*)),ftp,SLOT(put(QString,QByteArray*)));
-    //    ftpThread->start();
 
     connect(ClientSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(reportError(QAbstractSocket::SocketError)));
     connect(ClientSocket,SIGNAL(disconnected()),this,SIGNAL(disconnectfromServer()));
@@ -89,6 +97,16 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
 
 NetWork::~NetWork()
 {
+    if(m_hFtp!=NULL)
+    {
+        delete m_hFtp;
+        m_hFtp=NULL;
+    }
+    if(m_hFtpThread!=NULL)
+    {
+        m_hFtpThread->quit();
+        m_hFtpThread->deleteLater();
+    }
     if(LogTimer!=NULL)
     {
         delete LogTimer;
@@ -541,44 +559,6 @@ void NetWork::sendConfigToServerLightConfig(QVariant data)
     lightconfig[1].enable = temp.light_config[1].enable;
     lightconfig[1].enable = temp.light_config[1].pwmduty;
     sendConfigToServer(NET_MSG_SET_LED,lightconfig,sizeof(lightconfig));
-}
-
-void NetWork::GetFrameFromSensor()
-{
-    NetMsg *msg;
-    NetMsg *ackMsg;
-    int32_t ret;
-    int32_t acklen;
-    int32_t len;
-    emit sendToLog("Get frame from server...");
-    qDebug()<<"Get frame from server...";
-    EzFrameInfo frameinfo;
-    frameinfo.udpPort = udpFrameRcv->socket()->localPort();
-
-    QString addr = getLocalIP("本地连接");
-    if(addr==NULL)
-        addr = getLocalIP("以太网");
-    strcpy((char*)frameinfo.udpIp,addr.toLatin1().data());
-
-    len = sizeof(NetMsg) + sizeof(EzFrameInfo);
-    msg = (NetMsg *)malloc(len);
-    memset(msg,0,len);
-    msg->cmdValueLen=sizeof(EzFrameInfo);
-    msg->cmd = NET_MSG_GET_FRAME_IMG;
-    memcpy(msg->cmdValue,&frameinfo,sizeof(EzFrameInfo));
-    acklen = sizeof(NetMsg);
-    ackMsg = (NetMsg *)malloc(acklen);
-    ret = SendServerMsg(ClientSocket,msg,len,ackMsg,&acklen);
-    if(ret != MSG_SOK)
-    {
-        emit sendToLog("Get frame from server failed");
-        qDebug()<<"Get frame from server failed";
-        free(msg);
-        free(ackMsg);
-        return;
-    }
-    free(msg);
-    free(ackMsg);
 }
 
 void NetWork::setSocketDebugMode()
@@ -1569,6 +1549,12 @@ QString NetWork::getLocalIP(QString name)
         }
     }
     return NULL;
+}
+
+void NetWork::ftp_refresh()
+{
+    if(m_hFtp->ftpStatus()!=FTP_CONNECTED)
+        emit ftp_login(network.value.ports_ipaddress,8010,"root","ftpcam");
 }
 
 void NetWork::disconnectConnection()

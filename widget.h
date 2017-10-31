@@ -35,7 +35,7 @@
 #include "subwidget/serialport.h"
 #include "firmwareupdate.h"
 #include "multiimagewidget.h"
-
+#include "utils/algdebug.h"
 
 #define MARGIN_L 50
 #define MARGIN_S 5
@@ -78,6 +78,8 @@ public:
     void ResetOptions();
     void ResetInformation();
     void ResetAccount();
+    //ftp
+    void ResetFtpBrowser();
 
     void VideoCMD(H264Video*,int);
 private:
@@ -112,7 +114,7 @@ private:
     QPieSeries *storageseries=NULL;
     RTChart* cpuChart;
     EzAlgResult algResult;
-    ftpSaveInfo ftpfile;
+//    ftpSaveInfo ftpfile;
     FirmwareUpdate* updateWidget=NULL;
     MultiImageWidget* camera_videoinputwidget;
     QImage* ftpPreView=NULL;
@@ -120,6 +122,11 @@ private:
     bool isRunOnScreen;
     FILE* resultFile=NULL;
     FILE* resultLogFile = NULL;
+    algDebug* m_hLocalAlgDebug;
+
+    //ftpService
+//    ftp_service* m_hFtp;
+//    QThread* m_hFtpThread;
 protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -130,7 +137,6 @@ protected:
 private slots:
     void UpdateUserAccountList();
     void UpdateCameraList(int, QString);
-    void reflashFtp();
     void UpdateFtpList(FileList*);
     void saveFtpData(QByteArray);
     void on_button_Account_clicked();
@@ -207,6 +213,8 @@ private slots:
     void getH3AWeight(EzCamH3AWeight);
     void on_algorithm_setdefaultButton_clicked();
     void resultLog(int);
+    void on_diagnostic_local_loadButton_clicked();
+
 signals:
     void SubWindow_Init();
     void testsignal();

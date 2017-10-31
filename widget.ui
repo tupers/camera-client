@@ -973,7 +973,7 @@ font:bold 13pt Arial;}
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,0,1,0">
+                      <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,1,0,1">
                        <property name="spacing">
                         <number>5</number>
                        </property>
@@ -1085,13 +1085,6 @@ font:bold 13pt Arial;}
                          </property>
                          <property name="text">
                           <string>Load Algorithm(for debug)</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="run_algviewchangeBox">
-                         <property name="text">
-                          <string>change view</string>
                          </property>
                         </widget>
                        </item>
@@ -1532,7 +1525,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>1</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">
@@ -3685,7 +3678,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
                    <enum>QTabWidget::Rounded</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -4475,7 +4468,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">
@@ -4898,25 +4891,9 @@ font:bold 10pt Arial;
                               <number>0</number>
                              </property>
                              <item>
-                              <widget class="QLabel" name="system_firmwareNameLabel">
+                              <widget class="QLabel" name="system_firmwareStateLabel">
                                <property name="text">
                                 <string/>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QProgressBar" name="system_firmwareProgressBar">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="value">
-                                <number>24</number>
-                               </property>
-                               <property name="invertedAppearance">
-                                <bool>false</bool>
                                </property>
                               </widget>
                              </item>
@@ -5092,165 +5069,261 @@ font:bold 10pt Arial;
                      </layout>
                     </item>
                     <item>
-                     <layout class="QVBoxLayout" name="diagnostic_ftpbrowserlayout" stretch="4,1">
-                      <property name="spacing">
-                       <number>0</number>
+                     <widget class="QTabWidget" name="tabWidget">
+                      <property name="currentIndex">
+                       <number>1</number>
                       </property>
-                      <item>
-                       <widget class="QWidget" name="diagnostic_ftpbrowserwidget" native="true">
-                        <layout class="QVBoxLayout" name="verticalLayout_29">
-                         <property name="spacing">
-                          <number>5</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>20</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>20</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>20</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="diagnostic_ftpbrowserLabel">
-                           <property name="text">
-                            <string>Ftp Browser</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QTableWidget" name="diagnostic_ftpbrowsertablewidget"/>
-                         </item>
-                        </layout>
+                      <widget class="QWidget" name="diagnostic_local">
+                       <attribute name="title">
+                        <string>Local</string>
+                       </attribute>
+                       <widget class="QPushButton" name="diagnostic_local_loadButton">
+                        <property name="geometry">
+                         <rect>
+                          <x>30</x>
+                          <y>30</y>
+                          <width>50</width>
+                          <height>27</height>
+                         </rect>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>50</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>50</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>load</string>
+                        </property>
                        </widget>
-                      </item>
-                      <item>
-                       <widget class="QWidget" name="disgnostic_ftpctrlwidget" native="true">
-                        <layout class="QVBoxLayout" name="verticalLayout_31">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>20</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>20</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>30</number>
-                         </property>
-                         <item>
-                          <layout class="QHBoxLayout" name="diagnostic_ftpctrllayout">
-                           <item>
-                            <widget class="QPushButton" name="diagnostic_refreshButton">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
+                       <widget class="QPushButton" name="diagnostic_local_loadButton_2">
+                        <property name="geometry">
+                         <rect>
+                          <x>110</x>
+                          <y>30</y>
+                          <width>50</width>
+                          <height>27</height>
+                         </rect>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>50</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>50</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>load2</string>
+                        </property>
+                       </widget>
+                      </widget>
+                      <widget class="QWidget" name="diagnostic_remote">
+                       <attribute name="title">
+                        <string>Remote</string>
+                       </attribute>
+                       <layout class="QVBoxLayout" name="verticalLayout_22">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <layout class="QVBoxLayout" name="diagnostic_ftpbrowserlayout" stretch="4,1">
+                          <property name="spacing">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QWidget" name="diagnostic_ftpbrowserwidget" native="true">
+                            <layout class="QVBoxLayout" name="verticalLayout_29">
+                             <property name="spacing">
+                              <number>5</number>
                              </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>40</width>
-                               <height>40</height>
-                              </size>
+                             <property name="leftMargin">
+                              <number>20</number>
                              </property>
-                             <property name="styleSheet">
-                              <string notr="true">QPushButton#diagnostic_refreshButton{
+                             <property name="topMargin">
+                              <number>20</number>
+                             </property>
+                             <property name="rightMargin">
+                              <number>20</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QTableWidget" name="diagnostic_ftpbrowsertablewidget"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QWidget" name="disgnostic_ftpctrlwidget" native="true">
+                            <layout class="QVBoxLayout" name="verticalLayout_31">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
+                             <property name="leftMargin">
+                              <number>20</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="rightMargin">
+                              <number>20</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>30</number>
+                             </property>
+                             <item>
+                              <layout class="QHBoxLayout" name="diagnostic_ftpctrllayout">
+                               <item>
+                                <widget class="QPushButton" name="diagnostic_refreshButton">
+                                 <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                   <horstretch>0</horstretch>
+                                   <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                 </property>
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>40</width>
+                                   <height>40</height>
+                                  </size>
+                                 </property>
+                                 <property name="styleSheet">
+                                  <string notr="true">QPushButton#diagnostic_refreshButton{
 	border-image: url(:/image/source/refresh.png);}
 QPushButton#diagnostic_refreshButton:hover{
 border-image: url(:/image/source/refresh_active.png);}
 QPushButton#diagnostic_refreshButton:pressed{
 border-image: url(:/image/source/refresh_active.png);}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QLabel" name="diagnostic_itemnameLabel">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true"/>
-                             </property>
-                             <property name="text">
-                              <string>Selected Item</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item alignment="Qt::AlignVCenter">
-                            <widget class="QLabel" name="diagnostic_itemnamecurrentLabel">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="diagonostic_ftpctrldownloadlayout">
-                           <property name="spacing">
-                            <number>6</number>
-                           </property>
-                           <item>
-                            <widget class="QPushButton" name="diagnostic_downloadButton">
-                             <property name="text">
-                              <string>download</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item alignment="Qt::AlignVCenter">
-                            <widget class="QLineEdit" name="diagnostic_dirLineEdit"/>
-                           </item>
-                           <item>
-                            <widget class="QPushButton" name="diagnostic_dirButton">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>50</width>
-                               <height>0</height>
-                              </size>
-                             </property>
-                             <property name="maximumSize">
-                              <size>
-                               <width>50</width>
-                               <height>16777215</height>
-                              </size>
-                             </property>
-                             <property name="text">
-                              <string>...</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                     </layout>
+                                 </property>
+                                 <property name="text">
+                                  <string/>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item>
+                                <widget class="QLabel" name="diagnostic_itemnameLabel">
+                                 <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                                   <horstretch>0</horstretch>
+                                   <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                 </property>
+                                 <property name="styleSheet">
+                                  <string notr="true"/>
+                                 </property>
+                                 <property name="text">
+                                  <string>Selected Item</string>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item alignment="Qt::AlignVCenter">
+                                <widget class="QLabel" name="diagnostic_itemnamecurrentLabel">
+                                 <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                                   <horstretch>0</horstretch>
+                                   <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                 </property>
+                                 <property name="text">
+                                  <string/>
+                                 </property>
+                                </widget>
+                               </item>
+                              </layout>
+                             </item>
+                             <item>
+                              <layout class="QHBoxLayout" name="diagonostic_ftpctrldownloadlayout">
+                               <property name="spacing">
+                                <number>6</number>
+                               </property>
+                               <item>
+                                <widget class="QPushButton" name="diagnostic_downloadButton">
+                                 <property name="text">
+                                  <string>download</string>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item>
+                                <widget class="QPushButton" name="diagnostic_deleteButton">
+                                 <property name="text">
+                                  <string>del</string>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item alignment="Qt::AlignVCenter">
+                                <widget class="QLineEdit" name="diagnostic_dirLineEdit"/>
+                               </item>
+                               <item>
+                                <widget class="QPushButton" name="diagnostic_dirButton">
+                                 <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                   <horstretch>0</horstretch>
+                                   <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                 </property>
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>0</height>
+                                  </size>
+                                 </property>
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>16777215</height>
+                                  </size>
+                                 </property>
+                                 <property name="text">
+                                  <string>...</string>
+                                 </property>
+                                </widget>
+                               </item>
+                              </layout>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
+                      </widget>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
