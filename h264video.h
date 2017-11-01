@@ -31,6 +31,7 @@ extern "C"
 #include <libavfilter/avfilter.h>
 #include <libswscale/swscale.h>
 #include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
 }
 
 typedef struct VideoInfoStruct
@@ -63,15 +64,14 @@ private:
     int videoStreamIndex;
     AVFormatContext *pAVFormatContext=NULL;
     AVFrame *pAVFrame=NULL;
+    AVFrame *pAVFrameYUV=NULL;
+    uint8_t *out_buffer=NULL;
     QString url="rtsp://218.204.223.237:554/live/1/66251FC11353191F/e7ooqwcfbqjoo80j.sdp";
     QMutex mutex;
-    int videoWidth;
-    int videoHeight;
-    AVPicture  pAVPicture;
-    AVCodecContext *pAVCodecContext;
+    AVCodecContext *pAVCodecContext=NULL;
     SwsContext * pSwsContext=NULL;
-    AVPacket pAVPacket;
-    AVCodec *pAVCodec;
+    AVPacket* pAVPacket=NULL;
+    AVCodec *pAVCodec=NULL;
     bool VideoStatus=VIDEO_STOP;
     QTimer *StopTimer=NULL;
     int preSatus=0;

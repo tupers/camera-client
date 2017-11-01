@@ -22,6 +22,9 @@ void H264Video::H264VideoInit()
     avformat_network_init();//初始化网络流格式,使用RTSP网络流时必须先执行
     pAVFormatContext = avformat_alloc_context();//申请一个AVFormatContext结构的内存,并进行简单初始化
     pAVFrame=av_frame_alloc();
+    pAVFrameYUV=av_frame_alloc();
+
+    pAVPacket = av_packet_alloc();
     if(StopTimer!=NULL)
     {
         delete StopTimer;
@@ -54,31 +57,41 @@ bool H264Video::H264VideoOpenStream()
     }
     
     //获取视频流索引
+
     videoStreamIndex = -1;
-    for (uint i = 0; i < pAVFormatContext->nb_streams; i++) {
-        if (pAVFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            videoStreamIndex = i;
-            break;
-        }
-    }
+    videoStreamIndex = av_find_best_stream(pAVFormatContext,AVMEDIA_TYPE_VIDEO,-1,-1,&pAVCodec,0);
     
     if (videoStreamIndex==-1){
         emit sendToLog("fail to get stream index");
         qDebug()<<"fail to get stream index";
         return false;
     }
-    
-    //获取视频流的分辨率大小
-    pAVCodecContext = pAVFormatContext->streams[videoStreamIndex]->codec;
-    videoWidth=pAVCodecContext->width;
-    videoHeight=pAVCodecContext->height;
-    
-    avpicture_alloc(&pAVPicture,AV_PIX_FMT_RGB24,videoWidth,videoHeight);
+    pAVCodecContext = avcodec_alloc_context3(NULL);
+    if(pAVCodecContext==NULL)
+    {
+        emit sendToLog("Could not allocate AVCodecContext");
+        qDebug()<<"Could not allocate AVCodecContext";
+        return false;
+    }
+    avcodec_parameters_to_context(pAVCodecContext,pAVFormatContext->streams[videoStreamIndex]->codecpar);
     
     //获取视频流解码器
-    pAVCodec = avcodec_find_decoder(pAVCodecContext->codec_id);
-    pSwsContext = sws_getContext(videoWidth,videoHeight,AV_PIX_FMT_YUV420P,videoWidth,videoHeight,AV_PIX_FMT_RGB24,SWS_BICUBIC,0,0,0);
-    
+    if(pAVCodec==NULL)
+        pAVCodec = avcodec_find_decoder(pAVCodecContext->codec_id);
+    if(pAVCodec == NULL)
+    {
+        emit sendToLog("Codec not found");
+        qDebug()<<"Codec not found";
+        return false;
+    }
+
+
+
+    out_buffer = (unsigned char *)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_GRAY8, pAVCodecContext->width, pAVCodecContext->height, 1));
+    av_image_fill_arrays(pAVFrameYUV->data, pAVFrameYUV->linesize, out_buffer, AV_PIX_FMT_GRAY8, pAVCodecContext->width, pAVCodecContext->height, 1);
+
+    pSwsContext = sws_getContext(pAVCodecContext->width,pAVCodecContext->height,pAVCodecContext->pix_fmt,pAVCodecContext->width,pAVCodecContext->height,AV_PIX_FMT_GRAY8,SWS_BICUBIC,0,0,0);
+
     //打开对应解码器
     result=avcodec_open2(pAVCodecContext,pAVCodec,NULL);
     if (result<0){
@@ -95,20 +108,21 @@ bool H264Video::H264VideoOpenStream()
 void H264Video::H264VideoPlay(int frameindex)
 {
     //一帧一帧读取视频
-    int frameFinished=0;
     while (VideoStatus){
         StopTimer->stop();
-        if (av_read_frame(pAVFormatContext, &pAVPacket) >= 0){
-            if(pAVPacket.stream_index==videoStreamIndex){
-                avcodec_decode_video2(pAVCodecContext, pAVFrame, &frameFinished, &pAVPacket);
-                if (frameFinished){
+        if (av_read_frame(pAVFormatContext, pAVPacket) >= 0){
+            if(pAVPacket->stream_index==videoStreamIndex){
+                int ret = avcodec_send_packet(pAVCodecContext,pAVPacket);
+                if(ret!=0)
+                    continue;
+                while(avcodec_receive_frame(pAVCodecContext,pAVFrame)==0)
+                {
 
                     mutex.lock();
-                    sws_scale(pSwsContext,(const uint8_t* const *)pAVFrame->data,pAVFrame->linesize,0,videoHeight,pAVPicture.data,pAVPicture.linesize);
+                    sws_scale(pSwsContext,(const uint8_t* const *)pAVFrame->data,pAVFrame->linesize,0,pAVCodecContext->height,pAVFrameYUV->data,pAVFrameYUV->linesize);
                     //发送获取一帧图像信号
-                    QImage image(pAVPicture.data[0],videoWidth,videoHeight,QImage::Format_RGB888);
+                    QImage image(pAVFrameYUV->data[0],pAVCodecContext->width,pAVCodecContext->height,QImage::Format_Grayscale8);
                     videoinfo.count++;
-//                    emit getVideoInfo(videoinfo.count,videoinfo.videotimer.elapsed()+videoinfo.pretime,videoinfo.videotimer.elapsed()-videoinfo.oncetime);
 
                     if(frameindex==VIDEO_SHOW_CAMERA)
                         emit getImage_Camera(image);
@@ -118,9 +132,9 @@ void H264Video::H264VideoPlay(int frameindex)
 
                 }
             }
-//         videoinfo.oncetime=videoinfo.videotimer.elapsed();
+            //         videoinfo.oncetime=videoinfo.videotimer.elapsed();
         }
-        av_packet_unref(&pAVPacket);//释放资源,否则内存会一直上升
+        av_packet_unref(pAVPacket);//释放资源,否则内存会一直上升
     }
     
     
@@ -128,19 +142,38 @@ void H264Video::H264VideoPlay(int frameindex)
 
 void H264Video::H264VideoFree()
 {
-//    avcodec_close(pAVFormatContext);
+    avcodec_close(pAVCodecContext);
     avformat_close_input(&pAVFormatContext);
+    if(pAVCodecContext!=NULL)
+    {
+        avcodec_free_context(&pAVCodecContext);
+        pAVCodecContext=NULL;
+    }
     if(pAVFormatContext!=NULL)
     {
         avformat_free_context(pAVFormatContext);
         pAVFormatContext=NULL;
+    }
+    if(pAVPacket!=NULL)
+    {
+        av_packet_free(&pAVPacket);
+        pAVPacket=NULL;
     }
     if(pAVFrame!=NULL)
     {
         av_frame_free(&pAVFrame);
         pAVFrame=NULL;
     }
-    //    avpicture_free(&pAVPicture);
+    if(pAVFrameYUV!=NULL)
+    {
+        av_frame_free(&pAVFrameYUV);
+        pAVFrameYUV=NULL;
+    }
+    if(out_buffer!=NULL)
+    {
+        av_freep(out_buffer);
+        out_buffer=NULL;
+    }
     if(pSwsContext!=NULL)
     {
         sws_freeContext(pSwsContext);
