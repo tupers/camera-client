@@ -14,18 +14,18 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = DM8127Client
 RC_ICONS = myappico.ico
 TEMPLATE = app
-LIBS += $$PWD/ffmpeg/lib/libavcodec.dll.a \
-        $$PWD/ffmpeg/lib/libavfilter.dll.a \
-        $$PWD/ffmpeg/lib/libavformat.dll.a \
-        $$PWD/ffmpeg/lib/libswscale.dll.a \
-        $$PWD/ffmpeg/lib/libavutil.dll.a \
+#LIBS += $$PWD/ffmpeg/lib/libavcodec.dll.a \
+#        $$PWD/ffmpeg/lib/libavfilter.dll.a \
+#        $$PWD/ffmpeg/lib/libavformat.dll.a \
+#        $$PWD/ffmpeg/lib/libswscale.dll.a \
+#        $$PWD/ffmpeg/lib/libavutil.dll.a \
 #       D:/Qt/Tools/mingw530_32/i686-w64-mingw32/lib/libwsock32.a\
 
-#LIBS += $$PWD/ffmpeg/lib/avcodec.lib\
+LIBS += $$PWD/ffmpeg/lib/avcodec.lib\
 #        $$PWD/ffmpeg/lib/avfilter.lib\
-#        $$PWD/ffmpeg/lib/avformat.lib\
-#        $$PWD/ffmpeg/lib/avutil.lib\
-#        $$PWD/ffmpeg/lib/swscale.lib\
+        $$PWD/ffmpeg/lib/avformat.lib\
+        $$PWD/ffmpeg/lib/avutil.lib\
+        $$PWD/ffmpeg/lib/swscale.lib\
 
 
 SOURCES += main.cpp\

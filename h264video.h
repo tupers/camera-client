@@ -64,9 +64,9 @@ private:
     int videoStreamIndex;
     AVFormatContext *pAVFormatContext=NULL;
     AVFrame *pAVFrame=NULL;
-    AVFrame *pAVFrameYUV=NULL;
+    AVFrame *pAVFrameGrey=NULL;
     uint8_t *out_buffer=NULL;
-    QString url="rtsp://218.204.223.237:554/live/1/66251FC11353191F/e7ooqwcfbqjoo80j.sdp";
+    QString url="rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
     QMutex mutex;
     AVCodecContext *pAVCodecContext=NULL;
     SwsContext * pSwsContext=NULL;

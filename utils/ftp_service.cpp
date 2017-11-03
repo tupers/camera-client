@@ -29,14 +29,15 @@ void ftp_service::initFtp()
         if(checkAccount())
         {
             emit sendToLog("connected.open data server");
-
-            if(!m_hdataServer->listen(QHostAddress(m_strRemoteIP),0))
+            //if(!m_hdataServer->listen(QHostAddress(m_strRemoteIP),0))
+            if(!m_hdataServer->listen(QHostAddress::Any,0))
             {
                 closeFtp();
                 emit sendToLog("listen falied");
             }
             else
             {
+                m_hTimer->stop();
                 m_eStatus = FTP_CONNECTED;
                 m_nDataPort = m_hdataServer->serverPort();
                 list();
@@ -55,6 +56,7 @@ void ftp_service::initFtp()
         man.cmd=FTP_CMD(0);
         m_mapRemote.insert(remoteSocket,man);
         connect(remoteSocket,SIGNAL(readyRead()),this,SLOT(readRemoteData()));
+
         connect(remoteSocket,&QTcpSocket::disconnected,this,[=](){
             if(m_mapRemote[remoteSocket].cmd==FTP_PUT)
                 emit sendToLog("Put file finished");
@@ -62,9 +64,10 @@ void ftp_service::initFtp()
     });
 
     //init timeout timer
-    m_Timer.setInterval(FTP_TIMEOUT);
-    m_Timer.setSingleShot(true);
-    connect(&m_Timer,&QTimer::timeout,this,[=](){
+    m_hTimer = new QTimer;
+    m_hTimer->setInterval(FTP_TIMEOUT);
+    m_hTimer->setSingleShot(true);
+    connect(m_hTimer,&QTimer::timeout,this,[=](){
         emit sendToLog("login connection time out");
         closeFtp();
     });
@@ -78,6 +81,12 @@ void ftp_service::initFtp()
  */
 void ftp_service::deinitFtp()
 {
+    if(m_hTimer!=NULL)
+    {
+        delete m_hTimer;
+        m_hTimer=NULL;
+    }
+
     for(auto i = m_mapRemote.begin();i!=m_mapRemote.end();++i)
         i.key()->abort();
     m_mapRemote.clear();
@@ -122,7 +131,7 @@ void ftp_service::loginFtp(QString ip, int port, QString username, QString passw
     m_nRemotePort=port;
 
     //start timer
-    m_Timer.start();
+    m_hTimer->start();
 }
 
 /**
@@ -381,6 +390,7 @@ bool ftp_service::checkAccount()
     }
 
     Ftp_Account account;
+    memset(&account,0,sizeof(Ftp_Account));
     memcpy(account.UserName,m_strUserName.toLatin1().data(),m_strUserName.size());
     memcpy(account.Passwd,m_strPassword.toLatin1().data(),m_strPassword.size());
 

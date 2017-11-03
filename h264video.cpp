@@ -22,8 +22,7 @@ void H264Video::H264VideoInit()
     avformat_network_init();//初始化网络流格式,使用RTSP网络流时必须先执行
     pAVFormatContext = avformat_alloc_context();//申请一个AVFormatContext结构的内存,并进行简单初始化
     pAVFrame=av_frame_alloc();
-    pAVFrameYUV=av_frame_alloc();
-
+    pAVFrameGrey=av_frame_alloc();
     pAVPacket = av_packet_alloc();
     if(StopTimer!=NULL)
     {
@@ -41,16 +40,20 @@ bool H264Video::H264VideoOpenStream()
 {
     //打开视频流
     qDebug()<<url;
-    int result=avformat_open_input(&pAVFormatContext, url.toStdString().c_str(),NULL,NULL);
-    if (result<0){
+    //set udp buffer size
+    AVDictionary* options = NULL;
+    av_dict_set(&options, "buffer_size", "1024000", 0);
+
+    if(avformat_open_input(&pAVFormatContext, url.toStdString().c_str(),NULL,&options)<0)
+    {
         emit sendToLog("fail to open stream");
         qDebug()<<"fail to open stream";
         return false;
     }
     
     //获取视频流信息
-    result=avformat_find_stream_info(pAVFormatContext,NULL);
-    if (result<0){
+    if(avformat_find_stream_info(pAVFormatContext,NULL)<0)
+    {
         emit sendToLog("fail to get stream info");
         qDebug()<<"fail to get stream info";
         return false;
@@ -67,6 +70,7 @@ bool H264Video::H264VideoOpenStream()
         return false;
     }
     pAVCodecContext = avcodec_alloc_context3(NULL);
+
     if(pAVCodecContext==NULL)
     {
         emit sendToLog("Could not allocate AVCodecContext");
@@ -85,16 +89,15 @@ bool H264Video::H264VideoOpenStream()
         return false;
     }
 
-
-
+    //fill grey scale out put frame
     out_buffer = (unsigned char *)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_GRAY8, pAVCodecContext->width, pAVCodecContext->height, 1));
-    av_image_fill_arrays(pAVFrameYUV->data, pAVFrameYUV->linesize, out_buffer, AV_PIX_FMT_GRAY8, pAVCodecContext->width, pAVCodecContext->height, 1);
+    av_image_fill_arrays(pAVFrameGrey->data, pAVFrameGrey->linesize, out_buffer, AV_PIX_FMT_GRAY8, pAVCodecContext->width, pAVCodecContext->height, 1);
 
     pSwsContext = sws_getContext(pAVCodecContext->width,pAVCodecContext->height,pAVCodecContext->pix_fmt,pAVCodecContext->width,pAVCodecContext->height,AV_PIX_FMT_GRAY8,SWS_BICUBIC,0,0,0);
 
     //打开对应解码器
-    result=avcodec_open2(pAVCodecContext,pAVCodec,NULL);
-    if (result<0){
+    if(avcodec_open2(pAVCodecContext,pAVCodec,NULL)<0)
+    {
         emit sendToLog("open decoder failed");
         qDebug()<<"open decoder failed";
         return false;
@@ -117,11 +120,9 @@ void H264Video::H264VideoPlay(int frameindex)
                     continue;
                 while(avcodec_receive_frame(pAVCodecContext,pAVFrame)==0)
                 {
-
                     mutex.lock();
-                    sws_scale(pSwsContext,(const uint8_t* const *)pAVFrame->data,pAVFrame->linesize,0,pAVCodecContext->height,pAVFrameYUV->data,pAVFrameYUV->linesize);
-                    //发送获取一帧图像信号
-                    QImage image(pAVFrameYUV->data[0],pAVCodecContext->width,pAVCodecContext->height,QImage::Format_Grayscale8);
+                    sws_scale(pSwsContext,(const uint8_t* const *)pAVFrame->data,pAVFrame->linesize,0,pAVCodecContext->height,pAVFrameGrey->data,pAVFrameGrey->linesize);
+                    QImage image(pAVFrameGrey->data[0],pAVCodecContext->width,pAVCodecContext->height,QImage::Format_Grayscale8);
                     videoinfo.count++;
 
                     if(frameindex==VIDEO_SHOW_CAMERA)
@@ -164,10 +165,10 @@ void H264Video::H264VideoFree()
         av_frame_free(&pAVFrame);
         pAVFrame=NULL;
     }
-    if(pAVFrameYUV!=NULL)
+    if(pAVFrameGrey!=NULL)
     {
-        av_frame_free(&pAVFrameYUV);
-        pAVFrameYUV=NULL;
+        av_frame_free(&pAVFrameGrey);
+        pAVFrameGrey=NULL;
     }
     if(out_buffer!=NULL)
     {

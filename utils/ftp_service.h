@@ -134,7 +134,7 @@ private:
     int m_nRemotePort;
     int m_nDataPort;
     FTP_STATE m_eStatus=FTP_DISCONNECTED;
-    QTimer m_Timer;
+    QTimer* m_hTimer=NULL;
 
     QByteArray m_arrPut;
     QByteArray m_arrGet;
