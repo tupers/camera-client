@@ -61,6 +61,7 @@ signals:
     void ftp_list(QString);
     void ftp_list();
     void ftp_login(QString,int,QString,QString);
+    void ftp_get(QString);
 
 public slots:
     void resetPayload();

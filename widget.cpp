@@ -103,6 +103,7 @@ void Widget::OpenSubWindow_SerialPort()
     if(SerialPortWidget!=NULL)
         SerialPortWidget->show();
     emit SubWindow_Init();
+
 }
 
 void Widget::SetupMouseEvent()
@@ -181,9 +182,7 @@ void Widget::SetupOptions()
     /*for ftp browser*/
     connect(ui->diagnostic_refreshButton,&QPushButton::clicked,network,&NetWork::ftp_refresh);
     connect(network,&NetWork::ftp_receiveFileList,this,[=](QByteArray ba){
-        FileList list;
-        memcpy(&list,ba.data(),sizeof(FileList));
-        UpdateFtpList(&list);
+        UpdateFtpList(ba);
     });
     connect(network,&NetWork::ftp_receiveData,this,&Widget::saveFtpData);
     connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
@@ -417,21 +416,22 @@ void Widget::UpdateCameraList(int id, QString IP)
     //    camerainfolayout->addWidget(id);
 }
 
-void Widget::UpdateFtpList(FileList* list)
+void Widget::UpdateFtpList(QByteArray ba)
 {
+    FileList* list = (FileList*)malloc(ba.length());
+    memcpy(list,ba.data(),ba.length());
+
     ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
     ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,0,new QTableWidgetItem("..."));
     int i;
-    int cnt = list->dirCount;
-    for(i=0;i<cnt;i++)
+    for(i=0;i<list->dirCount;i++)
     {
         ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
         ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,0,new QTableWidgetItem(QString(list->finfo[i].name)));
         ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,1,new QTableWidgetItem(QString::number(list->finfo[i].size,10)));
         ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,2,new QTableWidgetItem(QString::number(list->finfo[i].type,10)));
     }
-    if(list!=NULL)
-        free(list);
+    free(list);
 }
 
 void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
@@ -641,6 +641,11 @@ void Widget::LoadAccountConfig()
     ui->account_authorityvalueLabel->setText(QString::number(network->getLogAuthority(),10));
 }
 
+void Widget::ResetRun()
+{
+    //ui->run_videoinputwidget->clearImage(0);
+}
+
 void Widget::ResetOptions()
 {
     ui->security_userNameLineEdit->clear();
@@ -650,6 +655,8 @@ void Widget::ResetOptions()
     ui->security_authorityviewerButton->setChecked(false);
 
     ResetFtpBrowser();
+    ui->diagnostic_itemnamecurrentLabel->clear();
+    ui->diagnostic_previewWidget->clearImage(0);
 }
 
 void Widget::ResetInformation()
@@ -1251,6 +1258,7 @@ void Widget::ConnectionLost()
             ui->mainlist->selectedItems()[0]->setSelected(false);
             ui->mainlist->setCurrentRow(-1);
         }
+        ResetRun();
         ResetOptions();
         ResetInformation();
         ResetAccount();
@@ -1289,6 +1297,7 @@ void Widget::clearVideoImage()
     //    ui->camera_videoinputlabel->clear();
     //    ui->run_videoinputlabel->clear();
     ui->run_videoinputwidget->clearImage(1);
+    ui->run_videoinputwidget->clearImage(0);
     //ui->camera_videoinputwidget->clearImage();
     camera_videoinputwidget->clearImage(0);
     //    ui->summary_statecodelabel->setText("State Code: ");
@@ -1630,9 +1639,7 @@ void Widget::firmwareUpdateService(int cmd)
         fclose(fp);
     }
     else
-    {
         qDebug()<<"could not find specified update file";
-    }
 }
 
 void Widget::loadALGConfigUi(QVBoxLayout *layout, QPoint pos)
@@ -1699,20 +1706,17 @@ void Widget::on_diagnostic_downloadButton_clicked()
 
 void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &index)
 {
-    //    if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
-    //    {
-    //        QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
-    //        ui->diagnostic_itemnamecurrentLabel->setText(name);
-    //        ftpfile.ftpFileSize=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),1)->text().toInt();
-    //        ftpfile.ftpFileValid=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt();
-    //        ftpfile.ftpFileName=ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
-    //        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
-    //        {
-    //            ui->diagnostic_previewWidget->clearImage(0);
-    //            ui->diagnostic_errorvalueLabel->clear();
-    //            emit network->getFtp(name);
-    //        }
-    //    }
+        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
+        {
+            QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+            ui->diagnostic_itemnamecurrentLabel->setText(name);
+            if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
+            {
+                ui->diagnostic_previewWidget->clearImage(0);
+                ui->diagnostic_errorvalueLabel->clear();
+                emit network->ftp_get(name);
+            }
+        }
 }
 
 void Widget::on_diagnostic_dirButton_clicked()
@@ -1720,12 +1724,12 @@ void Widget::on_diagnostic_dirButton_clicked()
     QString dstName = QFileDialog::getExistingDirectory (this,tr("Open Directory"),"/home",QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks ) ;
     if(dstName!="")
         ui->diagnostic_dirLineEdit->setText(dstName);
-
 }
 
 void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex &index)
 {
     QString dir = network->ftp_curDir();
+    //qDebug()<<dir;
     if("..."==ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text())
     {
 
@@ -1847,7 +1851,6 @@ void Widget::on_camera_2A_AEWeight_previewButton_clicked()
 
 void Widget::on_LoginSpecifiedIPButton_clicked()
 {
-
     if(ui->LoginSpecifiedIPlineEdit->isHidden())
     {
         ui->LoginSpecifiedIPlineEdit->setVisible(true);

@@ -172,7 +172,7 @@ void H264Video::H264VideoFree()
     }
     if(out_buffer!=NULL)
     {
-        av_freep(out_buffer);
+        av_free(out_buffer);
         out_buffer=NULL;
     }
     if(pSwsContext!=NULL)
@@ -238,6 +238,7 @@ void H264Video::H264VideoTimeout()
     emit sendToLog("Video Timer timeout, close stream.");
     qDebug()<<"Video Timer timeout, close stream.";
     H264VideoFree();
+    emit clearImage();
 
 }
 

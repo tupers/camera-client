@@ -30,6 +30,7 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     connect(this,&NetWork::ftp_close,m_hFtp,&ftp_service::closeFtp);
     connect(this,&NetWork::ftp_put,m_hFtp,&ftp_service::put);
     connect(this,&NetWork::ftp_del,m_hFtp,&ftp_service::del);
+    connect(this,&NetWork::ftp_get,m_hFtp,&ftp_service::get);
     connect(this,static_cast<void (NetWork::*)()>(&NetWork::ftp_list),this,[=](){
         m_hFtp->list();
     });

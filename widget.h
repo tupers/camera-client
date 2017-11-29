@@ -74,7 +74,7 @@ public:
     void LoadConnectionConfig();
     void LoadInfomationConfig();
     void LoadAccountConfig();
-
+    void ResetRun();
     void ResetOptions();
     void ResetInformation();
     void ResetAccount();
@@ -137,7 +137,7 @@ protected:
 private slots:
     void UpdateUserAccountList();
     void UpdateCameraList(int, QString);
-    void UpdateFtpList(FileList*);
+    void UpdateFtpList(QByteArray);
     void saveFtpData(QByteArray);
     void on_button_Account_clicked();
     void on_button_maxsize_clicked();

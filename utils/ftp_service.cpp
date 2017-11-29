@@ -88,7 +88,10 @@ void ftp_service::deinitFtp()
     }
 
     for(auto i = m_mapRemote.begin();i!=m_mapRemote.end();++i)
+    {
         i.key()->abort();
+        i.key()->deleteLater();
+    }
     m_mapRemote.clear();
 
     if(m_hCmdSocket!=NULL)
@@ -139,9 +142,12 @@ void ftp_service::loginFtp(QString ip, int port, QString username, QString passw
  */
 void ftp_service::closeFtp()
 {
-    m_hdataServer->close();
-    m_hCmdSocket->abort();
+    if(m_hdataServer!=NULL)
+        m_hdataServer->close();
+    if(m_hCmdSocket!=NULL)
+        m_hCmdSocket->abort();
 
+    m_strCurDir == DEFAULT_PATH;
     m_eStatus=FTP_DISCONNECTED;
     m_strCurDir=DEFAULT_PATH;
 }
@@ -198,6 +204,7 @@ bool ftp_service::get(QString name)
 
     //pack data
     FTP_File data;
+    name = m_strCurDir+"/"+name;
     data.port=m_nDataPort;
     strcpy(data.ip,getLocalIP().toLatin1().data());
     strcpy(data.filepath,name.toLatin1().data());
@@ -248,6 +255,7 @@ bool ftp_service::put(QString name, QByteArray ba)
  */
 bool ftp_service::list(QString name)
 {
+    m_strCurDir = name;
     //check status
     if(m_eStatus!=FTP_CONNECTED)
     {
@@ -307,6 +315,8 @@ void ftp_service::readRemoteData()
                     m_mapRemote[socket].size = header.pad==0?header.len:header.len-1;
                     m_mapRemote[socket].curSize = 0;
                     m_mapRemote[socket].isFirst=1;
+                    ack.len=ba.length();
+                    //qDebug()<<ack.len;
                     socket->write((const char*)&ack,sizeof(Ftp_Ack));
                 }
             }
@@ -331,6 +341,7 @@ void ftp_service::readRemoteData()
     {
         m_arrGet.append(ba.data(),ba.length());
         m_mapRemote[socket].curSize += ba.length();
+        ack.len=ba.length();
         socket->write((const char*)&ack,sizeof(Ftp_Ack));
         if(m_mapRemote[socket].curSize>=m_mapRemote[socket].size)
         {
