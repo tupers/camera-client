@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -1525,7 +1525,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>1</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">
@@ -3500,10 +3500,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-botto
                           </widget>
                          </item>
                          <item>
-                          <widget class="QWidget" name="camera_videoWidget" native="true">
-                           <zorder>camera_2A_AEWeight_preWidget</zorder>
-                           <zorder>camera_2A_AEWeight_preWidget</zorder>
-                          </widget>
+                          <widget class="QWidget" name="camera_videoWidget" native="true"/>
                          </item>
                          <item>
                           <widget class="QWidget" name="camera_videocontrol" native="true">
@@ -3681,7 +3678,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
                    <enum>QTabWidget::Rounded</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -4471,7 +4468,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-top-w
 </string>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="subtab_Security">
                    <property name="styleSheet">

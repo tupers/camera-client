@@ -51,8 +51,7 @@ SOURCES += main.cpp\
     utils/rtchart.cpp \
     utils/algdebug.cpp \
     utils/network_service.cpp \
-    utils/ftp_service.cpp \
-    utils/video_bufqueue.cpp
+    utils/ftp_service.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -80,8 +79,7 @@ HEADERS  += widget.h \
     sourcevideo.h \
     utils/algdebug.h \
     utils/network_service.h \
-    utils/ftp_service.h \
-    utils/video_bufqueue.h
+    utils/ftp_service.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

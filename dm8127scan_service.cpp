@@ -20,18 +20,30 @@ void dm8127scan_service::scan()
     memset(&data,0,sizeof(data));
     data.magic[0]=SCAN_MAGIC1;
     data.magic[1]=SCAN_MAGIC2;
-    data.cmd = SCAN_CMD_GET;
-    //setup random check num
-    srand((unsigned)time(NULL));
-    m_nRandom = rand();
-    data.random = m_nRandom;
+    strcpy(data.identical,IDENTICAL_STRING);
+    data.CamId=0;
     char* pdata= (char*)&data;
+    int num = sizeof(NetCamScanData)-sizeof(data.crc);
+    int i;
+    for(i=0;i<num;i++)
+        data.crc+=*(pdata+i);
+//    qDebug()<<data.crc;
     BroadcastSocket->writeDatagram(pdata,sizeof(NetCamScanData),QHostAddress::Broadcast,SCAN_SERVER_PORT);
+//    qDebug()<<ret<<sizeof(NetCamScanData);
+
 }
 
 bool dm8127scan_service::check(const NetCamScanData *data)
 {
-    if((data->magic[0]!=SCAN_MAGIC1)||(data->magic[1]!=SCAN_MAGIC2)||data->cmd!=SCAN_CMD_PUT||m_nRandom!=data->random)
+    if((data->magic[0]!=SCAN_MAGIC1)||(data->magic[1]!=SCAN_MAGIC2))
+        return false;
+    int i;
+    int num = sizeof(NetCamScanData)-sizeof(data->crc);
+    int crc=0;
+    char* pdata = (char*)data;
+    for(i=0;i<num;i++)
+        crc+=*(pdata+i);
+    if(crc!=data->crc)
         return false;
     return true;
 }
@@ -49,6 +61,6 @@ void dm8127scan_service::dataRecv()
 
         if(!check(&data))
             continue;
-        emit findDevice(1,QHostAddress(remoteIP.toIPv4Address()).toString());
+        emit findDevice(data.CamId,QHostAddress(remoteIP.toIPv4Address()).toString());
     }
 }

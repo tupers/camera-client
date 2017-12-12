@@ -7,7 +7,6 @@
 #include <QImage>
 #include <QTimer>
 #include <QTime>
-#include <QThread>
 
 #ifndef INT64_C
 #define INT64_C
@@ -35,14 +34,19 @@ extern "C"
 #include <libavutil/imgutils.h>
 }
 
-#include "utils/video_bufqueue.h"
-
+typedef struct VideoInfoStruct
+{
+    QTime videotimer;
+    int pretime;
+    int oncetime;
+    int count;
+}VideoInfoStr;
 
 class H264Video:public QObject
 {
     Q_OBJECT
 public:
-    explicit H264Video(video_bufQueue* bufQueue=NULL,QObject*parent=0);
+    explicit H264Video(QObject*parent=0);
     ~H264Video();
     void H264VideoInit();
     bool H264VideoOpenStream();
@@ -71,11 +75,11 @@ private:
     bool VideoStatus=VIDEO_STOP;
     QTimer *StopTimer=NULL;
     int preSatus=0;
-    video_bufQueue* m_hBufQueue=NULL;
+    VideoInfoStr videoinfo;
+    void InitVideoInfo();
 signals:
     void getImage_Camera(QImage);
     void getImage_Run(QImage);
-    void getImage(int index);
     void getVideoInfo(int,int,int);
     void clearImage();
     void sendToLog(QString);
