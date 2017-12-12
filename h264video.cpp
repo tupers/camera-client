@@ -1,8 +1,9 @@
 #include "h264video.h"
 
-H264Video::H264Video(QObject *parent):QObject(parent)
+H264Video::H264Video(video_bufQueue *bufQueue, QObject *parent):QObject(parent)
 {
-    
+    if(bufQueue!=0)
+        m_hBufQueue = bufQueue;
 }
 
 H264Video::~H264Video()
@@ -38,13 +39,14 @@ void H264Video::H264VideoInit()
 
 bool H264Video::H264VideoOpenStream()
 {
+    emit clearImage();
     //打开视频流
     qDebug()<<url;
     //set udp buffer size
-    AVDictionary* options = NULL;
-    av_dict_set(&options, "buffer_size", "1024000", 0);
+    //AVDictionary* options = NULL;
+    //av_dict_set(&options, "buffer_size", "1024000", 0);
 
-    if(avformat_open_input(&pAVFormatContext, url.toStdString().c_str(),NULL,&options)<0)
+    if(avformat_open_input(&pAVFormatContext, url.toStdString().c_str(),NULL,NULL)<0)
     {
         emit sendToLog("fail to open stream");
         qDebug()<<"fail to open stream";
@@ -123,12 +125,25 @@ void H264Video::H264VideoPlay(int frameindex)
                     mutex.lock();
                     sws_scale(pSwsContext,(const uint8_t* const *)pAVFrame->data,pAVFrame->linesize,0,pAVCodecContext->height,pAVFrameGrey->data,pAVFrameGrey->linesize);
                     QImage image(pAVFrameGrey->data[0],pAVCodecContext->width,pAVCodecContext->height,QImage::Format_Grayscale8);
-                    videoinfo.count++;
-
+                    //videoinfo.count++;
+                    if(m_hBufQueue)
+                    {
+                        auto ret = m_hBufQueue->bufInput(image.bits());
+                        if(ret)
+                            emit getImage(frameindex);
+                        else
+                        {
+                            QThread::msleep(1);
+                            qDebug()<<"no enough empty buf in the list";
+                        }
+                    }
+                    else
+                    {
                     if(frameindex==VIDEO_SHOW_CAMERA)
                         emit getImage_Camera(image);
                     if(frameindex==VIDEO_SHOW_RUN)
                         emit getImage_Run(image);
+                    }
                     mutex.unlock();
 
                 }
@@ -149,11 +164,6 @@ void H264Video::H264VideoFree()
     {
         avcodec_free_context(&pAVCodecContext);
         pAVCodecContext=NULL;
-    }
-    if(pAVFormatContext!=NULL)
-    {
-        avformat_free_context(pAVFormatContext);
-        pAVFormatContext=NULL;
     }
     if(pAVPacket!=NULL)
     {
@@ -198,7 +208,7 @@ void H264Video::H264VideoOpen(int cmd)
             StopTimer->stop();
         }
         H264VideoFree();
-        emit clearImage();
+        //emit clearImage();
         return;
     }
 
@@ -211,7 +221,7 @@ void H264Video::H264VideoOpen(int cmd)
         InitFlag=true;
         VideoStatus=VIDEO_RUN;
         preSatus=cmd;
-        InitVideoInfo();
+        //InitVideoInfo();
 
     }
     else if(preSatus!=cmd)
@@ -225,10 +235,10 @@ void H264Video::H264VideoOpen(int cmd)
         qDebug()<<"status: stop, start Video Timer...";
         StopTimer->start();
     }
-    videoinfo.videotimer.restart();
-    videoinfo.oncetime=0;
+    //videoinfo.videotimer.restart();
+    //videoinfo.oncetime=0;
     H264VideoPlay(cmd);
-    videoinfo.pretime+=videoinfo.videotimer.elapsed();
+    //videoinfo.pretime+=videoinfo.videotimer.elapsed();
     preSatus=cmd;
 
 }
@@ -240,14 +250,6 @@ void H264Video::H264VideoTimeout()
     H264VideoFree();
     emit clearImage();
 
-}
-
-void H264Video::InitVideoInfo()
-{
-    videoinfo.count=0;
-    videoinfo.videotimer.start();
-    videoinfo.pretime=0;
-    videoinfo.oncetime=0;
 }
 
 

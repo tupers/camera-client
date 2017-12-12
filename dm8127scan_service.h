@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtNetwork>
+#include <time.h>
 #include "ezstream.h"
 
 class dm8127scan_service : public QObject
@@ -21,6 +22,7 @@ public slots:
     void dataRecv();
 private:
     QUdpSocket *BroadcastSocket;
+    int m_nRandom;
 };
 
 #endif // DM8127SCAN_SERVICE_H

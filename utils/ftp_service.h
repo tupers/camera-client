@@ -5,6 +5,7 @@
 #include <QTcpServer>
 #include <QTimer>
 #include <QMap>
+#include <QThread>
 #include "network_service.h"
 
 #define MAX_USERNAME 32

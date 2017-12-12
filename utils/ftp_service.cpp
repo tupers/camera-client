@@ -5,7 +5,6 @@
  */
 ftp_service::ftp_service()
 {
-
 }
 
 /**

@@ -39,6 +39,10 @@
 
 #define MARGIN_L 50
 #define MARGIN_S 5
+
+#define DEFAULT_IMG_WIDTH   1280
+#define DEFAULT_IMG_HEIGHT  720
+
 //#define OFFLINE_DEBUG
 QT_CHARTS_USE_NAMESPACE
 namespace Ui {
@@ -123,10 +127,7 @@ private:
     FILE* resultFile=NULL;
     FILE* resultLogFile = NULL;
     algDebug* m_hLocalAlgDebug;
-
-    //ftpService
-//    ftp_service* m_hFtp;
-//    QThread* m_hFtpThread;
+    video_bufQueue* m_hBufQueue;
 protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);

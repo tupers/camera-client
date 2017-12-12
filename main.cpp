@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     QFile f("./log/log.txt");
     if(f.exists())
         f.remove();
-//    qInstallMessageHandler(logMessage);
+    //qInstallMessageHandler(logMessage);
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB2312"));
     Widget w;
     w.show();
