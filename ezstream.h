@@ -622,12 +622,15 @@ typedef struct _NetMsg
 
 #define IDENTICAL_STRING    "ezcamera"
 
+#define SCAN_CMD_GET        7
+#define SCAN_CMD_PUT        8
+
 typedef struct NetCamScanData
 {
     unsigned char magic[2];
-    char identical[9];
-    unsigned int CamId;
-    unsigned int crc;
+    uint cmd;
+    int random;
+    char ip[32];
 }NetCamScanData;
 
 #endif // EZSTREAM_H

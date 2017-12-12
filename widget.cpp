@@ -292,10 +292,11 @@ void Widget::SetupCalibrate()
     //Video immediate updating
     QStackedLayout* videoLayout = new QStackedLayout;
     camera_videoinputwidget = new MultiImageWidget;
-    camera_videoinputwidget->resizeImageCount(2);
+    camera_videoinputwidget->resizeImageCount(1);
     ui->camera_videoWidget->setLayout(videoLayout);
 
-    videoLayout->addWidget(ui->camera_2A_AEWeight_preWidget);
+    //videoLayout->addWidget(ui->camera_2A_AEWeight_preWidget);
+    ui->camera_2A_AEWeight_preWidget->hide();
     videoLayout->addWidget(camera_videoinputwidget);
     videoLayout->setStackingMode(QStackedLayout::StackAll);
 
@@ -311,7 +312,7 @@ void Widget::SetupCalibrate()
     //    connect(this,SIGNAL(setALGParams()),config,SLOT(setAlgParams()));
     connect(config,SIGNAL(algConfigTag(QVBoxLayout*,QPoint)),this,SLOT(loadALGConfigUi(QVBoxLayout*,QPoint)));
     connect(config,SIGNAL(algResultTag(QVBoxLayout*,QPoint)),this,SLOT(loadALGResultUi(QVBoxLayout*,QPoint)));
-    connect(ui->camera_2A_AEWeight_preWidget,SIGNAL(sendWeightInfo(EzCamH3AWeight)),this,SLOT(getH3AWeight(EzCamH3AWeight)));
+    //connect(ui->camera_2A_AEWeight_preWidget,SIGNAL(sendWeightInfo(EzCamH3AWeight)),this,SLOT(getH3AWeight(EzCamH3AWeight)));
 }
 
 void Widget::UpdateConfigFile()
@@ -406,14 +407,8 @@ void Widget::UpdateUserAccountList()
 
 void Widget::UpdateCameraList(int id, QString IP)
 {
-    //ui->Account_cameralist->
-    //    ui->Account_cameralist->insertItem(ui->Account_cameralist->currentRow(),IP.toString());
     QString cameraInfo = QString::number(id,10)+"\t"+IP;
     ui->Account_cameralist->addItem(cameraInfo);
-
-    //    QWidget* camerainfo=new QWidget;
-    //    QHBoxLayout* camerainfolayout = new QHBoxLayout(camerainfo);
-    //    camerainfolayout->addWidget(id);
 }
 
 void Widget::UpdateFtpList(QByteArray ba)
@@ -423,7 +418,7 @@ void Widget::UpdateFtpList(QByteArray ba)
 
     ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
     ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,0,new QTableWidgetItem("..."));
-    int i;
+    unsigned int i;
     for(i=0;i<list->dirCount;i++)
     {
         ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
@@ -439,7 +434,7 @@ void Widget::saveFtpData(QByteArray data)//20170119, 解析保存文件
     EzImgFrameHeader header;
     memcpy(&header,data.data(),sizeof(EzImgFrameHeader));
     int headsize = sizeof(EzImgFrameHeader)+header.infoSize;
-    qDebug()<<header.height<<header.width<<header.pitch<<header.infoSize;
+    //qDebug()<<header.height<<header.width<<header.pitch<<header.infoSize;
     if(ftpPreView!=NULL)
     {
         delete ftpPreView;
@@ -522,39 +517,11 @@ void Widget::LoadCalibrateConfig()
     ui->camera_2A_AEWeight_width2lineEdit->setText(QString::number(tempconfig.value.camera_2A_weight_width2));
     ui->camera_2A_AEWeight_height2lineEdit->setText(QString::number(tempconfig.value.camera_2A_weight_height2));
     ui->camera_2A_AEWeight_weightlineEdit->setText(QString::number(tempconfig.value.camera_2A_weight_weight));
-    ui->camera_2A_AEWeight_preWidget->weightResize(tempconfig.value.camera_2A_HCount,tempconfig.value.camera_2A_VCount);
+    //ui->camera_2A_AEWeight_preWidget->weightResize(tempconfig.value.camera_2A_HCount,tempconfig.value.camera_2A_VCount);
 
     ui->video_streamtypecomboBox->setCurrentIndex(tempconfig.value.camera_video_StreamType);
     ui->video_videocodecmodecomboBox->setCurrentIndex(tempconfig.value.camera_video_VideoCodecMode);
     ui->video_JPEGqualitylineEdit->editValue(tempconfig.value.camera_video_JPEGQuality);
-
-    //    ui->algorithm_ROI_startXlineEdit->setText(QString::number(tempconfig.value.algorithm_ROI_startX));
-    //    ui->algorithm_ROI_endXlineEdit->setText(QString::number(tempconfig.value.algorithm_ROI_endX));
-    //    ui->algorithm_ROI_startYlineEdit->setText(QString::number(tempconfig.value.algorithm_ROI_startY));
-    //    ui->algorithm_ROI_endYlineEdit->setText(QString::number(tempconfig.value.algorithm_ROI_endY));
-    //    ui->algorithm_f_rdifsidecirlineEdit->setText(QString::number(tempconfig.value.algorithm_f_RDifSideCir));
-    //    ui->algorithm_fcirgood1lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirGood_1));
-    //    ui->algorithm_fcirgood2lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirGood_2));
-    //    ui->algorithm_fcirgood3lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirGood_3));
-    //    ui->algorithm_fcirwarning1lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirWarning_1));
-    //    ui->algorithm_fcirwarning2lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirWarning_2));
-    //    ui->algorithm_fcirwarning3lineEdit->setText(QString::number(tempconfig.value.algorithm_fCirWarning_3));
-    //    ui->algorithm_fcentercirgoodoffsetlineEdit->setText(QString::number(tempconfig.value.algorithm_fCenterCirGoodOffset));
-    //    ui->algorithm_fcentercirwarningoffsetlineEdit->setText(QString::number(tempconfig.value.algorithm_fCenterCirWarningOffset));
-    //    ui->algorithm_nbiggestraduislineEdit->setText(QString::number(tempconfig.value.algorithm_nBiggestRaduis,10));
-    //    ui->algorithm_nsmallestraduislineEdit->setText(QString::number(tempconfig.value.algorithm_nSmallestRaduis,10));
-    //    ui->algorithm_bolt_biggestarealineEdit->setText(QString::number(tempconfig.value.algorithm_Blot_BiggestArea,10));
-    //    ui->algorithm_bolt_smallestarealineEdit->setText(QString::number(tempconfig.value.algorithm_Blot_SmallestArea,10));
-    //    ui->algorithm_bolt_xyoffsetlineEdit->setText(QString::number(tempconfig.value.algorithm_Blot_xyOffset,10));
-    //    ui->algorithm_cir_smallestarealineEdit->setText(QString::number(tempconfig.value.algorithm_Cir_SmallestArea,10));
-    //    ui->algorithm_cir_xyoffsetlineEdit->setText(QString::number(tempconfig.value.algorithm_Cir_xyOffset,10));
-    //    ui->algorithm_cir_errflineEdit->setText(QString::number(tempconfig.value.algorithm_Cir_errf));
-    //    ui->algorithm_judge_xyoffsetlineEdit->setText(QString::number(tempconfig.value.algorithm_Judge_xyOffset,10));
-    //    ui->algorithm_speed_k1lineEdit->setText(QString::number(tempconfig.value.algorithm_Speed_k1));
-    //    ui->algorithm_speed_k2lineEdit->setText(QString::number(tempconfig.value.algorithm_Speed_k2));
-    //    ui->algorithm_speed_expandpixel1lineEdit->setText(QString::number(tempconfig.value.algorithm_Speed_ExpandPixel1,10));
-    //    ui->algorithm_speed_expandpixel2lineEdit->setText(QString::number(tempconfig.value.algorithm_Speed_ExpandPixel2,10));
-
 }
 
 void Widget::LoadRunConfig()
@@ -681,10 +648,39 @@ void Widget::ResetFtpBrowser()
 
 void Widget::SetupVideo()
 {
+    //set video img buffer queue
+    m_hBufQueue = new video_bufQueue(DEFAULT_IMG_HEIGHT*DEFAULT_IMG_WIDTH,5);
+
     videothread =new QThread;
-    h264video = new H264Video;
+    h264video = new H264Video(m_hBufQueue);
     h264video->moveToThread(videothread);
     connect(this,SIGNAL(videocontrol(int)),h264video,SLOT(H264VideoOpen(int)));
+    connect(h264video,&H264Video::getImage,this,[=](int index){
+        QImage img(DEFAULT_IMG_WIDTH,DEFAULT_IMG_HEIGHT,QImage::Format_Grayscale8);
+        auto ret = m_hBufQueue->bufOutput(img.bits());
+        if(ret)
+        {
+            if(index==VIDEO_SHOW_RUN)
+            {
+                if(SourceFlag==false)
+                    ui->run_videoinputwidget->setImage(img.scaledToHeight(ui->run_videoinputwidget->height()),1);
+                else
+                    emit getImage_Source(img,1);
+            }
+            else if(index==VIDEO_SHOW_CAMERA)
+            {
+                QImage tmp;
+                if(camera_videoinputwidget->ratio()>=1.778)
+                    tmp = img.scaledToHeight(camera_videoinputwidget->height());
+                else
+                    tmp = img.scaledToWidth(camera_videoinputwidget->width());
+                camera_videoinputwidget->setImage(tmp,0);
+                //ui->camera_2A_AEWeight_preWidget->setActiveRegion(tmp.size());
+            }
+        }
+        else
+            qDebug()<<"no img buf in queue";
+    });
     connect(h264video,SIGNAL(getImage_Camera(QImage)),this,SLOT(setVideoImage_Camera(QImage)));
     connect(h264video,SIGNAL(getImage_Run(QImage)),this,SLOT(setVideoImage_Run(QImage)));
     connect(h264video,SIGNAL(clearImage()),this,SLOT(clearVideoImage()));
@@ -1281,7 +1277,7 @@ void Widget::setVideoImage_Camera(QImage image)
         else
             temp =  image.scaledToWidth(camera_videoinputwidget->width());
         camera_videoinputwidget->setImage(temp,0);
-        ui->camera_2A_AEWeight_preWidget->setActiveRegion(temp.size());
+        //ui->camera_2A_AEWeight_preWidget->setActiveRegion(temp.size());
     }
 }
 
@@ -1418,11 +1414,15 @@ void Widget::algresultUpdate(QByteArray ba)
     {
         if(isRunOnScreen==true)
         {
+            qDebug()<<ba.count()<<config->getAlgResultSize();
+
             void* tempresult = (void*)malloc(config->getAlgResultSize());
             memcpy(tempresult,ba.data(),config->getAlgResultSize());
 
             rectNum = *(int *)((char*)tempresult+32);
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
+            int flag = *(int*)(tempresult+logSize);
+            qDebug()<<flag;
 
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
                 //           if(resultFile!=NULL)
@@ -1803,7 +1803,7 @@ void Widget::on_camera_2A_AEWeight_getButton_clicked()
 {
     EzCamH3AWeight weight;
     network->GetParams(NET_MSG_GET_2A_WEIGHT,&weight,sizeof(EzCamH3AWeight));
-    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
+//    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
     ui->camera_2A_AEWeight_width1lineEdit->setText(QString::number(weight.width1,10));
     ui->camera_2A_AEWeight_height1lineEdit->setText(QString::number(weight.height1,10));
     ui->camera_2A_AEWeight_h_start2lineEdit->setText(QString::number(weight.h_start2,10));
@@ -1838,15 +1838,15 @@ void Widget::on_camera_2A_AEWeight_uploadButton_clicked()
 
 void Widget::on_camera_2A_AEWeight_previewButton_clicked()
 {
-    EzCamH3AWeight weight;
-    weight.width1=ui->camera_2A_AEWeight_width1lineEdit->text().toInt();
-    weight.height1=ui->camera_2A_AEWeight_height1lineEdit->text().toInt();
-    weight.h_start2=ui->camera_2A_AEWeight_h_start2lineEdit->text().toInt();
-    weight.v_start2=ui->camera_2A_AEWeight_v_start2lineEdit->text().toInt();
-    weight.width2=ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
-    weight.height2=ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
-    weight.weight=ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
-    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
+//    EzCamH3AWeight weight;
+//    weight.width1=ui->camera_2A_AEWeight_width1lineEdit->text().toInt();
+//    weight.height1=ui->camera_2A_AEWeight_height1lineEdit->text().toInt();
+//    weight.h_start2=ui->camera_2A_AEWeight_h_start2lineEdit->text().toInt();
+//    weight.v_start2=ui->camera_2A_AEWeight_v_start2lineEdit->text().toInt();
+//    weight.width2=ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
+//    weight.height2=ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
+//    weight.weight=ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
+//    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
 }
 
 void Widget::on_LoginSpecifiedIPButton_clicked()
@@ -1871,13 +1871,13 @@ void Widget::on_LoginSpecifiedIPButton_clicked()
 
 void Widget::on_camera_2A_AEWeight_paintButton_clicked()
 {
-    if(ui->camera_2A_AEWeight_preWidget->currentMode()==MODE_CUSTOM)
-    {
-        ui->camera_2A_AEWeight_preWidget->editRecover();
-        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_DEFAULT);
-    }
-    else
-        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_CUSTOM);
+//    if(ui->camera_2A_AEWeight_preWidget->currentMode()==MODE_CUSTOM)
+//    {
+//        ui->camera_2A_AEWeight_preWidget->editRecover();
+//        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_DEFAULT);
+//    }
+//    else
+//        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_CUSTOM);
 }
 
 void Widget::getH3AWeight(EzCamH3AWeight cfg)
