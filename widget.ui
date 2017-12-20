@@ -594,7 +594,7 @@ background-color: rgba(0, 0, 0, 100);
 }</string>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="Run">
                <property name="styleSheet">
@@ -893,7 +893,7 @@ font:bold 13pt Arial;}
                       </widget>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="3,2">
+                      <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="3,2,0">
                        <property name="spacing">
                         <number>5</number>
                        </property>
@@ -969,6 +969,13 @@ font:bold 13pt Arial;}
                           </widget>
                          </item>
                         </layout>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="tempLabel">
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </item>
@@ -1525,7 +1532,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-left-
                        <enum>QTabWidget::West</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>1</number>
                       </property>
                       <widget class="QWidget" name="camera_settingNormal">
                        <attribute name="title">
@@ -3500,10 +3507,7 @@ QTabWidget::pane{background-color:rgba(0,0,0,0);border-style:outset;border-botto
                           </widget>
                          </item>
                          <item>
-                          <widget class="QWidget" name="camera_videoWidget" native="true">
-                           <zorder>camera_2A_AEWeight_preWidget</zorder>
-                           <zorder>camera_2A_AEWeight_preWidget</zorder>
-                          </widget>
+                          <widget class="QWidget" name="camera_videoWidget" native="true"/>
                          </item>
                          <item>
                           <widget class="QWidget" name="camera_videocontrol" native="true">

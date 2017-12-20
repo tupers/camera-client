@@ -1414,7 +1414,7 @@ void Widget::algresultUpdate(QByteArray ba)
     {
         if(isRunOnScreen==true)
         {
-            qDebug()<<ba.count()<<config->getAlgResultSize();
+            //qDebug()<<ba.count()<<config->getAlgResultSize();
 
             void* tempresult = (void*)malloc(config->getAlgResultSize());
             memcpy(tempresult,ba.data(),config->getAlgResultSize());
@@ -1422,7 +1422,7 @@ void Widget::algresultUpdate(QByteArray ba)
             rectNum = *(int *)((char*)tempresult+32);
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
             int flag = *(int*)(tempresult+logSize);
-            qDebug()<<flag;
+            ui->tempLabel->setText(QString("%1").arg(flag));
 
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
                 //           if(resultFile!=NULL)
@@ -1453,7 +1453,6 @@ void Widget::camera_2AmodecomboBox_Service(int index)
         ui->camera_pipegainSlider->setEnabled(true);
         ui->camera_sensorgainlineEdit->setEnabled(true);
         ui->camera_sensorgainSlider->setEnabled(true);
-
     }
     else
     {

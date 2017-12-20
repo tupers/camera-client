@@ -133,8 +133,8 @@ void H264Video::H264VideoPlay(int frameindex)
                             emit getImage(frameindex);
                         else
                         {
-                            QThread::msleep(1);
                             qDebug()<<"no enough empty buf in the list";
+                            QThread::msleep(1);
                         }
                     }
                     else
