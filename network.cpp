@@ -10,6 +10,23 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     LogTimer->setObjectName("Timer");
     ClientSocket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 
+    //heart beat
+#ifdef ENABLE_HEARTBEAT
+    m_tHeartBeat.setInterval(3000);
+    m_tHeartBeat.setSingleShot(false);
+    connect(&m_tHeartBeat,&QTimer::timeout,this,[=](){
+        bool isSend=false;
+        for(int i=0;i<HEARTBEAT_TIMEOUT;i++)
+            if(this->sendConfigToServer(NET_MSG_IDLE,1)==MSG_SOK)
+            {
+                isSend=true;
+                break;
+            }
+        if(!isSend)
+            ClientSocket->abort();
+    });
+#endif
+
     algResult = new resultService(this);
     connect(algResult,SIGNAL(resultData(QByteArray)),this,SIGNAL(sendAlgRsult(QByteArray)));
     connect(algResult,SIGNAL(sendToLog(QString)),this,SIGNAL(sendToLog(QString)));
@@ -61,7 +78,12 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     cameraSearchThread->start();
 
     connect(ClientSocket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(reportError(QAbstractSocket::SocketError)));
-    connect(ClientSocket,SIGNAL(disconnected()),this,SIGNAL(disconnectfromServer()));
+#ifdef ENABLE_HEARTBEAT
+    connect(ClientSocket,&QTcpSocket::disconnected,this,[=](){
+        m_tHeartBeat.stop();
+        emit disconnectfromServer();
+    });
+#endif
     connect(ClientSocket,SIGNAL(connected()),this,SLOT(LoginService()));
     connect(LogTimer,SIGNAL(timeout()),this,SLOT(LoginError()));
     QFileInfo ftemp(networkconfigpath);
@@ -239,6 +261,9 @@ void NetWork::LoginService()
         {
             ClientSocket->setSocketOption(QAbstractSocket::KeepAliveOption,1);
         }
+#ifdef ENABLE_HEARTBEAT
+        m_tHeartBeat.start();
+#endif
         emit loginSuccess(LogAuthority);
 
     }
@@ -246,7 +271,7 @@ void NetWork::LoginService()
         LoginError();
 }
 
-void NetWork::sendConfigToServer(_NET_MSG cmd , unsigned char val)
+int NetWork::sendConfigToServer(_NET_MSG cmd , unsigned char val)
 {
     NetMsg *msg;
     NetMsg *ackMsg;
@@ -274,10 +299,12 @@ void NetWork::sendConfigToServer(_NET_MSG cmd , unsigned char val)
 
         free(msg);
         free(ackMsg);
-        return;
+        return ret;
     }
     free(msg);
     free(ackMsg);
+
+    return ret;
 
 }
 
@@ -571,8 +598,8 @@ void NetWork::setSocketDebugMode()
     debuginfo.port = udpDebugRcv->socket()->localPort();
 
     QString addr = getLocalIP("本地连接");
-        if(addr==NULL)
-            addr = getLocalIP("以太网");
+    if(addr==NULL)
+        addr = getLocalIP("以太网");
     strcpy((char*)debuginfo.ip,addr.toLatin1().data());
 
     len = sizeof(NetMsg) + sizeof(DebugParams);

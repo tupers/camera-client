@@ -352,6 +352,21 @@ void ftp_service::readRemoteData()
 }
 
 /**
+ * @brief ftp_service::getType
+ * @param type
+ * @return
+ */
+QString ftp_service::getType(int type)
+{
+    if(type==DIR_TYPE)
+        return "Dir";
+    else if(type==FILE_TYPE)
+        return "File";
+    else
+        return "Unknown";
+}
+
+/**
  * @brief ftp_service::sendCMD
  * @param cmd
  * @param data

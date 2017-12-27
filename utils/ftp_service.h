@@ -121,6 +121,7 @@ public slots:
     bool list(){return list(m_strCurDir);}
     bool list(QString name);
     void readRemoteData();
+    static QString getType(int type);
 private:
     bool sendCMD(FTP_CMD cmd, void* data, int size);
     bool checkAccount();

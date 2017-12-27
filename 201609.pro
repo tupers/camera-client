@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     utils/algdebug.cpp \
     utils/network_service.cpp \
     utils/ftp_service.cpp \
-    utils/video_bufqueue.cpp
+    utils/video_bufqueue.cpp \
+    utils/video_core.cpp
 
 HEADERS  += widget.h \
     subwidget/serialport.h \
@@ -81,7 +82,8 @@ HEADERS  += widget.h \
     utils/algdebug.h \
     utils/network_service.h \
     utils/ftp_service.h \
-    utils/video_bufqueue.h
+    utils/video_bufqueue.h \
+    utils/video_core.h
 
 FORMS    += widget.ui \
     subwidget/serialport.ui \

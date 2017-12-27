@@ -424,7 +424,7 @@ void Widget::UpdateFtpList(QByteArray ba)
         ui->diagnostic_ftpbrowsertablewidget->insertRow(ui->diagnostic_ftpbrowsertablewidget->rowCount());
         ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,0,new QTableWidgetItem(QString(list->finfo[i].name)));
         ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,1,new QTableWidgetItem(QString::number(list->finfo[i].size,10)));
-        ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,2,new QTableWidgetItem(QString::number(list->finfo[i].type,10)));
+        ui->diagnostic_ftpbrowsertablewidget->setItem(ui->diagnostic_ftpbrowsertablewidget->rowCount()-1,2,new QTableWidgetItem(ftp_service::getType(list->finfo[i].type)));
     }
     free(list);
 }
@@ -1421,8 +1421,10 @@ void Widget::algresultUpdate(QByteArray ba)
 
             rectNum = *(int *)((char*)tempresult+32);
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
-            int flag = *(int*)(tempresult+logSize);
-            ui->tempLabel->setText(QString("%1").arg(flag));
+            int flag = *(int*)((char*)tempresult+logSize);
+            QString strFlag="";
+            flag==1?strFlag="BAUME":strFlag="SSZ";
+            ui->tempLabel->setText(strFlag);
 
             if(resultFile!=NULL&&(*(int*)((char*)tempresult+8))!=0)
                 //           if(resultFile!=NULL)

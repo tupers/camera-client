@@ -1,5 +1,16 @@
 #include "video_core.h"
 
+video_core::video_core(int num,video_bufQueue** bufQueue, QObject *parent)
+{
+    m_vecBufQueue.clear();
+    for(int i=0;i<num;i++)
+        m_vecBufQueue.push_back(bufQueue[i]);
+    m_tStopTimer.setInterval(5000);
+    m_tStopTimer.setSingleShot(true);
+    connect(this,&video_core::readyToClose,this,&video_core::videoClose);
+    connect(&m_tStopTimer,&QTimer::timeout,this,[=](){m_bState=VideoStatus_TERMINATE;});
+}
+
 void video_core::videoInit()
 {
     //ffmpeg init
@@ -60,12 +71,45 @@ bool video_core::getVideoInfo(QString url)
 
 void video_core::videoRun()
 {
-    while(m_bState)
+    while(m_bState==VideoStatus_OPEN)
     {
-        if(av_read_frame(m_pFormatContext,m_pPacket)>=0)
+        if(m_bContrl==VideoCrtl_PLAY)
         {
-
+            if(av_read_frame(m_pFormatContext,m_pPacket)>=0)
+            {
+                int ret = avcodec_send_packet(m_pCodecContext,m_pPacket);
+                if(ret!=0)
+                    continue;
+                while(avcodec_receive_frame(m_pCodecContext,m_pFrame)==0)
+                {
+                    sws_scale(m_pSwsContext,(const uint8_t* const *)m_pFrame->data,m_pFrame->linesize,0,m_pCodecContext->height,m_pFrameGrey->data,m_pFrameGrey->linesize);
+                    //QImage image(m_pFrameGrey->data[0],m_pCodecContext->width,m_pCodecContext->height,QImage::Format_Grayscale8);
+                    if(m_vecBufQueue.size())
+                    {
+                        auto ret = m_vecBufQueue[0]->bufInput(m_pFrameGrey->data[0]);
+                        if(ret)
+                            emit getImage();
+                        else
+                        {
+                            emit sendToLog("no enough empty buf in the list");
+                            QThread::msleep(1);
+                        }
+                    }
+                }
+            }
         }
+    }
+    emit readyToClose();
+}
+
+void video_core::videoControl(video_core::VideoCtrlCmd cmd)
+{
+    if(cmd==VideoCrtl_PLAY)
+        m_tStopTimer.stop();
+    else if(cmd==VideoCrtl_STOP)
+    {
+        m_tStopTimer.start();
+        emit sendToLog("Start video stop timer...");
     }
 }
 
@@ -82,4 +126,40 @@ void video_core::videoOpen(QString url)
     }
 
     emit sendToLog("ready to play");
+}
+
+void video_core::videoClose()
+{
+    avcodec_close(m_pCodecContext);
+    avformat_close_input(&m_pFormatContext);
+    if(m_pCodecContext!=NULL)
+    {
+        avcodec_free_context(&m_pCodecContext);
+        m_pCodecContext=NULL;
+    }
+    if(m_pPacket!=NULL)
+    {
+        av_packet_free(&m_pPacket);
+        m_pPacket=NULL;
+    }
+    if(m_pFrame!=NULL)
+    {
+        av_frame_free(&m_pFrame);
+        m_pFrame=NULL;
+    }
+    if(m_pFrameGrey!=NULL)
+    {
+        av_frame_free(&m_pFrameGrey);
+        m_pFrameGrey=NULL;
+    }
+    if(m_pFrameBuffer!=NULL)
+    {
+        av_free(m_pFrameBuffer);
+        m_pFrameBuffer=NULL;
+    }
+    if(m_pSwsContext!=NULL)
+    {
+        sws_freeContext(m_pSwsContext);
+        m_pSwsContext=NULL;
+    }
 }

@@ -84,7 +84,6 @@ public:
     void ResetAccount();
     //ftp
     void ResetFtpBrowser();
-
     void VideoCMD(H264Video*,int);
 private:
     Ui::Widget *ui;

@@ -14,6 +14,8 @@
 #include "resultservice.h"
 #include "utils/ftp_service.h"
 
+#define ENABLE_HEARTBEAT
+
 class NetWork : public QObject
 {
     Q_OBJECT
@@ -73,7 +75,7 @@ public slots:
     bool GetUser(get_userdata_t *userinfo);
     bool GetParams(enum _NET_MSG,void*,int);
     bool AddUser(QString,QString,int);
-    void sendConfigToServer(enum _NET_MSG,unsigned char);
+    int sendConfigToServer(enum _NET_MSG,unsigned char);
     void sendConfigToServer(_NET_MSG, unsigned char,unsigned char);
     void sendConfigToServer(_NET_MSG, void*,int );
     int getConfigFromSever(enum _NET_MSG,void *,int size=1);
@@ -94,6 +96,10 @@ public slots:
     void ftp_refresh();
     QString ftp_curDir(){return m_hFtp->getCurrentDir();}
 private:
+    //heart beat
+    QTimer m_tHeartBeat;
+#define HEARTBEAT_TIMEOUT   2
+    //
     QTcpSocket *ClientSocket;
     resultService *algResult;
     QTimer *LogTimer=NULL;
