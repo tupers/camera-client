@@ -13,10 +13,6 @@ resultService::resultService(QObject *parent) : QObject(parent)
     retryTimer.setSingleShot(false);
     connect(&retryTimer,SIGNAL(timeout()),this,SLOT(retryConnection()));
 
-    readTimer.setInterval(500);
-    readTimer.setSingleShot(false);
-    connect(&readTimer,SIGNAL(timeout()),this,SIGNAL(resultTimeout()));
-
 }
 
 void resultService::connectSocket(QString ip, int port)

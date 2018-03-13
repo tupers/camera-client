@@ -36,6 +36,7 @@
 #include "firmwareupdate.h"
 #include "multiimagewidget.h"
 #include "utils/algdebug.h"
+#include "utils/video_core.h"
 
 #define MARGIN_L 50
 #define MARGIN_S 5
@@ -58,20 +59,20 @@ public:
     ~Widget();
     void InitGUI();
     void SetupAttachedWindow();
-    void SetupList();//åˆå§‹åŒ–èœå•
-    void SetupMouseEvent();//åˆå§‹åŒ–é¼ æ ‡äº‹ä»¶
+    void SetupList();//??å§???????
+    void SetupMouseEvent();//??å§???é¼???äº?ä»?
     void SetupNetwork();
     void SetupLog();
     void SetupVideo();
 
     void SetupRun();
-    void SetupOptions();//åˆå§‹åŒ–optionsç•Œé¢
-    void SetupCalibrate();//åˆå§‹åŒ–Calibrateç•Œé¢
+    void SetupOptions();//??å§???options????
+    void SetupCalibrate();//??å§???Calibrate????
     void SetupInformations();
     void SetupConnection();
     void SetupAccount();
 
-    void UpdateConfigFile();//æ›´æ–°é…ç½®æ–‡ä»¶ç›®å½•
+    void UpdateConfigFile();//?´æ?°é??ç½®æ??ä»¶ç?®å?
     void LoadFullConfig();
     void LoadCalibrateConfig();
     void LoadRunConfig();
@@ -87,8 +88,8 @@ public:
     void VideoCMD(H264Video*,int);
 private:
     Ui::Widget *ui;
-    int countFlag(QPoint,int);//é¼ æ ‡åŒºåŸŸ
-    int countRow(QPoint);//é¼ æ ‡åŒºåŸŸ
+    int countFlag(QPoint,int);//é¼????ºå??
+    int countRow(QPoint);//é¼????ºå??
     QListWidgetItem* addListItem(QString,QListWidget*,QIcon icon);
     void freeListItem(QListWidgetItem*);
     QListWidgetItem* item_Calibrate;
@@ -104,6 +105,7 @@ private:
     QThread *videothread;
     QThread *ftpthread;
     H264Video *h264video;
+    video_core *m_hVideo;
     SourceVideo *SourceVideoWidget=NULL;
     bool SourceFlag=false;
     QImage RunVideoImage;
@@ -214,6 +216,8 @@ private slots:
     void on_algorithm_setdefaultButton_clicked();
     void resultLog(int);
     void on_diagnostic_local_loadButton_clicked();
+
+    void on_diagnostic_deleteButton_clicked();
 
 signals:
     void SubWindow_Init();

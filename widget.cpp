@@ -184,11 +184,11 @@ void Widget::SetupOptions()
     connect(network,&NetWork::ftp_receiveFileList,this,[=](QByteArray ba){
         UpdateFtpList(ba);
     });
+
     connect(network,&NetWork::ftp_receiveData,this,&Widget::saveFtpData);
-    connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
-        emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
-        emit network->ftp_list();
-    });
+//    connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
+//        emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
+//    });
     ui->diagnostic_ftpbrowsertablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->diagnostic_ftpbrowsertablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->diagnostic_ftpbrowsertablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -653,7 +653,9 @@ void Widget::SetupVideo()
 
     videothread =new QThread;
     h264video = new H264Video(m_hBufQueue);
+    //m_hVideo = new m_hVideo(1,&m_hBufQueue);
     h264video->moveToThread(videothread);
+    //m_hVideo->moveToThread(videothread);
     connect(this,SIGNAL(videocontrol(int)),h264video,SLOT(H264VideoOpen(int)));
     connect(h264video,&H264Video::getImage,this,[=](int index){
         QImage img(DEFAULT_IMG_WIDTH,DEFAULT_IMG_HEIGHT,QImage::Format_Grayscale8);
@@ -1284,6 +1286,19 @@ void Widget::setVideoImage_Camera(QImage image)
 void Widget::on_camera_videocontrolButton_clicked()
 {
     VideoCMD(h264video,VIDEO_SHOW_CAMERA);
+    QImage img(DEFAULT_IMG_WIDTH,DEFAULT_IMG_HEIGHT,QImage::Format_RGB888);
+    img.fill(QColor(0,0,0));
+    QPainter painter(&img);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    QPen pen = painter.pen();
+    pen.setColor(Qt::white);
+    QFont font = painter.font();
+    font.setBold(true);
+    font.setPixelSize(18);
+    painter.setPen(pen);
+    painter.setFont(font);
+    painter.drawText(img.width()/2,img.height()/2,"Loading");
+    ui->run_videoinputwidget->setImage(img.scaledToHeight(ui->run_videoinputwidget->height()),1);
 }
 
 void Widget::clearVideoImage()
@@ -1303,6 +1318,7 @@ void Widget::clearVideoImage()
 void Widget::on_run_videocontrolButton_clicked()
 {
     VideoCMD(h264video,VIDEO_SHOW_RUN);
+
 }
 
 void Widget::on_run_videosourceButton_clicked()
@@ -1421,7 +1437,7 @@ void Widget::algresultUpdate(QByteArray ba)
 
             rectNum = *(int *)((char*)tempresult+32);
             logSize = config->getAlgResultSize() - (8*(50 - rectNum));
-            int flag = *(int*)((char*)tempresult+logSize);
+            int flag = *(int*)(tempresult+logSize);
             QString strFlag="";
             flag==1?strFlag="BAUME":strFlag="SSZ";
             ui->tempLabel->setText(strFlag);
@@ -1692,16 +1708,18 @@ void Widget::on_button_Reboot_clicked()
 
 void Widget::on_diagnostic_downloadButton_clicked()
 {
-    //    ftpfile.FilePath=ui->diagnostic_dirLineEdit->text();
-    //    if(ftpfile.FilePath=="")
-    //    {
-    //        qDebug()<<"invalid file path";
-    //        return;
-    //    }
-    //    //   emit network->getFtp(ftpfile.ftpFileName);
-    //    QString dir = ftpfile.FilePath+"/"+ftpfile.ftpFileName+".jpg";
-    //    //    qDebug()<<dir<<ftpPreView->byteCount();
-    //    ftpPreView->save(dir);
+    QString dir = ui->diagnostic_dirLineEdit->text();
+    QString filename = ui->diagnostic_itemnamecurrentLabel->text();
+    if(dir==""||filename=="")
+    {
+        qDebug()<<"invalid file path or invalid file name";
+        return;
+    }
+    QImage img_save = *ftpPreView;
+    if(!img_save.save(dir+"/"+filename+".jpg"))
+        qDebug()<<"save failed";
+    else
+        qDebug()<<"save successfully";
 
 }
 
@@ -1711,7 +1729,8 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &inde
         {
             QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
             ui->diagnostic_itemnamecurrentLabel->setText(name);
-            if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt()==1)
+
+            if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text()=="File")
             {
                 ui->diagnostic_previewWidget->clearImage(0);
                 ui->diagnostic_errorvalueLabel->clear();
@@ -1751,7 +1770,7 @@ void Widget::on_diagnostic_ftpbrowsertablewidget_doubleClicked(const QModelIndex
             emit network->ftp_list(dir);
         }
     }
-    else if(0==ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text().toInt())
+    else if("Dir"==ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text())
     {
         dir.append("/");
         dir.append(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text());
@@ -1947,4 +1966,9 @@ void Widget::on_diagnostic_local_loadButton_clicked()
     //        {
     m_hLocalAlgDebug->loadLocalImage("G:/20171020_142823_sensor.jpg");
     //        }
+}
+
+void Widget::on_diagnostic_deleteButton_clicked()
+{
+    emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
 }

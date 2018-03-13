@@ -15,6 +15,7 @@ public:
     qreal getHRatio(){return HRatio;}
     qreal getVRatio(){return VRatio;}
     QSize getSize(){return imgSize;}
+    const QImage getImage(){return img;}
 protected:
     void paintEvent(QPaintEvent * event);
 private:

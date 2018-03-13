@@ -7,7 +7,7 @@ video_core::video_core(int num,video_bufQueue** bufQueue, QObject *parent)
         m_vecBufQueue.push_back(bufQueue[i]);
     m_tStopTimer.setInterval(5000);
     m_tStopTimer.setSingleShot(true);
-    connect(this,&video_core::readyToClose,this,&video_core::videoClose);
+    //connect(this,&video_core::readyToClose,this,&video_core::videoClose);
     connect(&m_tStopTimer,&QTimer::timeout,this,[=](){m_bState=VideoStatus_TERMINATE;});
 }
 
@@ -22,6 +22,24 @@ void video_core::videoInit()
     m_pPacket = av_packet_alloc();
     m_pCodecContext = avcodec_alloc_context3(NULL);
 
+}
+
+void video_core::videoPlay(QString url)
+{
+    //check and close old url
+    videoClose();
+    //init
+    videoInit();
+    //open
+    if(!videoOpen(url))
+        return;
+    //after open init status
+    m_bState=VideoStatus_OPEN;
+    m_bContrl=VideoCrtl_PLAY;
+    //run
+    videoRun();
+    //close
+    videoClose();
 }
 
 bool video_core::getVideoInfo(QString url)
@@ -66,6 +84,12 @@ bool video_core::getVideoInfo(QString url)
     //fill sws context
     m_pSwsContext = sws_getContext(m_pCodecContext->width,m_pCodecContext->height,m_pCodecContext->pix_fmt,m_pCodecContext->width,m_pCodecContext->height,AV_PIX_FMT_GRAY8,SWS_BICUBIC,0,0,0);
 
+    //check buf queue
+    for(video_bufQueue* buf:m_vecBufQueue)
+    {
+        if(buf->getBufSize()<(m_pCodecContext->width*m_pCodecContext->height))
+            emit sendToLog("bufQueue size is smaller than image size, data may lost.");
+    }
     return true;
 }
 
@@ -84,22 +108,25 @@ void video_core::videoRun()
                 {
                     sws_scale(m_pSwsContext,(const uint8_t* const *)m_pFrame->data,m_pFrame->linesize,0,m_pCodecContext->height,m_pFrameGrey->data,m_pFrameGrey->linesize);
                     //QImage image(m_pFrameGrey->data[0],m_pCodecContext->width,m_pCodecContext->height,QImage::Format_Grayscale8);
-                    if(m_vecBufQueue.size())
+                    int size = m_vecBufQueue.size();
+                    if(size)
                     {
-                        auto ret = m_vecBufQueue[0]->bufInput(m_pFrameGrey->data[0]);
-                        if(ret)
-                            emit getImage();
-                        else
+                        for(int i=0;i<size;i++)
                         {
-                            emit sendToLog("no enough empty buf in the list");
-                            QThread::msleep(1);
+                            auto ret = m_vecBufQueue[i]->bufInput(m_pFrameGrey->data[0]);
+                            if(ret)
+                                emit getImage(m_vecBufQueue[i]);
+                            else
+                            {
+                                emit sendToLog(QString("no enough empty buf [%1] in the list").arg(i));
+                                QThread::msleep(1);
+                            }
                         }
                     }
                 }
             }
         }
     }
-    emit readyToClose();
 }
 
 void video_core::videoControl(video_core::VideoCtrlCmd cmd)
@@ -113,23 +140,35 @@ void video_core::videoControl(video_core::VideoCtrlCmd cmd)
     }
 }
 
-void video_core::videoOpen(QString url)
+void video_core::videoChangeStatus()
+{
+    auto status = getVideoStatus();
+    status==VideoCrtl_PLAY?status=VideoCrtl_STOP:status=VideoCrtl_PLAY;
+    videoControl(status);
+}
+
+bool video_core::videoOpen(QString url)
 {
     if(!getVideoInfo(url))
-        return;
+        return false;
 
     //open codec
     if(avcodec_open2(m_pCodecContext,m_pCodec,NULL)<0)
     {
         emit sendToLog("open decoder failed");
-        return;
+        return false;
     }
 
     emit sendToLog("ready to play");
+    return true;
 }
 
 void video_core::videoClose()
 {
+    //If no steam is on , return.
+    if(!m_bIsInit)
+        return;
+
     avcodec_close(m_pCodecContext);
     avformat_close_input(&m_pFormatContext);
     if(m_pCodecContext!=NULL)
@@ -162,4 +201,7 @@ void video_core::videoClose()
         sws_freeContext(m_pSwsContext);
         m_pSwsContext=NULL;
     }
+
+    m_bIsInit=false;
+    emit sendToLog("steam closed.");
 }

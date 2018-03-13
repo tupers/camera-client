@@ -21,7 +21,7 @@ class video_core : public QObject
 {
     Q_OBJECT
 public:
-    explicit video_core(int num=0,video_bufQueue** bufQueue=NULL,QObject *parent = nullptr);
+    explicit video_core(int num=0,video_bufQueue** bufQueue=NULL, QObject *parent=nullptr);
     typedef enum
     {
         VideoCrtl_PLAY=0,
@@ -32,11 +32,19 @@ public:
         VideoStatus_OPEN=0,
         VideoStatus_TERMINATE
     }VideoStatusCmd;
+    void videoPlay(QString url);
+    void videoControl(VideoCtrlCmd cmd);
+    void videoChangeStatus();
+    void videoClose();
+    VideoCtrlCmd getVideoStatus(){return m_bContrl;}
+    int addBufQueue(video_bufQueue* buf){m_vecBufQueue.push_back(buf);return m_vecBufQueue.size();}
+    video_bufQueue* removeBufQueue(unsigned int idx){if(idx>=m_vecBufQueue.size())return NULL;auto buf = m_vecBufQueue[idx];removeBufQueue(buf);return buf;}
+    int removeBufQueue(video_bufQueue* buf){auto iter = find(m_vecBufQueue.begin(),m_vecBufQueue.end(),buf);if(iter!=m_vecBufQueue.end())m_vecBufQueue.erase(iter);return m_vecBufQueue.size();}
 private:
     void videoInit();
     bool getVideoInfo(QString url);
     void videoRun();
-    void videoControl(VideoCtrlCmd cmd);
+    bool videoOpen(QString url);
 
     std::vector<video_bufQueue*> m_vecBufQueue;
     QTimer m_tStopTimer;
@@ -55,14 +63,13 @@ private:
     VideoStatusCmd m_bState=VideoStatus_TERMINATE;
     VideoCtrlCmd m_bContrl=VideoCrtl_STOP;
 
+    bool m_bIsInit=false;
+
 signals:
     void sendToLog(QString);
-    void getImage();
-    void readyToClose();
-public slots:
-    void videoOpen(QString url);
-private slots:
-    void videoClose();
+    void getImage(video_bufQueue* buf);
+    //void readyToClose();
+
 
 };
 

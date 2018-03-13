@@ -16,7 +16,6 @@ public:
 signals:
     void resultData(QByteArray ba);
     void sendToLog(QString);
-    void resultTimeout();
 public slots:
     void readData();
     void connectSuccessfully();
@@ -29,7 +28,6 @@ private:
     int hostPort;
     bool isRun=false;
     QTimer retryTimer;
-    QTimer readTimer;
 };
 
 #endif // RESULTSERVICE_H

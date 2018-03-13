@@ -20,7 +20,7 @@
 
 /*Video Control Command*/
 #define VIDEO_TERMINATE     -1
-//#define VIDEO_          0
+
 #define VIDEO_SHOW_CAMERA   1
 #define VIDEO_SHOW_RUN      2
 /***********************/

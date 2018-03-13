@@ -16,6 +16,8 @@ public:
     void init(int buf_size,int buf_num);
     int bufInput(const uchar*data);
     int bufOutput(uchar*data);
+    int getBufSize(){return m_nBufSize;}
+    int getBufNum(){return m_nBufNum;}
 private:
     void freeBuf();
     void allocBuf(int buf_size,int buf_num);

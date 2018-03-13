@@ -28,8 +28,7 @@ void ftp_service::initFtp()
         if(checkAccount())
         {
             emit sendToLog("connected.open data server");
-            //if(!m_hdataServer->listen(QHostAddress(m_strRemoteIP),0))
-            if(!m_hdataServer->listen(QHostAddress::Any,0))
+            if(m_hdataServer->listen(QHostAddress::Any,0)==false)
             {
                 closeFtp();
                 emit sendToLog("listen falied");
@@ -159,6 +158,7 @@ void ftp_service::closeFtp()
 bool ftp_service::del(QString name)
 {
     //check status
+    emit sendToLog("ftp service delete");
     if(m_eStatus!=FTP_CONNECTED)
     {
         emit sendToLog("ftp service has no connection");
@@ -173,6 +173,7 @@ bool ftp_service::del(QString name)
     }
 
     //pack data
+    name = m_strCurDir+"/"+ name;
     FTP_File data;
     strcpy(data.filepath,name.toLatin1().data());
 

@@ -95,6 +95,15 @@ void MultiImageWidget::clearImage(int index)
 
 }
 
+const QImage MultiImageWidget::getImage(int index)
+{
+    QImage nullImage;
+    if(index>=imgCnt)
+        return nullImage;
+    ImageWidget* temp = (ImageWidget*)mainLayout->widget(index);
+    return temp->getImage();
+}
+
 void MultiImageWidget::resizeEvent(QResizeEvent *event)
 {
     widgetHeight = event->size().height();

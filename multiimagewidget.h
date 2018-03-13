@@ -27,6 +27,7 @@ public:
     void setImageVisible(bool,int);
     void clearImage(int);
     qreal ratio(){return (qreal)widgetWidth/(qreal)widgetHeight;}
+    const QImage getImage(int index);
 signals:
 
 public slots:
