@@ -186,9 +186,9 @@ void Widget::SetupOptions()
     });
 
     connect(network,&NetWork::ftp_receiveData,this,&Widget::saveFtpData);
-//    connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
-//        emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
-//    });
+    //    connect(ui->diagnostic_deleteButton,&QPushButton::clicked,this,[=](){
+    //        emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
+    //    });
     ui->diagnostic_ftpbrowsertablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->diagnostic_ftpbrowsertablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->diagnostic_ftpbrowsertablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -429,7 +429,7 @@ void Widget::UpdateFtpList(QByteArray ba)
     free(list);
 }
 
-void Widget::saveFtpData(QByteArray data)//20170119, è§£æžä¿å­˜æ–‡ä»¶
+void Widget::saveFtpData(QByteArray data)//20170119, è§£æ??ä¿?å­???ä»?
 {
     EzImgFrameHeader header;
     memcpy(&header,data.data(),sizeof(EzImgFrameHeader));
@@ -1046,7 +1046,7 @@ void Widget::on_button_minsize_clicked()
 void Widget::on_LoginButton_clicked()
 {
     //
-    //è¿žæŽ¥è´¦æˆ·æœåŠ¡å™¨
+    //è¿??¥è´¦?·æ???¡å??
     //
     if(ui->LoginSpecifiedIPlineEdit->text()!="")
     {
@@ -1238,7 +1238,7 @@ void Widget::ConnectionLost()
     if(ui->Accountlist->currentIndex()==1)
     {
         //
-        //ç™»å‡ºå¤„ç†å†…å®¹:å…³é—­è§†é¢‘æµ
+        //?»å?ºå?????å®??³é?­è?é¢?æµ?
         //
         VideoCMD(h264video,VIDEO_TERMINATE);
         //close ftp
@@ -1725,18 +1725,18 @@ void Widget::on_diagnostic_downloadButton_clicked()
 
 void Widget::on_diagnostic_ftpbrowsertablewidget_clicked(const QModelIndex &index)
 {
-        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
-        {
-            QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
-            ui->diagnostic_itemnamecurrentLabel->setText(name);
+    if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text()!="...")
+    {
+        QString name = ui->diagnostic_ftpbrowsertablewidget->item(index.row(),0)->text();
+        ui->diagnostic_itemnamecurrentLabel->setText(name);
 
-            if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text()=="File")
-            {
-                ui->diagnostic_previewWidget->clearImage(0);
-                ui->diagnostic_errorvalueLabel->clear();
-                emit network->ftp_get(name);
-            }
+        if(ui->diagnostic_ftpbrowsertablewidget->item(index.row(),2)->text()=="File")
+        {
+            ui->diagnostic_previewWidget->clearImage(0);
+            ui->diagnostic_errorvalueLabel->clear();
+            emit network->ftp_get(name);
         }
+    }
 }
 
 void Widget::on_diagnostic_dirButton_clicked()
@@ -1823,7 +1823,7 @@ void Widget::on_camera_2A_AEWeight_getButton_clicked()
 {
     EzCamH3AWeight weight;
     network->GetParams(NET_MSG_GET_2A_WEIGHT,&weight,sizeof(EzCamH3AWeight));
-//    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
+    //    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
     ui->camera_2A_AEWeight_width1lineEdit->setText(QString::number(weight.width1,10));
     ui->camera_2A_AEWeight_height1lineEdit->setText(QString::number(weight.height1,10));
     ui->camera_2A_AEWeight_h_start2lineEdit->setText(QString::number(weight.h_start2,10));
@@ -1858,15 +1858,15 @@ void Widget::on_camera_2A_AEWeight_uploadButton_clicked()
 
 void Widget::on_camera_2A_AEWeight_previewButton_clicked()
 {
-//    EzCamH3AWeight weight;
-//    weight.width1=ui->camera_2A_AEWeight_width1lineEdit->text().toInt();
-//    weight.height1=ui->camera_2A_AEWeight_height1lineEdit->text().toInt();
-//    weight.h_start2=ui->camera_2A_AEWeight_h_start2lineEdit->text().toInt();
-//    weight.v_start2=ui->camera_2A_AEWeight_v_start2lineEdit->text().toInt();
-//    weight.width2=ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
-//    weight.height2=ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
-//    weight.weight=ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
-//    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
+    //    EzCamH3AWeight weight;
+    //    weight.width1=ui->camera_2A_AEWeight_width1lineEdit->text().toInt();
+    //    weight.height1=ui->camera_2A_AEWeight_height1lineEdit->text().toInt();
+    //    weight.h_start2=ui->camera_2A_AEWeight_h_start2lineEdit->text().toInt();
+    //    weight.v_start2=ui->camera_2A_AEWeight_v_start2lineEdit->text().toInt();
+    //    weight.width2=ui->camera_2A_AEWeight_width2lineEdit->text().toInt();
+    //    weight.height2=ui->camera_2A_AEWeight_height2lineEdit->text().toInt();
+    //    weight.weight=ui->camera_2A_AEWeight_weightlineEdit->text().toInt();
+    //    ui->camera_2A_AEWeight_preWidget->weightReflash(weight);
 }
 
 void Widget::on_LoginSpecifiedIPButton_clicked()
@@ -1891,13 +1891,13 @@ void Widget::on_LoginSpecifiedIPButton_clicked()
 
 void Widget::on_camera_2A_AEWeight_paintButton_clicked()
 {
-//    if(ui->camera_2A_AEWeight_preWidget->currentMode()==MODE_CUSTOM)
-//    {
-//        ui->camera_2A_AEWeight_preWidget->editRecover();
-//        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_DEFAULT);
-//    }
-//    else
-//        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_CUSTOM);
+    //    if(ui->camera_2A_AEWeight_preWidget->currentMode()==MODE_CUSTOM)
+    //    {
+    //        ui->camera_2A_AEWeight_preWidget->editRecover();
+    //        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_DEFAULT);
+    //    }
+    //    else
+    //        ui->camera_2A_AEWeight_preWidget->changeMode(MODE_CUSTOM);
 }
 
 void Widget::getH3AWeight(EzCamH3AWeight cfg)
@@ -1961,14 +1961,22 @@ void Widget::on_diagnostic_local_loadButton_clicked()
 {
     network->ftp_refresh();
 
-    //        QString dstName = QFileDialog::getOpenFileName(this,tr("Open file"),"/home",tr("Allfile(*.*)"),Q_NULLPTR,QFileDialog::DontResolveSymlinks) ;
-    //        if(dstName!="")
-    //        {
-    m_hLocalAlgDebug->loadLocalImage("G:/20171020_142823_sensor.jpg");
-    //        }
+    QString dstName = QFileDialog::getOpenFileName(this,tr("Open file"),"/home",tr("Allfile(*.*)"),Q_NULLPTR,QFileDialog::DontResolveSymlinks) ;
+    if(dstName!="")
+    {
+        m_hLocalAlgDebug->loadLocalImage(dstName);
+    }
 }
 
 void Widget::on_diagnostic_deleteButton_clicked()
 {
     emit network->ftp_del(ui->diagnostic_itemnamecurrentLabel->text());
+}
+
+void Widget::on_diagnostic_saveErrImgCheckBox_stateChanged(int stat)
+{
+    if(stat == 0)
+        network->sendConfigToServer(NET_MSG_IMGALG_DISABLE_SAVE_ERRIMG,0);
+    else if(stat == 2)
+        network->sendConfigToServer(NET_MSG_IMGALG_SAVE_ERRIMG,0);
 }

@@ -251,5 +251,3 @@ void H264Video::H264VideoTimeout()
     emit clearImage();
 
 }
-
-

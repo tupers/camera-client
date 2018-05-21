@@ -16,15 +16,15 @@ NetWork::NetWork(QObject *parent) : QObject(parent)
     m_tHeartBeat.setSingleShot(false);
     connect(&m_tHeartBeat,&QTimer::timeout,this,[=](){
         this->sendConfigToServer(NET_MSG_IDLE,1);
-//        bool isSend=false;
-//        for(int i=0;i<HEARTBEAT_TIMEOUT;i++)
-//            if(this->sendConfigToServer(NET_MSG_IDLE,1)==MSG_SOK)
-//            {
-//                isSend=true;
-//                break;
-//            }
-//        if(!isSend)
-//            ClientSocket->abort();
+        bool isSend=false;
+        for(int i=0;i<HEARTBEAT_TIMEOUT;i++)
+            if(this->sendConfigToServer(NET_MSG_IDLE,1)==MSG_SOK)
+            {
+                isSend=true;
+                break;
+            }
+        if(!isSend)
+            ClientSocket->abort();
     });
 #endif
 

@@ -219,6 +219,8 @@ private slots:
 
     void on_diagnostic_deleteButton_clicked();
 
+    void on_diagnostic_saveErrImgCheckBox_stateChanged(int arg1);
+
 signals:
     void SubWindow_Init();
     void testsignal();
